@@ -1,0 +1,79 @@
+# Rendered at container start by nginx's envsubst entrypoint, which substitutes
+# only names that are actually in the environment — so ${CSP_CONNECT_SRC} is
+# replaced while nginx's own $uri is left alone.
+#
+# Security headers live in a snippet repeated per location on purpose. nginx's
+# add_header is not additive across levels: the moment a location sets one of
+# its own, it stops inheriting the server block entirely. The first cut of this
+# file set Cache-Control inside `location = /index.html`, which silently dropped
+# every security header from the page every visitor loads.
+#
+# The CSP is deliberately strict where it can be and honest where it cannot:
+#   script-src 'self'    — the build emits no inline script at all, so this
+#                          needs no hash and no 'unsafe-inline'.
+#   style-src  'unsafe-inline' — unavoidable. CSS is injected by the bundle
+#                          rather than linked, React writes style attributes,
+#                          and GSAP animates inline styles frame by frame.
+#   connect-src          — must list the API origin, which is a build arg. It
+#                          comes from CSP_CONNECT_SRC so the two cannot drift.
+#   frame-ancestors      — the real clickjacking control; X-Frame-Options is
+#                          kept alongside it for older agents.
+
+server {
+    listen       80;
+    server_name  _;
+    root         /usr/share/nginx/html;
+    index        index.html;
+
+    gzip              on;
+    gzip_vary         on;
+    gzip_min_length   1024;
+    gzip_types        text/plain text/css application/javascript application/json
+                      image/svg+xml application/xml;
+
+    # Vite fingerprints every build asset.
+    location ^~ /assets/ {
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options        "SAMEORIGIN" always;
+        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
+        add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
+        add_header Cache-Control          "public, immutable, max-age=31536000" always;
+        try_files  $uri =404;
+    }
+
+    # A crawler asking for a file that is not there must get a miss, not the
+    # app shell. Without this the SPA fallback answers /sitemap.xml with a 200
+    # of HTML, which parses to nothing and reads as an empty sitemap rather
+    # than a missing one — and the same for every feed or asset URL guessed.
+    location ~* \.(js|css|xml|txt|json|map|ico|png|jpg|jpeg|svg|webp|avif|woff2?|ttf|mp4|webm|pdf)$ {
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options        "SAMEORIGIN" always;
+        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
+        add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
+        add_header Cache-Control          "public, max-age=3600" always;
+        try_files  $uri =404;
+    }
+
+    # The API is a separate origin (published on 8010); nothing here serves it.
+    # Without this rule /api/* has no extension, so it falls through to the SPA
+    # and a request for JSON comes back as a 200 of HTML — the failure mode that
+    # is hardest to read. Fail as a miss instead. To make the site same-origin
+    # instead, proxy_pass here and rebuild with REACT_APP_BACKEND_URL empty.
+    location /api/ {
+        return 404;
+    }
+
+    # Client-side routing: everything else is a React route, served the shell.
+    # index.html carries the asset hashes, so it must not be cached.
+    location / {
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options        "SAMEORIGIN" always;
+        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
+        add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
+        add_header Cache-Control          "no-cache, must-revalidate" always;
+        try_files $uri $uri/ /index.html;
+    }
+}

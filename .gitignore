@@ -1,0 +1,89 @@
+# ── Environment files (never commit, even when values are safe) ───────────
+.env
+.env.*
+!.env.example
+# Docker template: no values, and a teammate needs it to start the stack.
+!.env.docker.example
+
+# ── Dependencies ──────────────────────────────────────────────────────────
+node_modules/
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# ── Build outputs ─────────────────────────────────────────────────────────
+/build
+frontend/build/
+dist/
+/out/
+/.next/
+
+# ── Caches ────────────────────────────────────────────────────────────────
+.cache/
+frontend/node_modules/.cache/
+*.eslintcache
+
+# ── Testing ───────────────────────────────────────────────────────────────
+.pytest_cache/
+/coverage
+
+# ── Logs ─────────────────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dump.rdb
+
+# ── Credentials & secrets ─────────────────────────────────────────────────
+*token.json*
+*credentials.json*
+*.pem
+memory/test_credentials.md
+
+# ── System files ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+.idea/
+
+# ── Archive & binary assets ───────────────────────────────────────────────
+**/*.zip
+**/*.tar.gz
+**/*.tar
+**/*.tgz
+*.pack
+*.deb
+*.dylib
+
+# ── TypeScript ────────────────────────────────────────────────────────────
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Deployment ───────────────────────────────────────────────────────────
+.vercel
+
+# ── Dev tools ────────────────────────────────────────────────────────────
+chainlit.md
+.chainlit
+.ipynb_checkpoints/
+
+# local dev server log
+.devserver.log
+.dev.log
+.build.log
+.serve.log
+.backend.log

@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mirrors the Emergent build's index.css: Tailwind + design tokens + base
+   rules only. Every component class (buttons, panels, chips, typography,
+   reveal, marquee, textures) is owned by App.css — keep it that way so the
+   two stylesheets can't drift or fight over specificity. */
+
+@layer base {
+  :root {
+    --background: 45 33% 82%;
+    --foreground: 180 9% 15%;
+    --card: 47 36% 95%;
+    --card-foreground: 180 9% 15%;
+    --popover: 47 36% 95%;
+    --popover-foreground: 180 9% 15%;
+    --primary: 180 9% 15%;
+    --primary-foreground: 47 36% 95%;
+    --secondary: 45 25% 88%;
+    --secondary-foreground: 180 9% 15%;
+    --muted: 45 20% 76%;
+    --muted-foreground: 180 6% 32%;
+    --accent: 32 88% 54%;
+    --accent-foreground: 180 9% 12%;
+    --destructive: 12 79% 52%;
+    --destructive-foreground: 47 36% 95%;
+    --border: 44 15% 65%;
+    --input: 44 15% 65%;
+    --ring: 32 88% 54%;
+    --chart-1: 32 88% 54%;
+    --chart-2: 12 79% 52%;
+    --chart-3: 180 9% 15%;
+    --chart-4: 45 33% 82%;
+    --chart-5: 47 36% 95%;
+    --radius: 1.1rem;
+
+    /* hiAnzy raw tokens */
+    --paper: #E0D8C1;
+    --ink: #232A2A;
+    --orange: #F19020;
+    --signal: #E54A25;
+    --black: #000000;
+    --white-d: #F7F5EE;
+    --panel-dark: #1D2424;
+  }
+
+  .dark {
+    --background: 180 9% 10%;
+    --foreground: 47 36% 95%;
+    --card: 180 9% 15%;
+    --card-foreground: 47 36% 95%;
+    --popover: 180 9% 15%;
+    --popover-foreground: 47 36% 95%;
+    --primary: 47 36% 95%;
+    --primary-foreground: 180 9% 15%;
+    --secondary: 180 9% 18%;
+    --secondary-foreground: 47 36% 95%;
+    --muted: 180 9% 18%;
+    --muted-foreground: 45 15% 70%;
+    --accent: 32 88% 54%;
+    --accent-foreground: 180 9% 12%;
+    --destructive: 12 79% 52%;
+    --destructive-foreground: 47 36% 95%;
+    --border: 180 6% 26%;
+    --input: 180 6% 26%;
+    --ring: 32 88% 54%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-editorial);
+}

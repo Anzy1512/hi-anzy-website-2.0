@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#E0D8C1" />
+    <meta name="description" content="hiAnzy: Business Systems & Transformation Consultancy." />
+    <!-- Fonts are self-hosted (public/fonts.css + public/fonts/*.woff2) — this
+         used to be two links out to fonts.googleapis.com/fonts.gstatic.com,
+         which cost a DNS + TLS round trip before a single glyph could paint.
+         A plain <link>, not a src/ import: CRA's css-loader resolves a bare
+         url(/fonts/...) inside an imported stylesheet as a webpack module
+         path and fails the build, not a browser URL. See
+         scripts/fetch-fonts.py to regenerate if the weight list changes. -->
+    <link rel="stylesheet" href="/fonts.css" />
+    <!-- Runs before first paint so a night-mode visitor never sees a paper
+         flash. External, not inline: the CSP is script-src 'self' with no
+         unsafe-inline, and an inline block is refused. -->
+    <script src="/theme-boot.js"></script>
+    <title>hiAnzy | From ABC to ROI</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,308 @@
+/* Night mode — the hand-written half.
+ *
+ * dark.generated.css remaps the ~82 Tailwind arbitrary-value utilities that
+ * carry the palette. This file handles what a generator cannot infer: the
+ * named component classes, the CSS custom properties, and the handful of
+ * places where night mode is not a colour swap but a different decision.
+ *
+ * Load order matters — this must come after dark.generated.css so a
+ * deliberate component rule wins over a mechanical utility remap.
+ *
+ * Design intent: this is a *night* mode, not an inversion. The brand is warm
+ * paper and ink; at night it becomes warm-black and bone, keeping the same
+ * amber accent and the same one-accent discipline. It is not a different
+ * brand with the lights off.
+ */
+
+:root[data-theme="dark"] {
+  /* Accent variants flip which ground they are compensating for. */
+  --orange-on-paper: #FFA94D;
+  --signal-on-paper: #FF7A52;
+  --orange-on-dark: #FFA94D;
+  --signal-on-dark: #FF7A52;
+
+  --nav-fg: #E9E7E0;
+  --nav-fg-dim: rgba(233, 231, 224, 0.78);
+  --nav-bg: rgba(18, 23, 23, 0.86);
+  --nav-border: rgba(233, 231, 224, 0.12);
+  --nav-chip-border: rgba(233, 231, 224, 0.26);
+
+  color-scheme: dark;
+}
+
+/* The ground itself. Explicit on <body> because the page composites over
+   whatever the host paints behind it. */
+:root[data-theme="dark"] body {
+  background: #121717;
+  color: #E9E7E0;
+}
+
+/* ── Panels ────────────────────────────────────────────────────────────────
+   In daylight, .panel-dark is the inverted section — dark on paper. At night
+   the ground is already dark, so an unchanged panel-dark would vanish into
+   it. It lifts instead, keeping the same figure/ground relationship the
+   design intended rather than the same colour. */
+:root[data-theme="dark"] .panel-dark {
+  background: #222A2A;
+  border-color: rgba(233, 231, 224, 0.10);
+}
+:root[data-theme="dark"] .panel-paper {
+  background: #1A2020;
+  border-color: rgba(233, 231, 224, 0.12);
+}
+:root[data-theme="dark"] .cap-tile {
+  background: #1A2020;
+  border-color: rgba(233, 231, 224, 0.12);
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] .nav-shell {
+  background: var(--nav-bg);
+  border-color: var(--nav-border);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+/* btn-ink is "dark button on light page". At night that reads as a hole, so
+   it inverts to a light button — the emphasis is what carries over, not the
+   colour. btn-orange is already the accent and needs nothing. */
+:root[data-theme="dark"] .btn-ink {
+  background: #E9E7E0;
+  color: #121717;
+  border-color: rgba(233, 231, 224, 0.28);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="dark"] .btn-ink:hover {
+  background: #FFFFFF;
+}
+:root[data-theme="dark"] .btn-paper {
+  background: #1A2020;
+  color: #E9E7E0;
+  border-color: rgba(233, 231, 224, 0.3);
+}
+:root[data-theme="dark"] .btn-orange {
+  color: #121717;
+}
+/* The sheen is a white wipe; on a light button at night that is invisible,
+   and on dark surfaces it needs pulling back. */
+:root[data-theme="dark"] .btn-ink::after {
+  background: linear-gradient(100deg, transparent 32%, rgba(18, 23, 23, 0.18) 50%, transparent 68%);
+}
+:root[data-theme="dark"] .btn-paper::after,
+:root[data-theme="dark"] .btn-orange::after {
+  background: linear-gradient(100deg, transparent 32%, rgba(255, 255, 255, 0.14) 50%, transparent 68%);
+}
+
+/* ── Command palette ─────────────────────────────────────────────────────── */
+:root[data-theme="dark"] .cmdk-backdrop { background: rgba(8, 11, 11, 0.66); }
+:root[data-theme="dark"] .cmdk-panel {
+  background: #1A2020;
+  border-color: rgba(233, 231, 224, 0.18);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="dark"] .cmdk-field { border-bottom-color: rgba(233, 231, 224, 0.14); }
+:root[data-theme="dark"] .cmdk-input { color: #E9E7E0; }
+:root[data-theme="dark"] .cmdk-input::placeholder { color: rgba(233, 231, 224, 0.42); }
+:root[data-theme="dark"] .cmdk-search-icon { color: rgba(233, 231, 224, 0.5); }
+:root[data-theme="dark"] .cmdk-row-label { color: #E9E7E0; }
+:root[data-theme="dark"] .cmdk-row-hint { color: rgba(233, 231, 224, 0.5); }
+:root[data-theme="dark"] .cmdk-row-group {
+  color: rgba(233, 231, 224, 0.45);
+  border-color: rgba(233, 231, 224, 0.18);
+}
+:root[data-theme="dark"] .cmdk-row.is-active { background: rgba(255, 169, 77, 0.16); }
+:root[data-theme="dark"] .cmdk-empty { color: rgba(233, 231, 224, 0.72); }
+:root[data-theme="dark"] .cmdk-foot {
+  color: rgba(233, 231, 224, 0.5);
+  border-top-color: rgba(233, 231, 224, 0.12);
+}
+:root[data-theme="dark"] .cmdk-kbd {
+  color: rgba(233, 231, 224, 0.6);
+  background: rgba(233, 231, 224, 0.08);
+  border-color: rgba(233, 231, 224, 0.16);
+}
+:root[data-theme="dark"] .cmdk-trigger {
+  border-color: rgba(233, 231, 224, 0.24);
+  color: rgba(233, 231, 224, 0.66);
+}
+:root[data-theme="dark"] .cmdk-trigger:hover { color: #E9E7E0; }
+
+/* ── Accordions, rules, misc surfaces ────────────────────────────────────── */
+:root[data-theme="dark"] .faq-item,
+:root[data-theme="dark"] .trust-item {
+  background: rgba(233, 231, 224, 0.03);
+  border-color: rgba(233, 231, 224, 0.12);
+}
+/* The package builder's open-category background is the same construction as
+   .trust-item[open] above — a half-opaque paper wash, written as a literal
+   rgba() in App.css rather than a Tailwind bg-[...] utility, so the generator
+   never sees it to remap. Composited over the night ground it lands as the
+   same mid-grey mud .scroll-info-card was fixed for, and every chip label
+   sitting on it (already flipped light, expecting a dark ground under it)
+   reads at well under 2:1. The base, closed state uses bg-[#F7F5EE]/45 — a
+   real utility — which the generator does reach correctly; only the [open]
+   state, added on top as a plain CSS rule, was missed. */
+:root[data-theme="dark"] .builder-group[open] {
+  background: rgba(233, 231, 224, 0.05);
+  border-color: rgba(255, 169, 77, 0.5);
+}
+/* Same construction again: FitQuadrant's three plain cells are
+   rgba(247,245,238,0.5) — half-opaque paper, hardcoded in App.css. Their
+   text-[#232A2A] labels are real Tailwind utilities, so the generator does
+   correctly flip those to light; without this, the light text lands on the
+   same mid-grey mud the background composites to. :not(.fit-cell--good)
+   because the fourth cell is deliberately an always-dark panel with
+   permanently light text (bg-[#232A2A]/0.9, text-[#F7F5EE]) and needs no
+   remap — a plain `.fit-cell` override here would outrank its own rule and
+   flatten the one cell the diagram is building up to. */
+:root[data-theme="dark"] .fit-cell:not(.fit-cell--good) {
+  background: rgba(233, 231, 224, 0.05);
+  border-color: rgba(233, 231, 224, 0.14);
+}
+:root[data-theme="dark"] .skip-link {
+  background: #E9E7E0;
+  color: #121717;
+}
+:root[data-theme="dark"] .site-footer { background: #0E1313; }
+
+/* ── Texture ─────────────────────────────────────────────────────────────── */
+/* The halftone is ink dots meant to read on paper. On a dark ground the same
+   dots disappear, so the field becomes light at a much lower alpha — the
+   texture survives without turning into visible noise. */
+:root[data-theme="dark"] .halftone-static {
+  /* Raised alongside the light-mode nudge, by a smaller step: light dots on a
+     dark ground read stronger per unit of alpha. */
+  background-image: radial-gradient(rgba(233, 231, 224, 0.075) 1.2px, transparent 1.4px);
+}
+
+/* Photographic and collage art was prepared for a paper ground; at full
+   strength it glares against a dark page. A small knock-back is enough. */
+:root[data-theme="dark"] .cutout-img img,
+:root[data-theme="dark"] .scrap img,
+:root[data-theme="dark"] .float-el img {
+  filter: brightness(0.86) contrast(1.04);
+}
+
+/* ── Text sitting on an accent surface ───────────────────────────────────── */
+/* The generator keys off the utility prefix, which encodes "is this a
+   foreground or a background" but not "what is directly behind it". A chip
+   written `bg-[#F19020] text-[#232A2A]` is ink on amber, and amber does not
+   change at night — so its label must stay dark or it lands at 1.94:1.
+   Two classes on one element outrank the generated single-class rule. */
+:root[data-theme="dark"] .bg-\[\#F19020\].text-\[\#232A2A\],
+:root[data-theme="dark"] .bg-\[\#E54A25\].text-\[\#232A2A\],
+:root[data-theme="dark"] .bg-\[\#F19020\] .text-\[\#232A2A\],
+:root[data-theme="dark"] .btn-orange,
+:root[data-theme="dark"] .btn-orange * {
+  color: #121717 !important;
+}
+
+/* ── Named component colours the generator cannot see ────────────────────── */
+:root[data-theme="dark"] .section-connector-label {
+  color: rgba(233, 231, 224, 0.8);
+}
+:root[data-theme="dark"] .case-spine-label {
+  color: rgba(233, 231, 224, 0.82);
+}
+:root[data-theme="dark"] .case-spine-index {
+  color: rgba(233, 231, 224, 0.55);
+}
+
+/* A half-opaque paper card. Left alone it composites to a mid-grey mud over
+   the night ground and drags every label on it under 2.2:1. */
+:root[data-theme="dark"] .scroll-info-card {
+  background: rgba(233, 231, 224, 0.05);
+  border-color: rgba(233, 231, 224, 0.12);
+}
+
+/* The WebGL node labels are drei <Html> divs with an inline colour, so neither
+   a utility remap nor an SVG attribute selector reaches them. In daylight they
+   sit on a light plate the canvas draws; at night that plate is dark and ink
+   text on it measures 1:1 — invisible. */
+:root[data-theme="dark"] [data-scene-label] {
+  color: #E9E7E0 !important;
+}
+
+/* ── Deck motifs: illustrations, not text-on-background ─────────────────────
+   dark.generated.css's SVG rule keys purely on the attribute — every
+   fill="#232A2A" site-wide gets treated as ink text on the page and flipped
+   light, because for most of those sites (HandsSpark, QuestionOrbit — ink
+   drawn straight onto the page ground) that is exactly right. InboxUnfold and
+   LensFocus are different: their ink sits on a paper-coloured CARD shape
+   (fill="#F7F5EE") that the generator correctly leaves alone (already light,
+   reads on either ground) — so flipping only the ink on top of it produces
+   light text on a paper card that never got dark. Measured: #E9E7E0 on
+   #F7F5EE is 1.05:1, effectively invisible; the "AUDIT" stage bar (ink on
+   the orange fill, not a paper card) reads fine, which is why only some of
+   InboxUnfold's own labels were affected and not all of them.
+
+   The fix is not a better hex — it's that this one picture is a self-
+   contained object, the same call already made for the WhatWeDo collage.
+   Scoped by the motif's own data-testid, not a shared class, because
+   HandsSpark and QuestionOrbit still want the ink-on-page flip; locking
+   `.motif-poster` broadly would fix these two and break those two the
+   same way. */
+[data-theme="dark"] [data-testid="motif-inbox-unfold-svg"] [fill="#232A2A"],
+[data-theme="dark"] [data-testid="motif-lens-focus-svg"] [fill="#232A2A"] {
+  fill: #232A2A;
+}
+[data-theme="dark"] [data-testid="motif-inbox-unfold-svg"] [stroke="#232A2A"],
+[data-theme="dark"] [data-testid="motif-lens-focus-svg"] [stroke="#232A2A"] {
+  stroke: #232A2A;
+}
+[data-theme="dark"] [data-testid="motif-inbox-unfold-svg"] [fill="#D6CCB2"] {
+  fill: #D6CCB2;
+}
+[data-theme="dark"] [data-testid="motif-inbox-unfold-svg"] [fill="#E0D8C1"] {
+  fill: #E0D8C1;
+}
+
+/* ConstellationFallback's "hiAnzy" label sits on the orange hub circle, which
+   keeps its hue in dark mode (an accent fill, not page text) — but the ink
+   label on it gets the same site-wide flip and ends up light-on-orange:
+   measured ~1.9:1, under WCAG AA, where the ink original was ~8:1. This is
+   the exact "text on the accent stays dark" rule dark.css already enforces
+   for Tailwind's bg-[#F19020] utility (below) — that rule cannot reach an
+   inline SVG fill attribute, so it needs its own line here. */
+[data-theme="dark"] [data-testid="network-constellation-fallback"] [fill="#232A2A"] {
+  fill: #232A2A;
+}
+
+/* ── Toggle ──────────────────────────────────────────────────────────────── */
+/* Small on purpose. The brief asked for a very small button, and a theme
+   switch is a preference control, not a call to action — it should be
+   findable, not prominent. 28px visible, with a 44px hit area carried on a
+   pseudo-element so the target still clears WCAG 2.5.8 without the ink
+   growing to match. */
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  border: 1px solid var(--nav-chip-border, rgba(35, 42, 42, 0.25));
+  background: none;
+  color: var(--nav-fg-dim, rgba(35, 42, 42, 0.8));
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+.theme-toggle:hover {
+  color: var(--nav-fg, #232A2A);
+  border-color: var(--orange, #F19020);
+}
+.theme-toggle svg { width: 14px; height: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle { transition: none; }
+}

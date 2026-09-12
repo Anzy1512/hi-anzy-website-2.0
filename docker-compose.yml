@@ -1,0 +1,92 @@
+# hiAnzy, containerised.
+#
+# Runs alongside the local dev servers rather than replacing them: the frontend
+# is published on 8080 and the API on 8010, both clear of 3000 (Open WebUI),
+# 3001 (the CRA dev server) and 8001 (the local uvicorn).
+#
+# Every published port is bound to 127.0.0.1 so nothing here is reachable from
+# the network. Mongo is not published at all — only the API talks to it, over
+# the compose network.
+#
+#   docker compose up -d --build
+#   docker compose logs -f
+#   docker compose down
+#
+# Secrets: this file reads from the environment and never contains values.
+# Copy .env.docker.example to .env and fill it in; compose picks .env up
+# automatically and .env is gitignored.
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: hianzy-mongo
+    restart: unless-stopped
+    # Deliberately not published. Reaching it is `docker compose exec mongo`.
+    expose:
+      - "27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks: [hianzy]
+
+  api:
+    build:
+      context: ./backend
+    container_name: hianzy-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      DB_NAME: ${DB_NAME:-hianzy}
+      # The browser calls the API from the site's origin, so that origin is
+      # what has to be allowed — not the API's own.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      CONTACT_NOTIFY_EMAIL: ${CONTACT_NOTIFY_EMAIL:-}
+    ports:
+      - "127.0.0.1:8010:8000"
+    networks: [hianzy]
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        # Vite inlines env vars at build time, so these are build args rather
+        # than runtime environment. Changing them means rebuilding the image.
+        SITE_URL: ${SITE_URL:-http://localhost:8080}
+        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-http://localhost:8010}
+    environment:
+      # Origins the page is allowed to call, appended to the CSP's connect-src.
+      # Defaults to the API this compose file publishes; set it to the real API
+      # origin when deploying, or the browser will block every request.
+      CSP_CONNECT_SRC: ${CSP_CONNECT_SRC:-${REACT_APP_BACKEND_URL:-http://localhost:8010}}
+    container_name: hianzy-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8080:80"
+    networks: [hianzy]
+
+volumes:
+  mongo-data:
+
+networks:
+  hianzy:
+    driver: bridge

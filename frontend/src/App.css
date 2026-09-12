@@ -1,0 +1,2243 @@
+/* ============ hiAnzy - Analog Intelligence global styles ============ */
+/* Typography system (locked): Rajdhani = System Voice · Newsreader = Human Voice (serif) */
+
+:root {
+  --font-system: "Rajdhani", "Arial Narrow", system-ui, sans-serif;
+  --font-editorial: "Newsreader", Georgia, "Times New Roman", serif;
+  /* Figtree stays fetched (fetch-fonts.py) purely as this stack's fallback --
+     nothing sets it as a primary face anymore. */
+  --font-pun: "Amaranth", "Figtree", sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-system);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  /* Every big heading on the site wraps at a width nobody chose — a manual
+     <br> sets where a two-line headline breaks, but whatever remains after
+     it still wraps by the browser's default greedy algorithm, which happily
+     strands a single word ("...Make it grow." -> "grow." alone) on its own
+     line. balance re-distributes those trailing words evenly instead. */
+  text-wrap: balance;
+}
+.font-accent {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+}
+.font-editorial {
+  font-family: var(--font-editorial);
+}
+/* small technical annotations — Rajdhani, spaced (no third font in the system) */
+.font-mono-sys {
+  font-family: var(--font-system);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+}
+
+/* marker-highlight — hand-swiped underlay */
+.hl-marker {
+  background-image: linear-gradient(104deg, rgba(241, 144, 32, 0) 0.9%, rgba(241, 144, 32, 0.42) 2.4%, rgba(241, 144, 32, 0.34) 50%, rgba(241, 144, 32, 0.44) 97.5%, rgba(241, 144, 32, 0) 99%);
+  border-radius: 4px;
+  padding: 0 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* A highlighter that gets drawn rather than being simply present. Hooked to
+   the existing reveal observer instead of a scroll ticker, so it behaves the
+   same whether or not the animation frame loop is running. */
+.hl-marker-draw {
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 0% 100%;
+  transition: background-size 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+.reveal.is-visible .hl-marker-draw,
+.reveal.is-visible.hl-marker-draw {
+  background-size: 100% 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hl-marker-draw { transition: none; background-size: 100% 100%; }
+}
+
+.hl-marker-red {
+  background-image: linear-gradient(104deg, rgba(229, 74, 37, 0) 0.9%, rgba(229, 74, 37, 0.32) 2.4%, rgba(229, 74, 37, 0.26) 50%, rgba(229, 74, 37, 0.34) 97.5%, rgba(229, 74, 37, 0) 99%);
+  border-radius: 4px;
+  padding: 0 0.12em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* sticker tagline — slightly rotated, human */
+.sticker {
+  display: inline-block;
+  transform: rotate(-1.6deg);
+  background: var(--ink);
+  color: var(--white-d);
+  padding: 0.18em 0.55em;
+  border-radius: 8px;
+  box-shadow: 3px 4px 0 rgba(241, 144, 32, 0.9);
+}
+.sticker-orange {
+  display: inline-block;
+  transform: rotate(1.2deg);
+  background: var(--orange);
+  color: var(--ink);
+  padding: 0.18em 0.55em;
+  border-radius: 8px;
+  box-shadow: 3px 4px 0 rgba(35, 42, 42, 0.85);
+}
+
+/* hero headline line reveal */
+.hero-line {
+  display: block;
+  overflow: hidden;
+}
+.hero-line > span {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* nav logo micro-interaction */
+.nav-logo-img {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+a:hover .nav-logo-img {
+  transform: rotate(-2deg) scale(1.04);
+}
+
+/* native select, brand-styled */
+.select-native {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(35, 42, 42, 0.3);
+  background-color: var(--white-d);
+  padding: 0 2.4rem 0 0.85rem;
+  font-size: 14px;
+  color: var(--ink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23232A2A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  cursor: pointer;
+}
+/* Skip link. Off-screen rather than display:none, because a hidden element is
+   not focusable and the whole point is that Tab reaches it first. */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: var(--ink, #232A2A);
+  color: var(--white-d, #F7F5EE);
+  font-family: var(--font-system);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  transition: top 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.skip-link:focus {
+  top: 12px;
+}
+/* main takes focus from the skip link but must never show a ring of its own */
+main:focus {
+  outline: none;
+}
+
+.select-native:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+.select-native:invalid,
+.select-native option[value=""] {
+  color: rgba(35, 42, 42, 0.5);
+}
+
+/* Paper grain overlay — sits above content, below nav */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--white-d);
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- Halftone static fallback (deck texture, no motion) ---------- */
+.halftone-static {
+  /* Nudged up from 0.09. Deliberately a small step: the dots should register
+     as paper texture, not resolve into a visible grid. */
+  background-image: radial-gradient(rgba(35, 42, 42, 0.115) 1.2px, transparent 1.4px);
+  background-size: 24px 24px;
+}
+
+/* ---------- Marketing puns & quotes voice (Amaranth) ---------- */
+.font-pun {
+  font-family: var(--font-pun);
+}
+
+/* Pop-up marketing pun stickers — springy pop-in via the shared reveal observer */
+.reveal.pun-sticker {
+  opacity: 0;
+  transform: scale(0.55) rotate(var(--rot, -2deg));
+  transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.reveal.pun-sticker.is-visible {
+  opacity: 1;
+  transform: scale(1) rotate(var(--rot, -2deg));
+}
+.pun-sticker-inner {
+  animation: punBob 5.5s ease-in-out infinite;
+}
+@keyframes punBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+/* Animated dotted route between pun stickers */
+.pun-connector {
+  height: 3px;
+  background-image: linear-gradient(90deg, rgba(241, 144, 32, 0.55) 0 6px, transparent 6px 14px);
+  background-size: 14px 3px;
+  background-repeat: repeat-x;
+  animation: dotsMarch 1.4s linear infinite;
+}
+@keyframes dotsMarch {
+  to { background-position-x: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pun-sticker-inner { animation: none; }
+  .pun-connector { animation: none; }
+  .reveal.pun-sticker { opacity: 1; transform: none; }
+}
+
+/* Pressed feedback. Only reaches buttons that have no inline transform —
+   MagneticButton composes the press scale into its own transform instead,
+   because an inline style outranks this rule the moment the pointer moves. */
+.btn-ink:active,
+.btn-paper:active,
+.btn-orange:active {
+  transform: scale(0.97);
+}
+.btn-ink,
+.btn-paper,
+.btn-orange {
+  transition-property: box-shadow, background-color, filter, transform;
+  transition-duration: 0.25s;
+}
+
+/* ---------- CTA hover-text: per-character reveal ---------- */
+/* The hoverText layer ("Good start.", "Meet the minds.") used to swap in as
+   one block, translating 110% and fading as a unit. Splitting it into spans
+   with a stagger — each character delayed by its own index — reads as the
+   copy arriving rather than being swapped, which is the one idea worth
+   keeping from a much louder reference: no colour change, no blur beyond a
+   soft 3px, no overshoot. currentColor throughout, so it inherits whatever
+   ground the button itself is already on (ink, paper or orange).
+   `children` (often text plus an icon) is deliberately left on the old
+   whole-block swap — a per-character split only makes sense on plain text. */
+.btn-char-row {
+  gap: 0;
+}
+.btn-char {
+  display: inline-block;
+  transform: translateY(55%);
+  opacity: 0;
+  filter: blur(3px);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.3s ease,
+              filter 0.34s ease;
+  transition-delay: calc(var(--i, 0) * 14ms);
+}
+[data-hover="true"] .btn-char {
+  transform: translateY(0);
+  opacity: 1;
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-char {
+    transition: none;
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* ---------- Button motion ---------- */
+/* Three additions, all of which stay off `transform` on the button itself,
+   because MagneticButton owns that property and an inline style would win. */
+
+/* 1. A sheen that crosses the face on hover. The button gets a stacking
+      context and clips it; the hover-text swap already has its own clip. */
+.btn-ink,
+.btn-paper,
+.btn-orange {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-ink::after,
+.btn-paper::after,
+.btn-orange::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.26) 50%,
+    transparent 68%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-paper::after {
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    rgba(241, 144, 32, 0.22) 50%,
+    transparent 68%
+  );
+}
+.btn-ink:hover::after,
+.btn-paper:hover::after,
+.btn-orange:hover::after,
+.btn-ink:focus-visible::after,
+.btn-paper:focus-visible::after,
+.btn-orange:focus-visible::after {
+  transform: translateX(120%);
+}
+
+/* 2. The arrow leans toward where it is about to take you. */
+.btn-ink svg,
+.btn-paper svg,
+.btn-orange svg,
+.link-draw svg {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-ink:hover svg,
+.btn-paper:hover svg,
+.btn-orange:hover svg,
+.btn-ink:focus-visible svg,
+.btn-paper:focus-visible svg,
+.btn-orange:focus-visible svg,
+.link-draw:hover svg,
+.link-draw:focus-visible svg {
+  transform: translateX(4px);
+}
+
+/* 3. The ring a click leaves behind. GSAP scales and fades it from the point
+      that was pressed; this only describes what it looks like. */
+.btn-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-ink::after,
+  .btn-paper::after,
+  .btn-orange::after,
+  .btn-ink svg,
+  .btn-paper svg,
+  .btn-orange svg,
+  .link-draw svg {
+    transition: none;
+  }
+  .btn-ink:hover::after,
+  .btn-paper:hover::after,
+  .btn-orange:hover::after {
+    transform: translateX(-120%);
+  }
+  .btn-pulse {
+    display: none;
+  }
+}
+
+/* ---------- Reveal (intersection) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Link underline that draws in ---------- */
+.link-draw {
+  font-family: var(--font-system);
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  background-image: linear-gradient(var(--orange), var(--orange));
+  background-size: 0% 2px;
+  background-repeat: no-repeat;
+  background-position: left 100%;
+  transition: background-size 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  padding-bottom: 2px;
+}
+.link-draw:hover,
+.link-draw:focus-visible {
+  background-size: 100% 2px;
+}
+
+/* ---------- Buttons ---------- */
+/* :where() so this contributes no specificity. These are single-class
+   component selectors living after Tailwind's utilities, so a plain
+   `display: inline-flex` here outranked `.hidden` on source order and a button
+   marked `hidden sm:inline-flex` stayed on screen below the breakpoint.
+   Raising `.hidden` instead would have beaten `sm:inline-flex` as well and
+   hidden the button everywhere — the fix belongs on this side. */
+:where(.btn-ink, .btn-paper, .btn-orange) {
+  display: inline-flex;
+}
+
+.btn-ink {
+  white-space: nowrap;
+  background: var(--ink);
+  color: var(--white-d);
+  border-radius: 12px;
+  padding: 0.8rem 1.6rem;
+  font-family: var(--font-system);
+  font-weight: 600;
+  font-size: 16.5px;
+  letter-spacing: 0.02em;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+.btn-ink:hover {
+  background: #000;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+}
+.btn-paper {
+  white-space: nowrap;
+  background: var(--white-d);
+  color: var(--ink);
+  border: 1px solid rgba(35, 42, 42, 0.32);
+  border-radius: 12px;
+  padding: 0.8rem 1.6rem;
+  font-family: var(--font-system);
+  font-weight: 600;
+  font-size: 16.5px;
+  letter-spacing: 0.02em;
+  align-items: center;
+  gap: 0.5rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.btn-paper:hover {
+  border-color: var(--orange);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+.btn-orange {
+  white-space: nowrap;
+  background: var(--orange);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 0.8rem 1.6rem;
+  font-family: var(--font-system);
+  font-weight: 600;
+  font-size: 16.5px;
+  letter-spacing: 0.02em;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 24px rgba(241, 144, 32, 0.3);
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
+}
+.btn-orange:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 14px 30px rgba(241, 144, 32, 0.42);
+}
+
+/* ---------- Panels ---------- */
+.panel-dark {
+  background: var(--panel-dark);
+  color: var(--white-d);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+.panel-paper {
+  background: var(--white-d);
+  border: 1px solid rgba(35, 42, 42, 0.16);
+  border-radius: 18px;
+}
+.stage-nav-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.stage-nav-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 0% 0%, rgba(241, 144, 32, 0.14), transparent 58%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.stage-nav-card::after {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 0;
+  height: 3px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(90deg, var(--orange), rgba(241, 144, 32, 0.2));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stage-nav-card > * {
+  position: relative;
+  z-index: 1;
+}
+.stage-nav-card:hover,
+.stage-nav-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--orange);
+  box-shadow: 0 14px 28px rgba(35, 42, 42, 0.12);
+}
+.stage-nav-card:hover::before,
+.stage-nav-card:focus-visible::before,
+.stage-nav-card:hover::after,
+.stage-nav-card:focus-visible::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+.stage-nav-number,
+.stage-nav-arrow {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s ease;
+}
+.stage-nav-card:hover .stage-nav-number,
+.stage-nav-card:focus-visible .stage-nav-number {
+  transform: translateX(2px);
+}
+.stage-nav-card:hover .stage-nav-arrow,
+.stage-nav-card:focus-visible .stage-nav-arrow {
+  color: var(--orange);
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-nav-card,
+  .stage-nav-card::before,
+  .stage-nav-card::after,
+  .stage-nav-number,
+  .stage-nav-arrow {
+    transition: none;
+  }
+  .stage-nav-card:hover,
+  .stage-nav-card:focus-visible {
+    transform: none;
+  }
+}
+
+/* ---------- Mono system chip ---------- */
+.sys-chip {
+  font-family: var(--font-system);
+  font-weight: 600;
+  font-size: 13.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* The brand mark is lower-camel by design ("hiAnzy"). Chips and kickers are
+   set in uppercase, which would render it "HIANZY", so the mark opts out of
+   the transform while the label around it stays uppercase. */
+.brand-mark {
+  text-transform: none;
+}
+
+/* Scroll-snap carousels (CardCarousel): the track scrolls, but the
+   scrollbar itself is a rail the arrows/drag already stand in for. */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Shared spacing tokens & container system ---------- */
+:root {
+  --page-x: clamp(16px, 4vw, 64px);
+  --section-y: clamp(64px, 8.5vw, 128px);
+  --section-y-lg: clamp(96px, 11vw, 152px);
+}
+.container-page {
+  max-width: calc(1360px + var(--rail-w));
+  margin-inline: auto;
+  padding-inline: var(--page-x);
+  /* Must follow padding-inline, which would otherwise reset it. The rail is
+     fixed-position, so without this reserved column it would sit on the text. */
+  padding-left: calc(var(--page-x) + var(--rail-w));
+}
+.section-pad {
+  padding-block: var(--section-y);
+}
+.section-pad-b {
+  padding-bottom: var(--section-y);
+}
+.section-pad-t {
+  padding-top: var(--section-y);
+}
+
+/* Two stacked section bands each contribute a full rhythm unit, so every
+   boundary between them measured ~244px where the rhythm is ~122px. The
+   preceding block's bottom padding already does the separating, so the
+   follower drops its top padding.
+
+   Excluded: any section that paints its own band (a background, a panel).
+   There the top padding is not spacing between sections — it is the inset
+   that keeps content off the edge of the colour, and removing it would crop
+   the block rather than tighten the page. */
+/* Only collapses between two PLAIN sections — the selector used to check
+   only the second section's own classes, so a plain section landed with
+   zero top padding even when the section before it was a full-bleed colored
+   panel (bg-[#1D2424], bg-[#D8CFB4]/60). A hard color-block edge is a strong
+   visual event; it needs the section's own top padding as breathing room on
+   the far side, not less than the panel's internal bottom padding already
+   gave it. Measured on Home: "HOW TRUST GETS BUILT" sat 26px below the dark
+   network panel's edge instead of the intended ~122px section-y gap. */
+.section-pad:not([class*="bg-"]):not(.panel-dark):not(.panel-paper) + .section-pad:not([class*="bg-"]):not(.panel-dark):not(.panel-paper),
+.section-pad-b:not([class*="bg-"]):not(.panel-dark):not(.panel-paper) + .section-pad:not([class*="bg-"]):not(.panel-dark):not(.panel-paper) {
+  padding-top: 0;
+}
+
+/* ---------- Floating motion characters ---------- */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(-12px) rotate(var(--rot, 0deg)); }
+}
+.float-el {
+  animation: float-y 5.6s ease-in-out infinite;
+  will-change: transform;
+}
+.scrap {
+  background: #E7DFC9;
+  border: 1px solid rgba(35, 42, 42, 0.14);
+  border-radius: 14px;
+  box-shadow: 5px 7px 0 rgba(35, 42, 42, 0.16);
+  overflow: hidden;
+}
+.scrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.char-card {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+.char-card:hover {
+  transform: translateY(-8px) rotate(-1.2deg);
+  box-shadow: 8px 12px 0 rgba(241, 144, 32, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-el { animation: none; }
+}
+
+/* red intervention bar */
+.red-bar {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  background: var(--signal);
+  border-radius: 2px;
+}
+
+/* ---------- Diagnostic scanning line ---------- */
+@keyframes scanline {
+  0% { transform: translateY(0); opacity: 0; }
+  8% { opacity: 0.85; }
+  92% { opacity: 0.85; }
+  100% { transform: translateY(var(--scan-h, 420px)); opacity: 0; }
+}
+.scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--orange) 30%, var(--orange) 70%, transparent);
+  animation: scanline 6s linear infinite;
+  pointer-events: none;
+}
+
+/* diagnostic grid backdrop */
+.diag-grid {
+  background-image:
+    linear-gradient(rgba(247, 245, 238, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 245, 238, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* ---------- Halftone image treatment ---------- */
+.cutout-img {
+  position: relative;
+  overflow: hidden;
+}
+.cutout-img img {
+  filter: grayscale(1) contrast(1.2) brightness(1.02);
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cutout-img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(35, 42, 42, 0.35) 1px, transparent 1.4px);
+  background-size: 5px 5px;
+  mix-blend-mode: overlay;
+}
+
+/* ---------- Nav shell ----------
+   The header floats over both paper and charcoal sections, so its colours are
+   driven by tokens and swapped by a class. Everything cross-fades together,
+   which keeps the text legible instead of sinking into a same-shade backdrop. */
+.nav-shell {
+  --nav-bg: rgba(224, 216, 193, 0.72);
+  --nav-fg: #232A2A;
+  /* 0.80 keeps idle links above WCAG AA (4.5:1) at 15.5px — do not lighten */
+  --nav-fg-dim: rgba(35, 42, 42, 0.80);
+  --nav-border: rgba(35, 42, 42, 0.10);
+  --nav-chip-border: rgba(35, 42, 42, 0.25);
+
+  background-color: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(10px) saturate(1.15);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  transition:
+    background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Lifted + more opaque once the page is no longer at the top, so content
+   scrolling underneath never bleeds through the labels. */
+.nav-shell--scrolled {
+  --nav-bg: rgba(224, 216, 193, 0.95);
+  --nav-border: rgba(35, 42, 42, 0.16);
+  box-shadow: 0 10px 30px rgba(35, 42, 42, 0.10);
+}
+
+/* Over a charcoal section the whole header inverts. */
+.nav-shell--dark {
+  --nav-bg: rgba(29, 36, 36, 0.78);
+  --nav-fg: #F7F5EE;
+  --nav-fg-dim: rgba(247, 245, 238, 0.78);
+  --nav-border: rgba(247, 245, 238, 0.14);
+  --nav-chip-border: rgba(247, 245, 238, 0.28);
+}
+.nav-shell--dark.nav-shell--scrolled {
+  --nav-bg: rgba(29, 36, 36, 0.96);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+}
+
+.nav-link {
+  color: var(--nav-fg-dim);
+  transition: color 0.35s ease;
+}
+.nav-link:hover {
+  color: var(--nav-fg);
+}
+/* the active flag lives on the inner span, so it needs its own colour rule */
+.nav-link [data-active="true"] {
+  color: var(--nav-fg);
+  transition: color 0.35s ease;
+}
+
+.nav-chip {
+  color: var(--nav-fg-dim);
+  border-color: var(--nav-chip-border);
+  transition: color 0.35s ease, border-color 0.35s ease;
+}
+.nav-chip:hover {
+  color: var(--nav-fg);
+  border-color: var(--orange);
+}
+.nav-mobile-toggle svg {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-mobile-toggle[data-state="open"] {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+.nav-mobile-toggle[data-state="open"] svg {
+  transform: rotate(90deg);
+}
+.nav-mobile-item {
+  position: relative;
+  opacity: 0;
+  transform: translateX(18px);
+  transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+.nav-mobile-panel[data-state="open"] .nav-mobile-item {
+  animation: mobile-nav-item-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(70ms + (var(--mobile-item-index) * 48ms));
+}
+.nav-mobile-panel[data-state="closed"] .nav-mobile-item {
+  animation: mobile-nav-item-out 0.18s ease both;
+}
+.nav-mobile-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 0.7em;
+  border-radius: 999px;
+  background: var(--orange);
+  transform: translateY(-50%) scaleY(0);
+  transform-origin: center;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-mobile-item:hover,
+.nav-mobile-item:focus-visible {
+  transform: translateX(4px);
+}
+.nav-mobile-item:hover::before,
+.nav-mobile-item:focus-visible::before,
+.nav-mobile-item[aria-current="page"]::before {
+  transform: translateY(-50%) scaleY(1);
+}
+@keyframes mobile-nav-item-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes mobile-nav-item-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(10px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-mobile-toggle svg,
+  .nav-mobile-item,
+  .nav-mobile-item::before {
+    transition: none;
+  }
+  .nav-mobile-toggle[data-state="open"] svg { transform: none; }
+  .nav-mobile-panel[data-state="open"] .nav-mobile-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .nav-mobile-panel[data-state="closed"] .nav-mobile-item { animation: none; }
+}
+
+/* Primary CTA flips to paper-on-ink when the shell goes dark. */
+.nav-cta {
+  transition: background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1), color 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-shell--dark .nav-cta {
+  background: var(--white-d);
+  color: var(--ink);
+}
+
+/* Cross-fade the two wordmark lockups instead of hard-swapping the src.
+   Each logo is a <Picture> now (webp/avif + the png fallback), which puts a
+   <picture> between .nav-logo-stack and the <img> — so the sibling this
+   positions is the picture, not the img inside it; `img + img` stopped
+   matching anything the moment a second element sat between the two images. */
+.nav-logo-stack {
+  position: relative;
+  display: inline-block;
+}
+.nav-logo-stack img {
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-logo-stack picture + picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* ---------- Accent colours as text ----------
+   Brand orange on the paper ground is 1.7:1 and signal red is 2.8:1 — neither
+   is readable as body or label text however large you set it. These are the
+   text-safe deepenings; the raw brand values stay for fills, rules and icons,
+   and on charcoal where they pass comfortably. */
+:root {
+  --orange-on-paper: #844B0A;
+  --signal-on-paper: #A8351A;
+}
+.accent-orange-text { color: var(--orange-on-paper); }
+.accent-signal-text { color: var(--signal-on-paper); }
+
+/* The mirror image: on charcoal the raw brand values are too dark, so the
+   accents lighten instead of deepen. Same idea, opposite direction. */
+:root {
+  --orange-on-dark: #FFA94D;
+  --signal-on-dark: #FF7A52;
+}
+.accent-orange-on-dark { color: var(--orange-on-dark); }
+.accent-signal-on-dark { color: var(--signal-on-dark); }
+
+/* The paper accents are dark amber and dark rust, which is right on paper and
+   unreadable on a charcoal panel. Several layouts alternate paper and dark
+   tiles from the same loop, so the tile a given accent lands on is decided at
+   render time and no single static class can be correct. Scoping the swap to
+   .panel-dark fixes the whole class of bug rather than each occurrence:
+   authors keep writing .accent-orange-text and it stays legible either way. */
+/* Every dark ground on the site, listed explicitly. `~=` matches a whole
+   class token, so `bg-[#232A2A]` is caught but `bg-[#232A2A]/12` — a 12% tint
+   that reads light over paper — is not, which a substring match would get
+   wrong in the opposite direction. */
+.panel-dark .accent-orange-text,
+.site-footer .accent-orange-text,
+[class~="bg-[#1D2424]"] .accent-orange-text,
+[class~="bg-[#232A2A]"] .accent-orange-text { color: var(--orange-on-dark); }
+
+.panel-dark .accent-signal-text,
+.site-footer .accent-signal-text,
+[class~="bg-[#1D2424]"] .accent-signal-text,
+[class~="bg-[#232A2A]"] .accent-signal-text { color: var(--signal-on-dark); }
+
+/* Provenance chips were authored for the paper ground. The transparent and
+   translucent variants inherit ink, so on a charcoal panel they rendered at
+   ~1.06:1 — present in the DOM, invisible on screen. Variants that carry their
+   own solid background are left alone. */
+.panel-dark .prov-tag[class*="bg-transparent"],
+.panel-dark .prov-tag[class*="bg-[#F19020]/15"],
+.bg-\[\#1D2424\] .prov-tag[class*="bg-transparent"],
+.bg-\[\#1D2424\] .prov-tag[class*="bg-[#F19020]/15"] {
+  color: rgba(247, 245, 238, 0.92);
+  border-color: rgba(247, 245, 238, 0.45);
+}
+
+/* ---------- Readability floor ----------
+   Metadata chips and mono annotations were rendering at 2.6–3.4:1 on the paper
+   ground — below WCAG AA at 12–13px. These raise the tint floor without
+   flattening the hierarchy: chips stay quieter than body copy, they just stay
+   readable. Attribute selectors give (0,2,0) specificity, which beats the
+   Tailwind colour utility (0,1,0) without needing !important. */
+.sys-chip[class*="[#232A2A]/35"],
+.sys-chip[class*="[#232A2A]/40"],
+.sys-chip[class*="[#232A2A]/42"],
+.sys-chip[class*="[#232A2A]/45"],
+.sys-chip[class*="[#232A2A]/50"],
+.sys-chip[class*="[#232A2A]/55"],
+.sys-chip[class*="[#232A2A]/60"],
+.sys-chip[class*="[#232A2A]/65"],
+.font-mono-sys[class*="[#232A2A]/40"],
+.font-mono-sys[class*="[#232A2A]/45"],
+.font-mono-sys[class*="[#232A2A]/50"],
+.font-mono-sys[class*="[#232A2A]/55"],
+.font-mono-sys[class*="[#232A2A]/60"],
+.font-mono-sys[class*="[#232A2A]/65"] {
+  color: rgba(35, 42, 42, 0.74);
+}
+
+.sys-chip[class*="[#F7F5EE]/35"],
+.sys-chip[class*="[#F7F5EE]/40"],
+.sys-chip[class*="[#F7F5EE]/45"],
+.sys-chip[class*="[#F7F5EE]/50"],
+.sys-chip[class*="[#F7F5EE]/55"],
+.sys-chip[class*="[#F7F5EE]/60"],
+.sys-chip[class*="[#F7F5EE]/65"],
+.font-mono-sys[class*="[#F7F5EE]/40"],
+.font-mono-sys[class*="[#F7F5EE]/45"],
+.font-mono-sys[class*="[#F7F5EE]/50"],
+.font-mono-sys[class*="[#F7F5EE]/55"],
+.font-mono-sys[class*="[#F7F5EE]/60"] {
+  color: rgba(247, 245, 238, 0.82);
+}
+
+/* Copy that sits over the halftone texture or a live canvas gets a whisper of
+   shadow — enough to lift it off a busy ground, not enough to look embossed. */
+.on-texture {
+  text-shadow: 0 1px 2px rgba(35, 42, 42, 0.10), 0 0 18px rgba(224, 216, 193, 0.55);
+}
+.on-texture-dark {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 22px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Section connector ----------
+   Depth via CSS 3D rather than another WebGL context. The stage is tilted away
+   from the reader so the route reads as travelling *through* the page. */
+.section-connector {
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+  pointer-events: none;
+  /* The perspective projection is wider than the layout box — the near edge of
+     the tilted plane flares outward — so clip it or the page gains a horizontal
+     scrollbar on wide viewports. */
+  overflow: hidden;
+}
+.section-connector-stage {
+  position: relative;
+  height: 100%;
+  transform: rotateX(34deg) scaleY(1.12);
+  transform-origin: 50% 0%;
+  opacity: 0.85;
+}
+.section-connector-label {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%) rotateX(-34deg);
+  color: rgba(35, 42, 42, 0.76);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-connector-stage {
+    transform: none;
+    opacity: 0.5;
+  }
+}
+
+/* ---------- Pop illustrations ----------
+   The deck's collage figures. A halftone halo sits behind each one so the
+   cut-out reads as placed rather than pasted, and the idle float keeps it from
+   looking like a stuck image. Decorative only — never carries information. */
+.pop-illustration {
+  /* No position here on purpose. This used to hardcode `relative`, which —
+     being unlayered CSS — beats Tailwind's `@layer utilities` at equal
+     specificity regardless of source order, so every caller passing
+     `absolute` (pop-contact, pop-how-we-work, pop-closing) was silently
+     stuck in normal flow instead of pinned to its corner. The halo's own
+     positioning context is `.pop-illustration-figure` below, which already
+     carries `position: relative`, so nothing here ever depended on this. */
+  pointer-events: none;
+  user-select: none;
+}
+/* one node per motion layer — drift, entrance, float — so they cannot
+   overwrite each other's transform */
+.pop-illustration-lift {
+  display: block;
+}
+.pop-illustration-figure {
+  position: relative;
+  display: block;
+  animation: pop-float 7.5s ease-in-out infinite;
+}
+.pop-illustration-img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  /* lift the mid-greys so the figures sit on paper without looking washed out */
+  filter: contrast(1.06) saturate(0);
+}
+.pop-illustration-halo {
+  position: absolute;
+  inset: 6% -12% 14% -12%;
+  z-index: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(241, 144, 32, 0.20) 0%, rgba(241, 144, 32, 0.07) 45%, transparent 70%),
+    radial-gradient(circle at 30% 70%, rgba(35, 42, 42, 0.08) 0%, transparent 60%);
+}
+
+@keyframes pop-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-illustration-figure { animation: none; }
+}
+
+/* ---------- Displacement dissolve ---------- */
+.dissolve-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.dissolve-wrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the filter lives in the flow but must never occupy space */
+.dissolve-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dissolve-wrap img {
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ---------- Pinned sequence ---------- */
+.pinned-sequence {
+  /* A pinned section is lifted out of flow by ScrollTrigger; isolating it keeps
+     the halftone backdrop and progress bar from being repainted every frame. */
+  isolation: isolate;
+}
+
+/* ---------- FAQ disclosure ---------- */
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary { list-style: none; }
+.faq-item {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.faq-item:hover { border-color: rgba(241, 144, 32, 0.55); }
+.faq-item[open] {
+  border-color: rgba(241, 144, 32, 0.7);
+  box-shadow: 0 10px 26px rgba(35, 42, 42, 0.07);
+}
+.faq-plus {
+  font-family: var(--font-system);
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-item[open] .faq-plus { transform: rotate(45deg); }
+
+/* ---------- Trust principle accordion ---------- */
+/* Same <details> mechanics as the FAQ, but these sit in a grid where an open
+   panel must not shove its neighbours around, hence the fixed-ish padding and
+   the content animating rather than the box snapping. */
+.trust-item summary::-webkit-details-marker { display: none; }
+.trust-item summary { list-style: none; }
+.trust-item {
+  background: rgba(247, 245, 238, 0.35);
+  transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+.trust-item:hover { border-color: rgba(241, 144, 32, 0.5); }
+.trust-item[open] {
+  border-color: rgba(241, 144, 32, 0.7);
+  background: rgba(247, 245, 238, 0.7);
+  box-shadow: 0 10px 26px rgba(35, 42, 42, 0.07);
+}
+.trust-item[open] .faq-plus { transform: rotate(45deg); }
+
+/* Native <details> shows/hides non-summary children via the UA stylesheet's
+   `display: none`, which cannot be transitioned — the box used to snap open
+   instantly with no animation at all, whatever ran on .trust-detail itself.
+   Overriding that default display (both selectors below out-specificity the
+   UA rule) and animating the wrapper's grid row from 0fr to 1fr instead gets
+   a real height animation while <details>/<summary> stay native — same
+   keyboard, screen-reader and find-in-page behaviour as before. */
+.trust-item .trust-detail-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trust-item[open] .trust-detail-wrap {
+  grid-template-rows: 1fr;
+}
+.trust-detail-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.trust-item[open] .trust-detail {
+  animation: trust-open 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes trust-open {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-item .trust-detail-wrap { transition: none; }
+  .trust-item[open] .trust-detail { animation: none; }
+}
+
+/* ---------- Scroll-advanced info panel ---------- */
+/* Cards are stacked in the same grid cell so the panel never changes height
+   as it advances — a jumping container next to pinned copy is worse than
+   the empty space it replaced. */
+.scroll-info { position: relative; }
+.scroll-info-stack { display: grid; }
+.scroll-info-stack > .scroll-info-card { grid-area: 1 / 1; }
+
+.scroll-info-card {
+  border: 1px solid rgba(35, 42, 42, 0.12);
+  border-radius: 16px;
+  background: rgba(247, 245, 238, 0.5);
+  padding: 22px 24px;
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.scroll-info-card.is-shown { opacity: 1; transform: translateY(0); }
+.scroll-info-card.is-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.scroll-info-bullet {
+  margin-top: 8px;
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--orange);
+}
+
+.scroll-info-pips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.scroll-info--right .scroll-info-pips { justify-content: flex-end; }
+.scroll-info-pip {
+  width: 22px;
+  height: 3px;
+  border-radius: 99px;
+  background: rgba(35, 42, 42, 0.16);
+  transition: background 0.35s ease, width 0.35s ease;
+}
+.scroll-info-pip.is-active { width: 34px; background: var(--orange); }
+
+.scroll-info--right .scroll-info-card { text-align: left; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-info-card { transition: none; }
+}
+
+/* ---------- Footer ABC -> ROI route ---------- */
+/* The rail draws itself when the block reveals, so the diagram has something
+   to say before anyone brings a pointer near it — which on a touch screen is
+   never. The pointer pull still works on top of it. */
+.footer-route-rail {
+  height: 0;
+  border-top: 3px dotted rgba(241, 144, 32, 0.38);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+.footer-route.is-visible .footer-route-rail { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  .footer-route-rail { transition: none; transform: scaleX(1); }
+}
+
+/* ---------- Section index rail ---------- */
+/* The rail reserves its own column rather than floating over the page.
+   --rail-w is set by the component and widens the left padding of every
+   container, so the text column begins where the rail ends. Default 0 so the
+   site lays out normally when the rail is absent. */
+:root { --rail-w: 0px; }
+
+.section-index {
+  /* GSAP writes these two; CSS just applies them. Zero at rest. */
+  --idx-label-w: 0px;
+  --idx-label-o: 0;
+  position: fixed;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  max-height: 78vh;
+  display: flex;
+}
+.section-index-shell {
+  position: relative;
+  display: flex;
+  width: max-content;
+  padding: 16px 12px;
+  border-radius: 18px;
+  background: rgba(29, 36, 36, 0.86);
+  border: 1px solid rgba(247, 245, 238, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* the WebGL strip runs behind the dot column */
+.section-index-spine {
+  position: absolute;
+  left: 12px;
+  top: 16px;
+  bottom: 16px;
+  width: 28px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.section-index-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.section-index-list::-webkit-scrollbar { display: none; }
+
+/* GSAP moves this between rows; it is the only thing that travels */
+.section-index-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  border-radius: 10px;
+  background: rgba(247, 245, 238, 0.07);
+  border: 1px solid rgba(241, 144, 32, 0.28);
+  pointer-events: none;
+}
+
+.section-index-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 8px 8px 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: rgba(247, 245, 238, 0.6);
+  transition: color 0.28s ease;
+}
+.section-index-row:hover { color: var(--white-d); }
+.section-index-row.is-active { color: var(--white-d); }
+.section-index-row:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.section-index-dot {
+  flex: none;
+  width: 28px;
+  display: grid;
+  place-items: center;
+}
+.section-index-dot::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(247, 245, 238, 0.34);
+  transition: background 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+}
+.section-index-row:hover .section-index-dot::after { background: rgba(247, 245, 238, 0.72); }
+.section-index-row.is-active .section-index-dot::after {
+  background: var(--orange);
+  transform: scale(1.55);
+  box-shadow: 0 0 0 4px rgba(241, 144, 32, 0.16);
+}
+
+/* Width and opacity are animated by GSAP on hover. At rest this is 0 wide, so
+   the rail is a dot column; the labels stay in the DOM the whole time for
+   assistive tech and for the title tooltip. */
+.section-index-text {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+  width: var(--idx-label-w);
+  opacity: var(--idx-label-o);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.section-index-num {
+  font-family: var(--font-system);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: rgba(247, 245, 238, 0.45);
+  transition: color 0.28s ease;
+  flex: none;
+}
+.section-index-row.is-active .section-index-num { color: var(--orange); }
+
+.section-index-label {
+  font-family: var(--font-system);
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-index-dot::after,
+  .section-index-row,
+  .section-index-num { transition: none; }
+}
+
+/* ---------- Case anatomy spine ---------- */
+/* A single continuous rail behind the dots, so the seven steps read as one
+   sequence rather than seven separate rows. The rail is drawn on the list and
+   the fill is a child, so the progress line and the dots cannot drift apart. */
+.case-spine {
+  position: relative;
+  padding-left: 26px;
+}
+.case-spine::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(35, 42, 42, 0.14);
+}
+.case-spine-step {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+}
+.case-spine-dot {
+  position: absolute;
+  left: -26px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(35, 42, 42, 0.25);
+  background: var(--paper, #E0D8C1);
+  transition: border-color 0.45s ease, background 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.case-spine-step.is-reached .case-spine-dot {
+  border-color: var(--orange);
+  background: var(--orange);
+  transform: scale(1.15);
+}
+.case-spine-index {
+  font-size: 12px;
+  /* The resting state still has to clear AA on its own. At 0.45 the numbers
+     read 2.6:1 before the sequence animates — and for anyone who never sees it
+     animate, that is the only state there is. */
+  color: rgba(35, 42, 42, 0.68);
+  transition: color 0.45s ease;
+}
+.case-spine-step.is-reached .case-spine-index { color: var(--orange-on-paper); }
+.case-spine-label {
+  font-size: 17px;
+  line-height: 1.2;
+  color: rgba(35, 42, 42, 0.74);
+  transition: color 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.case-spine-step.is-reached .case-spine-label {
+  color: rgba(35, 42, 42, 0.92);
+  transform: translateX(2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-spine-dot,
+  .case-spine-index,
+  .case-spine-label { transition: none; }
+}
+
+/* ---------- Fit quadrant infographic ---------- */
+.fit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fit-cell {
+  border: 1px solid rgba(35, 42, 42, 0.14);
+  border-radius: 12px;
+  background: rgba(247, 245, 238, 0.5);
+  padding: 14px 16px;
+  min-height: 104px;
+  transition: background 0.5s ease, border-color 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The useful quadrant is the point of the diagram, so it arrives rather than
+   simply being there — it fills in as the figure scrolls into view. */
+.fit-cell--good {
+  background: rgba(35, 42, 42, 0.9);
+  border-color: rgba(241, 144, 32, 0.5);
+}
+.fit-cell--good.is-lit {
+  background: #232A2A;
+  border-color: var(--orange);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(35, 42, 42, 0.16);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fit-cell { transition: none; }
+  .fit-cell--good.is-lit { transform: none; }
+}
+
+/* ---------- Package builder groups ---------- */
+.builder-group summary::-webkit-details-marker { display: none; }
+.builder-group summary { list-style: none; }
+.builder-group { transition: border-color 0.3s ease, background 0.3s ease; }
+.builder-group[open] {
+  border-color: rgba(241, 144, 32, 0.55);
+  background: rgba(247, 245, 238, 0.7);
+}
+.builder-group[open] .faq-plus { transform: rotate(45deg); }
+.builder-group[open] .builder-modules {
+  animation: trust-open 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .builder-group[open] .builder-modules { animation: none; }
+}
+
+/* ---------- Deck motifs ---------- */
+/* The four hero motifs on the secondary pages. The poster is an SVG that is
+   complete on its own; the WebGL canvas, where there is one, sits over it and
+   adds only the movement a still cannot carry. Both layers fill the frame, so
+   the canvas never changes the space the poster already reserved and the
+   column cannot reflow when the scene finishes loading. */
+.motif-frame {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+  perspective: 900px;
+}
+/* The rigid card that actually tilts. Poster and canvas ride on it together
+   as one unit rather than each rotating independently, which is what keeps
+   them pixel-aligned at every angle. JS writes `transform` directly on
+   mousemove (see MotifFrame).
+
+   No transition while tracking: a transition here applies to every mousemove
+   write, so each new cursor position starts a fresh half-second ease and the
+   card chases the pointer instead of following it. The settle-back-to-flat on
+   release is the only part that wants easing, so MotifFrame adds
+   .is-releasing for exactly that long. */
+.motif-tilt {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.motif-tilt.is-releasing {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.motif-poster,
+.motif-canvas {
+  position: absolute;
+  inset: 0;
+}
+.motif-poster > svg {
+  display: block;
+  overflow: visible;
+}
+/* The canvas is decoration over a complete picture, so it must never swallow a
+   click meant for the column behind it. */
+.motif-canvas,
+.motif-canvas canvas {
+  pointer-events: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motif-tilt.is-releasing { transition: none; }
+}
+
+/* Hero system-core canvas: same base-layer-plus-overlay idea as the deck
+   motifs above, for the same reason — the diagram underneath is already a
+   complete picture, so the canvas arriving is a reveal, not a swap. */
+.hero-core-fade-in {
+  animation: cmdk-fade 0.6s ease-out both;
+}
+/* The other half of that reveal: once the canvas has had time to actually
+   land, the static diagram underneath is dismissed outright rather than left
+   mounted forever — the canvas is transparent by design, so an un-hidden
+   diagram would show through every gap in the 3D scene indefinitely. */
+.hero-core-fallback-out {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-core-fade-in { animation: none; }
+  .hero-core-fallback-out { transition: none; }
+}
+
+/* The breadcrumb back-link on every detail page ("ALL WORK", "ALL NOTES",
+   "THE NETWORK", "WHAT WE DO"). One line of sys-chip type measures 22px, two
+   under the 24px minimum, and the .flex > a.link-draw pseudo-element below
+   does not reach them because they are inline-flex in their own right rather
+   than children of a flex row. They are already items-center, so a minimum
+   height re-centres the same text in a 24px box and shifts nothing. */
+a.link-draw.sys-chip {
+  min-height: 24px;
+}
+
+/* ---------- Sticky CTA ---------- */
+/* A quiet bar for the long pages. It reserves nothing in the layout, sits
+   above the section-index rail but below the nav, and translates rather than
+   toggling display so it can ease in and out. */
+.sticky-cta {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: nowrap;
+  max-width: min(760px, calc(100vw - 32px));
+  padding: 12px 14px 12px 20px;
+  border-radius: 14px;
+  background: rgba(29, 36, 36, 0.94);
+  border: 1px solid rgba(247, 245, 238, 0.14);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  /* Off-screen and inert until shown. visibility keeps it out of the tab order
+     and off the accessibility tree while it is parked. */
+  transform: translate(-50%, calc(100% + 28px));
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease, visibility 0s linear 0.45s;
+}
+.sticky-cta.is-in {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease, visibility 0s linear 0s;
+}
+.sticky-cta-copy {
+  font-family: var(--font-system);
+  font-size: 15.5px;
+  line-height: 1.35;
+  color: var(--white-d);
+  margin: 0;
+  /* auto basis, not a 240px one — a fixed basis plus the actions overflowed
+     the content-sized bar and forced a wrap. */
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.sticky-cta-sub {
+  display: block;
+  font-size: 13px;
+  color: rgba(247, 245, 238, 0.6);
+}
+.sticky-cta-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+/* A compact floating bar reusing the full-size primary button (the same one
+   the nav and footer use for a page's main call to action) read heavier than
+   a quiet, dismissible nudge should. Scoped down here only. */
+.sticky-cta-actions .btn-orange {
+  padding: 0.55rem 1.1rem;
+  font-size: 14px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(241, 144, 32, 0.28);
+}
+.sticky-cta-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(247, 245, 238, 0.2);
+  background: none;
+  color: rgba(247, 245, 238, 0.7);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.sticky-cta-close:hover {
+  color: var(--white-d);
+  border-color: rgba(247, 245, 238, 0.45);
+}
+
+@media (max-width: 860px) {
+  .sticky-cta { gap: 10px; padding: 12px 12px 12px 16px; bottom: 12px; flex-wrap: wrap; }
+  .sticky-cta-copy { font-size: 14.5px; flex-basis: 100%; }
+  .sticky-cta-sub { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticky-cta { transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+  .sticky-cta.is-in { transition: opacity 0.2s ease, visibility 0s linear 0s; }
+}
+
+/* ---------- Command palette ---------- */
+/* Ink and paper, same as everything else. A site that sells "technology
+   without theatre" does not get a neon search box. */
+.cmdk-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: max(12vh, 64px) 16px 16px;
+  background: rgba(20, 26, 26, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: cmdk-fade 0.16s ease-out both;
+}
+@keyframes cmdk-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.cmdk-panel {
+  width: min(640px, 100%);
+  max-height: min(66vh, 560px);
+  display: flex;
+  flex-direction: column;
+  background: var(--white-d);
+  border: 1px solid rgba(35, 42, 42, 0.22);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+  animation: cmdk-rise 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cmdk-rise {
+  from { opacity: 0; transform: translateY(-8px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+
+.cmdk-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(35, 42, 42, 0.14);
+  flex: none;
+}
+.cmdk-search-icon { color: rgba(35, 42, 42, 0.45); flex: none; }
+.cmdk-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  /* 16px so iOS does not zoom the page on focus */
+  font-size: 16px;
+  font-family: var(--font-editorial);
+  color: var(--ink);
+}
+.cmdk-input::placeholder { color: rgba(35, 42, 42, 0.42); }
+
+.cmdk-kbd {
+  font-family: var(--font-system);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  /* 0.55 measured 3.98:1 on paper — under the 4.5 floor for text this size. */
+  color: rgba(35, 42, 42, 0.72);
+  background: rgba(35, 42, 42, 0.07);
+  border: 1px solid rgba(35, 42, 42, 0.14);
+  border-radius: 5px;
+  padding: 3px 6px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cmdk-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+.cmdk-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  cursor: pointer;
+  /* colour only — moving rows on hover in a list you are arrowing through
+     makes the target shift under the pointer */
+  transition: background-color 0.12s ease;
+}
+.cmdk-row.is-active { background: rgba(241, 144, 32, 0.16); }
+.cmdk-row-label {
+  font-family: var(--font-editorial);
+  font-size: 15.5px;
+  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmdk-row-meta { display: flex; align-items: baseline; gap: 10px; flex: none; }
+.cmdk-row-hint {
+  font-family: var(--font-system);
+  font-size: 12px;
+  color: rgba(35, 42, 42, 0.5);
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmdk-row-group {
+  font-family: var(--font-system);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(35, 42, 42, 0.4);
+  border: 1px solid rgba(35, 42, 42, 0.16);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+.cmdk-empty {
+  margin: 0;
+  padding: 22px 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(35, 42, 42, 0.7);
+}
+
+.cmdk-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 9px 14px;
+  border-top: 1px solid rgba(35, 42, 42, 0.12);
+  font-family: var(--font-system);
+  font-size: 11.5px;
+  color: rgba(35, 42, 42, 0.5);
+  flex: none;
+}
+.cmdk-foot-right { margin-left: auto; }
+
+/* The nav trigger. Hidden on touch, where there is no key to press and the
+   burger already leads everywhere. */
+.cmdk-trigger {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 10px 0 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(35, 42, 42, 0.22);
+  background: none;
+  color: rgba(35, 42, 42, 0.6);
+  font-family: var(--font-system);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+.cmdk-trigger:hover { border-color: var(--orange); color: var(--ink); }
+@media (min-width: 1024px) and (pointer: fine) {
+  .cmdk-trigger { display: inline-flex; }
+}
+/* On the dark-header pages the nav flips to light ink. */
+.nav-shell--dark .cmdk-trigger { border-color: rgba(247, 245, 238, 0.28); color: rgba(247, 245, 238, 0.72); }
+.nav-shell--dark .cmdk-trigger:hover { border-color: var(--orange); color: var(--white-d); }
+.nav-shell--dark .cmdk-trigger .cmdk-kbd {
+  color: rgba(247, 245, 238, 0.7);
+  background: rgba(247, 245, 238, 0.1);
+  border-color: rgba(247, 245, 238, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmdk-backdrop, .cmdk-panel { animation: none; }
+  .cmdk-row { transition: none; }
+}
+
+/* ---------- Theme transition (View Transitions API) ---------- */
+/* ThemeToggle drives this with document.startViewTransition + a manual
+   clip-path animate() on ::view-transition-new(root). Without overriding the
+   browser's own default here, that default is a 250ms cross-fade of old and
+   new root snapshots running *at the same time* as the clip-path expand —
+   the two fight and the circle reads as a smear instead of a clean reveal.
+   The old snapshot is frozen (no fade, no animation) so it just sits there
+   while the new one's circle grows over it; duration:0 on both is what hands
+   control entirely to the animate() call in JS. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  /* clip-path is JS-driven per click, so no fixed radius belongs here — this
+     only has to exist so the browser creates the pseudo-element with a
+     defined starting clip before the animate() call takes over. */
+  clip-path: circle(0px at 50% 50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* ---------- Touch target minimums ---------- */
+/* WCAG 2.5.8 asks for 24x24 CSS px of pointer target. Several controls here
+   are deliberately small as *marks* — a 10px pagination dot, a 16px footer
+   link — and growing them would wreck the typography. The hit area grows
+   instead of the ink: a centred pseudo-element carries the touch, the visible
+   element stays exactly as designed. */
+.tap-target { position: relative; }
+.tap-target::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- Pointer-agnostic hit areas ---------- */
+/* WCAG 2.5.8 sizes targets whatever is doing the pointing, so these two are
+   not inside the coarse-pointer query. Neither changes layout: the footer
+   links gain padding an inline-block absorbs, and the action links carry their
+   hit area on a pseudo-element. The rules that *do* change layout — min-height
+   on chips and summaries — stay behind the query, because growing every chip
+   on a desktop would loosen the type rhythm for a problem a mouse has not got. */
+.site-footer a {
+  display: inline-block;
+  padding-block: 4px;
+}
+
+/* An accordion header is a control; its natural height is one line of text at
+   23px, a pixel under the 24px minimum. 24 here for every pointer, and the
+   coarse query below still takes it to a comfortable 40 for a fingertip. */
+summary {
+  min-height: 24px;
+}
+
+/* Standalone action links ("Related work", "Talk about this") sit in a row of
+   links rather than inside a sentence, so 2.5.8's inline exception does not
+   cover them. Padding is not an option — link-draw paints its underline at the
+   bottom edge and padding would push it off the text — hence the pseudo
+   element. Vertical only: the row is horizontal and neighbours must not
+   overlap each other's targets. */
+.flex > a.link-draw,
+.flex > a.inline-flex,
+button.link-draw {
+  position: relative;
+}
+.flex > a.link-draw::after,
+.flex > a.inline-flex::after,
+button.link-draw::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
+}
+
+/* Coarse pointers get real padding on the chip controls, where there is room
+   for it. Fine pointers keep the tighter rhythm the design was drawn at. */
+@media (pointer: coarse) {
+  /* No `display` here. These selectors outrank Tailwind's `.hidden`, so
+     setting display resurrected every sys-chip button that a breakpoint had
+     hidden — the header's SIGN IN reappeared on phones and wrapped to two
+     lines. The chips are already inline-flex from their utilities; the
+     min-height is all this rule was ever for. `:not(.hidden)` keeps it that
+     way if someone adds a display back. */
+  .sys-chip.rounded-full:not(.hidden),
+  button.sys-chip:not(.hidden) {
+    min-height: 40px;
+    align-items: center;
+  }
+  /* An accordion header is a control, and its natural height is a single line
+     of text — 23px, under the 24px minimum. Same treatment as the chips above:
+     min-height only, never display, for the reason given there. */
+  summary {
+    min-height: 40px;
+    align-items: center;
+  }
+}
+
+/* ---------- Banner figure (page-hero collage) ---------- */
+/* A soft ground behind the cut-out so it reads as placed rather than pasted,
+   and a slow float so a static hero has some life without demanding attention. */
+/* overflow-clip: the halo is drawn wider than the figure so the glow reads as
+   ground rather than a badge, but at 375px that bleed pushed the document 5px
+   wider than the viewport. Clipping keeps the effect and drops the overflow. */
+.banner-figure { isolation: isolate; overflow: hidden; }
+.banner-figure-halo {
+  position: absolute;
+  inset: 4% -6% -4% -6%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(241, 144, 32, 0.28),
+    rgba(241, 144, 32, 0.09) 62%,
+    transparent 100%
+  );
+  filter: blur(2px);
+}
+.banner-figure img { animation: banner-float 9s ease-in-out infinite; }
+
+/* Colour on hover for a scan that has none. The source is fully monochrome, so
+   there is nothing underneath to uncover — a grayscale(0) toggle would be a
+   silent no-op. This is a duotone press run instead: sepia lays a single ink
+   over the full tonal range, and the saturate/hue-rotate pair pulls that ink
+   to hue 32° — measured, the same hue as the amber token, so the artwork is
+   printed in the brand's own accent rather than a colour invented for the
+   effect. Every halftone dot survives, because the tone is remapped rather
+   than covered.
+
+   On the image, not an overlay: the PNG is a cut-out with real transparency,
+   and a wash sitting over the figure box tinted the paper showing through it
+   too — a hard-edged rectangle around the collage. A filter only ever touches
+   pixels the artwork actually has.
+
+   `filter`, while banner-float already animates `transform` on this same
+   element. Different properties compose; the same property would not — a
+   running animation beats a transition outright. */
+.banner-figure-tint img {
+  transition: filter 0.5s ease;
+}
+.banner-figure-tint:hover img,
+.banner-figure-tint:focus-within img {
+  filter: sepia(1) saturate(2.4) hue-rotate(-8deg) brightness(1.02);
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner-figure-tint img { transition: none; }
+}
+@keyframes banner-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-10px) rotate(-1deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner-figure img { animation: none; }
+}
+
+/* ---------- Heading-sized link ---------- */
+/* link-draw's underline is sized for body copy and looks like a mistake under
+   a 3.5rem display face, so headings get their own weight. */
+.link-draw-heading {
+  background-image: linear-gradient(var(--orange), var(--orange));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 5px;
+  transition: background-size 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-draw-heading:hover,
+.link-draw-heading:focus-visible { background-size: 100% 5px; }
+
+/* ---------- Nav route underline ---------- */
+.nav-route-bar {
+  position: absolute;
+  bottom: -4px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--orange);
+  transition: left 0.45s cubic-bezier(0.22, 1, 0.36, 1), width 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+
+/* ---------- Marquee (typographic wall) ---------- */
+@keyframes marquee-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x 36s linear infinite;
+}
+
+/* ---------- Method stage ---------- */
+.method-stage {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.method-stage.inactive {
+  opacity: 0.28;
+  transform: translateY(6px) scale(0.99);
+}
+
+/* ---------- dotted annotation line ---------- */
+.dotted-route {
+  border-top: 3px dotted var(--orange);
+}
+
+/* question mark easter egg */
+.qmark-node {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* page enter */
+/* The end frame must be `none`, not `translateY(0)`.
+   animation-fill-mode: both holds the final frame forever, so translateY(0)
+   left <main> with a permanent identity transform — and a transformed
+   ancestor becomes the containing block for every position:fixed descendant.
+   That silently broke ScrollTrigger's pinning: the panel pinned correctly and
+   was then offset by the scroll distance, flying off-screen and leaving ~4200px
+   of empty page behind it. `none` animates identically and creates no
+   containing block. */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.page-enter {
+  /* `backwards`, not `both`. `both` holds the final frame forever, and a held
+     transform — even the identity matrix — makes <main> the containing block
+     for every position:fixed descendant. `backwards` still covers the frame
+     before the animation starts, then lets the element fall back to its own
+     styles, where there is no transform at all. */
+  animation: page-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* Insights grid — cards arrive as if dealt from a stack: each one starts
+   behind and below its slot, faintly rotated, and straightens as it settles.
+   Alternating the tilt by column keeps a 2-up grid from reading as one card
+   repeated twice. Same shared reveal observer as everything else on the
+   page — .reveal.pun-sticker two rules up is the same idea for a different
+   shape (spring pop instead of a settle). */
+.reveal.card-stack {
+  opacity: 0;
+  transform: translateY(48px) scale(0.92) rotate(-3deg);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: bottom center;
+}
+.reveal.card-stack:nth-child(even) {
+  transform: translateY(48px) scale(0.92) rotate(3deg);
+}
+.reveal.card-stack.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1) rotate(0deg);
+}
+
+/* work card image mask */
+.case-card .case-media {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.case-card:hover .case-media {
+  transform: scale(1.035);
+}
+.case-card {
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+.case-card:hover {
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
+}
+
+/* capability tile */
+.cap-tile {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
+}
+.cap-tile:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.18);
+}
+
+/* hide scrollbars for horizontal editorial rows but keep scrollability */
+.h-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(35, 42, 42, 0.35) transparent;
+}
+
+/* Proof row: vertical page movement owns the horizontal progress while a
+   direct pointer drag remains available for readers who want to browse fast. */
+.scroll-synced-carousel {
+  scroll-behavior: auto;
+  overscroll-behavior-x: contain;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .scanline {
+    display: none;
+  }
+  .method-stage.inactive {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ========================================================================
+   PHASE 2 — OPTIONAL MOTION LAYER
+   Additive only. Every rule below is namespaced to a class that did not
+   exist before Phase 2, so deleting this whole block returns the site to
+   its previous appearance exactly. Nothing above this line was modified.
+   ======================================================================== */
+
+/* Feature 01 — chaos → order (see components/motion/OrderingGrid.js).
+   Transform and opacity only: both are compositor properties, so settling a
+   grid of tiles never triggers layout. The --scroll-v multiplier comes from
+   ScrollVelocity and falls back to 0 (a multiplier of 1) whenever that layer
+   is absent or reduced motion is on. */
+.order-item {
+  opacity: 0;
+  transform:
+    translate3d(
+      calc(var(--ox, 0px) * (1 + var(--scroll-v, 0))),
+      calc(var(--oy, 0px) * (1 + var(--scroll-v, 0))),
+      0
+    )
+    rotate(var(--rot, 0deg));
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--d, 0ms);
+  will-change: transform;
+}
+
+.order-item.is-ordered {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  /* Released once settled so a long grid does not hold GPU layers forever. */
+  will-change: auto;
+}
+
+/* The tile itself must still fill its wrapper, or a grid row of mixed-height
+   cards stops matching heights once an extra element sits between them. */
+.order-item > * {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

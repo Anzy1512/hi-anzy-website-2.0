@@ -1,0 +1,90 @@
+/* GENERATED - do not edit by hand.
+ * Regenerate:  python scripts/gen-dark.py
+ *
+ * Night mode for a palette applied as Tailwind arbitrary values. The site
+ * uses 92 distinct colour utilities across roughly 780 call sites, so this
+ * remaps the utilities rather than editing every use.
+ *
+ * Keyed on the utility prefix, not the hex, because one hex has several
+ * jobs: #232A2A is body text on paper *and* the background of a dark chip.
+ * Swapping both to a light value would turn the chips inside out.
+ *
+ * !important is load-bearing: these selectors and Tailwind's own utilities
+ * have identical specificity, and the build does not guarantee which file
+ * lands last.
+ */
+
+[data-theme="dark"] .bg-\[\#1D2424\] { background-color: #222A2A !important; }
+[data-theme="dark"] .bg-\[\#1D2424\]\/70 { background-color: rgb(34 42 42 / 0.7) !important; }
+[data-theme="dark"] .bg-\[\#1D2424\]\/80 { background-color: rgb(34 42 42 / 0.8) !important; }
+[data-theme="dark"] .bg-\[\#1D2424\]\/85 { background-color: rgb(34 42 42 / 0.85) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\] { background-color: #394343 !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/12 { background-color: rgb(57 67 67 / 0.12) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/15 { background-color: rgb(57 67 67 / 0.15) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/25 { background-color: rgb(57 67 67 / 0.25) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/45 { background-color: rgb(57 67 67 / 0.45) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/50 { background-color: rgb(57 67 67 / 0.5) !important; }
+[data-theme="dark"] .bg-\[\#232A2A\]\/8 { background-color: rgb(57 67 67 / 0.08) !important; }
+[data-theme="dark"] .bg-\[\#D8CFB4\]\/40 { background-color: rgb(30 37 37 / 0.4) !important; }
+[data-theme="dark"] .bg-\[\#D8CFB4\]\/45 { background-color: rgb(30 37 37 / 0.45) !important; }
+[data-theme="dark"] .bg-\[\#D8CFB4\]\/60 { background-color: rgb(30 37 37 / 0.6) !important; }
+[data-theme="dark"] .bg-\[\#E0D8C1\] { background-color: #121717 !important; }
+[data-theme="dark"] .bg-\[\#EFEAD8\] { background-color: #1E2525 !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\] { background-color: #1A2020 !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/10 { background-color: rgb(26 32 32 / 0.1) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/12 { background-color: rgb(26 32 32 / 0.12) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/25 { background-color: rgb(26 32 32 / 0.25) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/45 { background-color: rgb(26 32 32 / 0.45) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/50 { background-color: rgb(26 32 32 / 0.5) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/55 { background-color: rgb(26 32 32 / 0.55) !important; }
+[data-theme="dark"] .bg-\[\#F7F5EE\]\/60 { background-color: rgb(26 32 32 / 0.6) !important; }
+[data-theme="dark"] .border-\[\#232A2A\] { border-color: #E9E7E0 !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/10 { border-color: rgb(233 231 224 / 0.072) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/12 { border-color: rgb(233 231 224 / 0.086) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/14 { border-color: rgb(233 231 224 / 0.101) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/15 { border-color: rgb(233 231 224 / 0.108) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/20 { border-color: rgb(233 231 224 / 0.144) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/25 { border-color: rgb(233 231 224 / 0.18) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/30 { border-color: rgb(233 231 224 / 0.216) !important; }
+[data-theme="dark"] .border-\[\#232A2A\]\/40 { border-color: rgb(233 231 224 / 0.288) !important; }
+[data-theme="dark"] .border-\[\#E54A25\] { border-color: #FF7A52 !important; }
+[data-theme="dark"] .border-\[\#F19020\] { border-color: #FFA94D !important; }
+[data-theme="dark"] .border-\[\#F19020\]\/50 { border-color: rgb(255 169 77 / 0.36) !important; }
+[data-theme="dark"] .border-\[\#F19020\]\/60 { border-color: rgb(255 169 77 / 0.432) !important; }
+[data-theme="dark"] .border-\[\#F19020\]\/70 { border-color: rgb(255 169 77 / 0.504) !important; }
+[data-theme="dark"] .divide-\[\#232A2A\]\/10 { border-color: rgb(233 231 224 / 0.072) !important; }
+[data-theme="dark"] .text-\[\#232A2A\] { color: #E9E7E0 !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/25 { color: rgb(233 231 224 / 0.338) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/35 { color: rgb(233 231 224 / 0.472) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/40 { color: rgb(233 231 224 / 0.54) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/45 { color: rgb(233 231 224 / 0.608) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/50 { color: rgb(233 231 224 / 0.675) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/55 { color: rgb(233 231 224 / 0.743) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/60 { color: rgb(233 231 224 / 0.81) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/65 { color: rgb(233 231 224 / 0.878) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/70 { color: rgb(233 231 224 / 0.945) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/72 { color: rgb(233 231 224 / 0.972) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/74 { color: rgb(233 231 224 / 0.999) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/75 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/78 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/80 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/82 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/85 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/88 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#232A2A\]\/90 { color: rgb(233 231 224 / 1) !important; }
+[data-theme="dark"] .text-\[\#A8351A\] { color: #FF7A52 !important; }
+[data-theme="dark"] .text-\[\#A85A12\] { color: #FFA94D !important; }
+[data-theme="dark"] .text-\[\#E54A25\] { color: #FF7A52 !important; }
+[data-theme="dark"] .text-\[\#F19020\] { color: #FFA94D !important; }
+
+/* Inline SVG presentation attributes. They have lower precedence than
+   any CSS rule, so an attribute selector reaches them without touching
+   the call sites. */
+[data-theme="dark"] [fill="#232A2A"] { fill: #E9E7E0; }
+[data-theme="dark"] [fill="#D6CCB2"] { fill: #C9C5BA; }
+[data-theme="dark"] [fill="#E0D8C1"] { fill: #E9E7E0; }
+[data-theme="dark"] [fill="#E54A25"] { fill: #FF7A52; }
+[data-theme="dark"] [fill="#F19020"] { fill: #FFA94D; }
+[data-theme="dark"] [stroke="#232A2A"] { stroke: #E9E7E0; }
+[data-theme="dark"] [stroke="#E54A25"] { stroke: #FF7A52; }
+[data-theme="dark"] [stroke="#F19020"] { stroke: #FFA94D; }
