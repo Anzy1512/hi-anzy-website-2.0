@@ -6,6 +6,9 @@ import logging
 import math
 import os
 import smtplib
+import secrets
+import hashlib
+import html
 import time
 import uuid
 from contextlib import asynccontextmanager, suppress
@@ -18,10 +21,13 @@ from typing import List, Optional, Dict, Any
 import requests as http_requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, TypeAdapter, ValidationError, field_validator
 from pymongo import ReturnDocument
 from starlette.middleware.cors import CORSMiddleware
+
+from operations import pending_delivery, deliver_record, notification_loop
 
 from seed_data import CASE_STUDIES, NETWORK_RESOURCES, INSIGHTS, PORTFOLIO_GROUPS, ECOSYSTEM_ITEMS
 
@@ -46,15 +52,18 @@ IS_PRODUCTION = ENVIRONMENT not in {"development", "dev", "local"}
 @asynccontextmanager
 async def lifespan(app):
     prune_task = None
+    delivery_task = None
     try:
         await seed()
         prune_task = asyncio.create_task(_prune_rate_limiter_loop())
+        delivery_task = asyncio.create_task(notification_loop(db, send_contact_notification, send_subscription_confirmation, mail_configured))
         yield
     finally:
-        if prune_task:
-            prune_task.cancel()
-            with suppress(asyncio.CancelledError):
-                await prune_task
+        for task in (prune_task, delivery_task):
+            if task:
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
         client.close()
 
 
@@ -108,7 +117,7 @@ class SubscribeCreate(BaseModel):
 ALLOWED_EVENTS = {
     "cta_primary_click", "method_explored", "service_explored", "diagnostic_cta_click",
     "case_opened", "network_category_selected", "discipline_opened", "network_deep_dive",
-    "network_profile_opened", "resource_requested", "contact_started", "contact_form_abandoned",
+    "network_profile_opened", "resource_requested", "resource_discussed", "contact_started", "contact_form_abandoned",
     "contact_validation_failed", "contact_completed", "service_to_case", "portfolio_item_opened",
     "case_expanded", "case_to_service", "command_palette_opened", "command_palette_navigate",
     "notes_subscribed", "next_step_click", "package_module_added", "package_brief_sent",
@@ -232,7 +241,7 @@ def _send_email_sync(subject: str, text: str, to: str, from_addr: str) -> bool:
     smtp_host = os.environ.get("SMTP_HOST")
     if smtp_host:
         try:
-            smtp_port = int(os.environ.get("SMTP_PORT", 587))
+            smtp_port = int(os.environ.get("SMTP_PORT") or 587)
             smtp_user = os.environ.get("SMTP_USER", "")
             smtp_pass = os.environ.get("SMTP_PASS", "")
             msg = MIMEText(text)
@@ -252,8 +261,8 @@ def _send_email_sync(subject: str, text: str, to: str, from_addr: str) -> bool:
     return False
 
 
-async def send_email(subject: str, text: str) -> bool:
-    notify_to = os.environ.get("CONTACT_NOTIFY_EMAIL")
+async def send_email(subject: str, text: str, to: Optional[str] = None) -> bool:
+    notify_to = to or os.environ.get("CONTACT_NOTIFY_EMAIL")
     from_addr = os.environ.get("RESEND_FROM") or os.environ.get("SMTP_USER")
     if not notify_to:
         return False
@@ -265,6 +274,37 @@ async def send_email(subject: str, text: str) -> bool:
     except Exception as e:
         logger.warning("Email notification failed: %s", type(e).__name__)
         return False
+
+
+def mail_configured() -> bool:
+    sender = os.environ.get("RESEND_FROM") or os.environ.get("SMTP_USER")
+    return bool(sender and (os.environ.get("RESEND_API_KEY") or os.environ.get("SMTP_HOST")))
+
+
+def public_site_url() -> str:
+    return (os.environ.get("SITE_URL") or "https://hianzy.com").rstrip("/")
+
+
+def public_api_url() -> str:
+    return (os.environ.get("PUBLIC_API_URL") or public_site_url()).rstrip("/")
+
+
+async def send_contact_notification(record):
+    fields = ["name", "email", "phone", "company", "role", "website", "stage", "investmentRange", "timeline", "message"]
+    text = "\n".join(f"{key}: {record.get(key) or '-'}" for key in fields)
+    return await send_email(f"New enquiry: {record['name']}", f"Enquiry: {record['id']}\n{text}")
+
+
+async def send_subscription_confirmation(record):
+    if record.get("confirmed") or record.get("unsubscribed"):
+        return True
+    token = record.get("confirmationToken")
+    if not token or record.get("confirmationExpiresAt", 0) < time.time():
+        return False
+    link = f"{public_api_url()}/api/newsletter/confirm?token={token}"
+    return await send_email("Confirm your hiAnzy notes subscription",
+        f"You asked to receive hiAnzy notes. Confirm your address here:\n{link}\n\n"
+        "This link expires in seven days. If you did not request this, ignore the message.", record["email"])
 
 
 # One worker owns these buckets. Multiple workers need a shared rate-limit store.
@@ -396,13 +436,12 @@ async def create_contact(payload: ContactCreate, request: Request):
         **payload.model_dump(exclude={"orgField"}),
         "ip": ip,
         "createdAt": now_iso(),
+        "reviewStatus": "new",
+        "delivery": pending_delivery(),
     }
     await db.contact_submissions.insert_one(doc)
 
-    email_sent = await send_email(
-        subject=f"New contact from {payload.name} ({payload.email})",
-        text=f"Name: {payload.name}\nEmail: {payload.email}\nPhone: {payload.phone or '—'}\nCompany: {payload.company or '—'}\nMessage:\n{payload.message}",
-    )
+    email_sent = await deliver_record(db.contact_submissions, sub_id, send_contact_notification) if mail_configured() else False
 
     return {"ok": True, "id": sub_id, "emailSent": email_sent}
 
@@ -419,6 +458,7 @@ async def create_subscription(payload: SubscribeCreate, request: Request):
         raise HTTPException(status_code=429, detail="Please try again in a few minutes", headers={"Retry-After": "600"})
 
     email = payload.email.lower().strip()
+    token = secrets.token_urlsafe(32)
     result = await db.subscribers.update_one(
         {"email": email},
         {
@@ -431,16 +471,32 @@ async def create_subscription(payload: SubscribeCreate, request: Request):
                 "id": str(uuid.uuid4()),
                 "createdAt": now_iso(),
                 "confirmed": False,
+                "unsubscribed": False,
+                "confirmationToken": token,
+                "confirmationHash": hashlib.sha256(token.encode()).hexdigest(),
+                "confirmationExpiresAt": time.time() + 7 * 86400,
+                "unsubscribeToken": secrets.token_urlsafe(32),
+                "delivery": pending_delivery(),
             },
         },
         upsert=True,
     )
 
-    if result.upserted_id is not None:
-        await send_email(
-            subject=f"New notes subscriber: {email}",
-            text=f"Email: {email}\nSource: {payload.source or '-'}\n",
+    if result.upserted_id is None:
+        # Allow another opt-in after expiry or unsubscribe, without changing a
+        # current confirmed subscription or disclosing whether it exists.
+        await db.subscribers.update_one(
+            {"email": email, "$or": [{"unsubscribed": True},
+                {"confirmed": False, "confirmationExpiresAt": {"$lt": time.time()}},
+                {"confirmed": False, "confirmationHash": {"$exists": False}}]},
+            {"$set": {"confirmed": False, "unsubscribed": False,
+                "confirmationToken": token, "confirmationHash": hashlib.sha256(token.encode()).hexdigest(),
+                "confirmationExpiresAt": time.time() + 7 * 86400,
+                "unsubscribeToken": secrets.token_urlsafe(32), "delivery": pending_delivery()}},
         )
+    if mail_configured():
+        subscriber = await db.subscribers.find_one({"email": email})
+        await deliver_record(db.subscribers, subscriber["id"], send_subscription_confirmation)
 
     return {"ok": True}
 
@@ -470,7 +526,7 @@ async def list_subscribers(request: Request):
     """Return subscribers to configured administrators."""
     await require_admin(request)
 
-    cursor = db.subscribers.find({}, {"_id": 0, "ip": 0}).sort("createdAt", -1)
+    cursor = db.subscribers.find({}, {"_id": 0, "ip": 0, "confirmationToken": 0, "confirmationHash": 0, "unsubscribeToken": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=500)
 
 
@@ -481,6 +537,112 @@ async def list_contact_submissions(request: Request):
 
     cursor = db.contact_submissions.find({}, {"_id": 0, "ip": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=200)
+
+
+class EnquiryReview(BaseModel):
+    status: str
+
+    @field_validator("status")
+    @classmethod
+    def known_status(cls, value):
+        if value not in {"new", "in_progress", "replied", "closed"}:
+            raise ValueError("Unknown review status")
+        return value
+
+
+@api_router.patch("/contact-submissions/{record_id}")
+async def review_enquiry(record_id: str, payload: EnquiryReview, request: Request):
+    user = await require_admin(request)
+    result = await db.contact_submissions.update_one({"id": record_id}, {"$set": {
+        "reviewStatus": payload.status, "reviewedAt": now_iso(), "reviewedBy": user["email"]}})
+    if not result.matched_count:
+        raise HTTPException(404, "Enquiry not found")
+    return {"ok": True}
+
+
+@api_router.post("/contact-submissions/{record_id}/retry")
+async def retry_enquiry(record_id: str, request: Request):
+    await require_admin(request)
+    result = await db.contact_submissions.update_one(
+        {"id": record_id, "$or": [{"delivery.status": {"$in": ["failed", "retry", "pending"]}},
+                                   {"delivery": {"$exists": False}}]},
+        {"$set": {"delivery": pending_delivery()}},
+    )
+    if not result.matched_count:
+        raise HTTPException(409, "Enquiry unavailable or delivery is already sent/in progress")
+    return {"ok": True}
+
+
+@api_router.get("/operations/status")
+async def operations_status(request: Request):
+    await require_admin(request)
+    return {"mailConfigured": mail_configured(),
+            "notificationRecipientConfigured": bool(os.environ.get("CONTACT_NOTIFY_EMAIL")),
+            "newEnquiries": await db.contact_submissions.count_documents({"reviewStatus": {"$in": ["new", None]}}),
+            "failedNotifications": await db.contact_submissions.count_documents({"delivery.status": "failed"})}
+
+
+class SubscriptionToken(BaseModel):
+    token: str = Field(min_length=32, max_length=128)
+
+
+@api_router.get("/newsletter/{action}", response_class=HTMLResponse)
+async def newsletter_action_page(action: str, token: str = ""):
+    if action not in {"confirm", "unsubscribe"} or not 32 <= len(token) <= 128:
+        raise HTTPException(400, "Invalid subscription link")
+    verb = "Confirm subscription" if action == "confirm" else "Unsubscribe"
+    # GET renders only: email scanners must not confirm or remove subscriptions.
+    return HTMLResponse(f"""<!doctype html><html lang="en"><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+    <title>{verb} | hiAnzy</title><body><main><h1>{verb}</h1>
+    <form method="post"><input type="hidden" name="token" value="{html.escape(token, quote=True)}">
+    <button>{verb}</button></form></main></body></html>""",
+    headers={"Referrer-Policy": "no-referrer", "Cache-Control": "no-store"})
+
+
+@api_router.post("/newsletter/{action}")
+async def newsletter_action(action: str, request: Request):
+    if action not in {"confirm", "unsubscribe"}:
+        raise HTTPException(404, "Unknown subscription action")
+    if rate_limited("newsletter_action", request.client.host if request.client else "unknown", 20, 600):
+        raise HTTPException(429, "Please try again later")
+    is_json = "application/json" in request.headers.get("content-type", "")
+    if is_json:
+        try:
+            raw = await request.json()
+        except ValueError:
+            raise HTTPException(400, "Invalid JSON")
+    else:
+        from urllib.parse import parse_qs
+        body = await request.body()
+        if len(body) > 1024:
+            raise HTTPException(413, "Request too large")
+        try:
+            raw = {k: v[0] for k, v in parse_qs(body.decode()).items()}
+        except UnicodeDecodeError:
+            raise HTTPException(400, "Invalid form encoding")
+    try:
+        token = SubscriptionToken.model_validate(raw).token
+    except ValidationError:
+        raise HTTPException(400, "Invalid subscription link")
+    if action == "confirm":
+        result = await db.subscribers.update_one(
+            {"confirmationHash": hashlib.sha256(token.encode()).hexdigest(),
+             "confirmationExpiresAt": {"$gt": time.time()}, "unsubscribed": False},
+            {"$set": {"confirmed": True, "confirmedAt": now_iso()},
+             "$unset": {"confirmationToken": "", "confirmationHash": ""}},
+        )
+    else:
+        result = await db.subscribers.update_one({"unsubscribeToken": token},
+            {"$set": {"unsubscribed": True, "confirmed": False, "unsubscribedAt": now_iso()},
+             "$unset": {"confirmationToken": "", "confirmationHash": ""}})
+    if not result.matched_count:
+        raise HTTPException(400, "This link is invalid, expired or already used")
+    if is_json:
+        return {"ok": True}
+    message = "Subscription confirmed." if action == "confirm" else "You have been unsubscribed."
+    return HTMLResponse(f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex"><title>hiAnzy notes</title><main><h1>{message}</h1><a href="{html.escape(public_site_url(), quote=True)}">Return to hiAnzy</a></main></html>',
+        headers={"Referrer-Policy": "no-referrer", "Cache-Control": "no-store"})
 
 
 @api_router.post("/analytics/event")
@@ -497,7 +659,7 @@ async def track_event(evt: AnalyticsEvent, request: Request):
     return {"ok": True}
 
 
-EMERGENT_SESSION_DATA_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+EMERGENT_SESSION_DATA_URL = os.environ.get("AUTH_SESSION_DATA_URL") or "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 SESSION_COOKIE = "session_token"
 SESSION_TTL_DAYS = 7
 cookie_secure_setting = os.environ.get("COOKIE_SECURE", "").strip().lower()
@@ -671,6 +833,7 @@ async def upsert_all(collection, docs: List[dict], key: str) -> int:
 async def seed():
     for collection, key in (
         (db.subscribers, "email"),
+        (db.newsletter_deliveries, "id"),
         (db.users, "email"),
         (db.user_sessions, "session_token"),
         (db.case_studies, "slug"),
@@ -701,7 +864,7 @@ async def security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), interest-cohort=()"
     response.headers["Cross-Origin-Resource-Policy"] = "same-site"
     response.headers["Server"] = "hi-anzy"

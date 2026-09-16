@@ -1,0 +1,121 @@
+{
+  "cases": [
+    {
+      "slug": "the-storefront-was-never-the-problem",
+      "title": "The Storefront Was Never the Problem",
+      "summary": "A brand convinced it needed a prettier website. It needed a retention system."
+    },
+    {
+      "slug": "a-rebrand-that-turned-out-to-be-a-pricing-problem",
+      "title": "A Rebrand That Turned Out to Be a Pricing Problem",
+      "summary": "The brief said rebrand. The diagnostic said the brand was fine and the pricing was mysterious."
+    },
+    {
+      "slug": "commerce-untangled",
+      "title": "Commerce, Untangled",
+      "summary": "Five venues, four booking tools, three spreadsheets, one very tired operations head."
+    },
+    {
+      "slug": "launch-systems-for-a-festival-season",
+      "title": "Launch Systems for a Festival Season",
+      "summary": "A product launch that needed creators, venues, media and logistics to behave like one system."
+    },
+    {
+      "slug": "the-dashboard-nobody-opened",
+      "title": "The Dashboard Nobody Opened",
+      "summary": "An internal-tools build by a technologist in the hiAnzy network. Classified accordingly."
+    }
+  ],
+  "insights": [
+    {
+      "slug": "looking-busy-is-not-a-growth-strategy",
+      "title": "Looking Busy Is Not a Growth Strategy",
+      "excerpt": "Activity is easy to schedule and satisfying to report. Progress is neither. Here is how to tell which one your company is running on.",
+      "seo": {
+        "title": "Looking Busy Is Not a Growth Strategy | hiAnzy",
+        "description": "How to tell the difference between activity and progress in your business, and what a systems diagnostic actually looks for."
+      }
+    },
+    {
+      "slug": "the-invoice-should-not-be-the-strategy",
+      "title": "The Invoice Should Not Be the Strategy",
+      "excerpt": "When a vendor's recommendation always matches the vendor's rate card, you are not buying strategy. You are buying inventory.",
+      "seo": {
+        "title": "The Invoice Should Not Be the Strategy | hiAnzy",
+        "description": "Why vendor recommendations so often match vendor rate cards, and how to buy diagnosis before prescription."
+      }
+    },
+    {
+      "slug": "clarity-converts-before-the-cta-does",
+      "title": "Clarity Converts Before the CTA Does",
+      "excerpt": "People rarely buy what they do not understand. Most conversion problems are comprehension problems wearing a design costume.",
+      "seo": {
+        "title": "Clarity Converts Before the CTA Does | hiAnzy",
+        "description": "Why most conversion problems are comprehension problems, and how positioning work quietly does the selling."
+      }
+    },
+    {
+      "slug": "ai-is-not-the-strategy",
+      "title": "AI Is Not the Strategy",
+      "excerpt": "Adopting AI because competitors are adopting AI is how companies end up automating processes that should not exist.",
+      "seo": {
+        "title": "AI Is Not the Strategy | hiAnzy",
+        "description": "A practical way to decide where AI belongs in your business, and where it is expensive theatre."
+      }
+    },
+    {
+      "slug": "a-better-funnel-cannot-rescue-a-confused-offer",
+      "title": "A Better Funnel Cannot Rescue a Confused Offer",
+      "excerpt": "Before optimising the journey, check the destination. Most funnel leaks are offer leaks measured downstream.",
+      "seo": {
+        "title": "A Better Funnel Cannot Rescue a Confused Offer | hiAnzy",
+        "description": "Why funnel optimisation fails when the offer is unclear, and the order of operations that actually moves revenue."
+      }
+    },
+    {
+      "slug": "the-problem-behind-the-problem",
+      "title": "The Problem Behind the Problem",
+      "excerpt": "Notes from a year of diagnostics: the brief is almost never the problem. It is the symptom the company could see from where it was standing.",
+      "seo": {
+        "title": "The Problem Behind the Problem | hiAnzy",
+        "description": "Field notes on why the first brief is usually a symptom, and how good questions find the actual gap."
+      }
+    },
+    {
+      "slug": "what-does-a-business-systems-consultancy-do",
+      "title": "What Does a Business Systems Consultancy Actually Do?",
+      "excerpt": "Plain answers to the questions people ask before they hire us: what the work is, what it costs in time, and when you genuinely do not need it.",
+      "seo": {
+        "title": "What Does a Business Systems Consultancy Do? | hiAnzy",
+        "description": "A business systems consultancy diagnoses why the parts of your company work against each other, then rebuilds them as one operating system. Here is what that involves."
+      }
+    },
+    {
+      "slug": "how-to-brief-a-project-when-you-dont-know-whats-wrong",
+      "title": "How to Brief a Project When You Do Not Know What Is Wrong",
+      "excerpt": "A practical guide to writing a brief that gets you a correct answer rather than a fast one, including what to bring and what to leave out.",
+      "seo": {
+        "title": "How to Write a Project Brief When the Problem Is Unclear | hiAnzy",
+        "description": "You do not need a finished brief to start. Bring symptoms, numbers and constraints, and let the diagnosis define the deliverable."
+      }
+    },
+    {
+      "slug": "writing-for-humans-and-answer-engines",
+      "title": "Writing for Humans and Answer Engines Without Wrecking Either",
+      "excerpt": "AI assistants now answer the question your page used to. Here is how to structure content so it gets cited, without turning your writing into keyword sludge.",
+      "seo": {
+        "title": "SEO for AI Answer Engines: How to Get Cited | hiAnzy",
+        "description": "Answer engine optimisation in practice: lead with the answer, structure for extraction, publish real schema, and keep the writing worth reading."
+      }
+    },
+    {
+      "slug": "why-we-package-services",
+      "title": "Packages Exist Because Sequencing Is the Hard Part",
+      "excerpt": "Why our work is grouped into stages rather than sold as a menu of services, and how to tell which stage your business is actually in.",
+      "seo": {
+        "title": "Why hiAnzy Packages Services by Stage | hiAnzy",
+        "description": "Services sold as a menu let you buy in the wrong order. Packaging by development stage makes sequence the default rather than an accident."
+      }
+    }
+  ]
+}

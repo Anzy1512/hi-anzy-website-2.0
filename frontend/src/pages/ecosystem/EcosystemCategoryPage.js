@@ -136,7 +136,7 @@ export const EcosystemCategoryPage = ({ category }) => {
                   )}
                   {item.shortDescription && <p className="mt-3 text-[14.5px] leading-[1.55] text-[#232A2A]/75">{item.shortDescription}</p>}
                   <div className="mt-4 flex items-center justify-between gap-3">
-                    <p className="sys-chip text-[#232A2A]/35">VERIFIED {item.lastVerified}</p>
+                    <p className="sys-chip text-[#232A2A]/35">LAST VERIFIED {item.lastVerified}</p>
                     {!isCaseStudy && item.links?.[0] && (
                       <a
                         href={item.links[0]}

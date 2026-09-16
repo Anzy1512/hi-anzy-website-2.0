@@ -67,6 +67,8 @@ server {
 
     # Client-side routing: everything else is a React route, served the shell.
     # index.html carries the asset hashes, so it must not be cached.
+    error_page 404 /404.html;
+
     location / {
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options        "SAMEORIGIN" always;
@@ -74,6 +76,6 @@ server {
         add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
         add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
         add_header Cache-Control          "no-cache, must-revalidate" always;
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri.html $uri/ =404;
     }
 }

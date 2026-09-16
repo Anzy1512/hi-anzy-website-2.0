@@ -1,11 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { API } from "@/lib/api";
 
-/**
- * Emergent managed Google sign-in.
- * REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
- */
+// Google sign-in through the configured compatible session provider.
 
 const AuthContext = createContext({ user: null, loading: true, login: () => {}, logout: () => {} });
 
@@ -38,9 +36,10 @@ export const AuthProvider = ({ children }) => {
   }, [checkAuth]);
 
   const login = useCallback(() => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     const redirectUrl = window.location.origin + "/";
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+    const loginUrl = new URL(import.meta.env.VITE_AUTH_LOGIN_URL || "https://auth.emergentagent.com/");
+    loginUrl.searchParams.set("redirect", redirectUrl);
+    window.location.href = loginUrl.href;
   }, []);
 
   const logout = useCallback(async () => {
@@ -87,7 +86,10 @@ export const AuthCallback = () => {
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("exchange failed"))))
       .then((data) => finish(data.user))
-      .catch(() => finish(null));
+      .catch(() => {
+        finish(null);
+        toast.error("Sign-in could not be completed. Please try again.");
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

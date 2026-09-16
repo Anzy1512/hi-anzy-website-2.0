@@ -70,3 +70,7 @@ Backend tests use MongoDB at `127.0.0.1:27117` by default. Set `TEST_MONGO_URL` 
 The September 12 release includes functional fixes without a redesign. See [release notes](docs/release-2.0.md) for changes and checks. Dependencies, generated builds, Desktop reference documents and private recovery backups are outside Git. Previous audit reports describe earlier project states.
 
 Private project. All rights reserved.
+
+## Operating the website
+
+See [the operations guide](docs/operations.md) for enquiry review, failed-delivery retries, confirmed newsletter sending, deployment settings and backup/restore requirements. See [the fix report](docs/fix-report.md) for verified changes and remaining owner inputs.

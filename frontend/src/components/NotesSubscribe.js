@@ -75,10 +75,10 @@ export const NotesSubscribe = ({
         </span>
         <div>
           <p className="font-display text-xl text-[#232A2A]">
-            Done. You are on the list.
+            Check your inbox to confirm.
           </p>
           <p className="font-mono-sys mt-1.5 text-[12.5px] leading-relaxed text-[#232A2A]/60">
-            Notes only. No sequences, no drip, no “quick check-in”. Unsubscribe from any of them.
+            Your request is saved. Use the confirmation link we send before receiving notes. You can unsubscribe from every note.
           </p>
         </div>
       </div>

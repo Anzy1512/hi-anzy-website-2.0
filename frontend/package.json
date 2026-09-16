@@ -46,7 +46,9 @@
     "check:seo": "vitest run src/components/Seo.test.jsx --configLoader native",
     "sitemap": "node scripts/generate-sitemap.js",
     "preview": "vite preview --host 127.0.0.1 --port 3100 --strictPort --configLoader native",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "postbuild": "node scripts/prerender-metadata.cjs",
+    "test:build": "node --test scripts/build.test.cjs"
   },
   "browserslist": {
     "production": [

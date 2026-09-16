@@ -45,6 +45,9 @@ services:
     environment:
       MONGO_URL: mongodb://mongo:27017
       DB_NAME: ${DB_NAME:-hianzy}
+      SITE_URL: ${SITE_URL:-http://localhost:8080}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8010}
+      AUTH_SESSION_DATA_URL: ${AUTH_SESSION_DATA_URL:-}
       # The browser calls the API from the site's origin, so that origin is
       # what has to be allowed — not the API's own.
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
@@ -71,6 +74,7 @@ services:
         # than runtime environment. Changing them means rebuilding the image.
         SITE_URL: ${SITE_URL:-http://localhost:8080}
         REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL:-http://localhost:8010}
+        VITE_AUTH_LOGIN_URL: ${VITE_AUTH_LOGIN_URL:-}
     environment:
       # Origins the page is allowed to call, appended to the CSP's connect-src.
       # Defaults to the API this compose file publishes; set it to the real API

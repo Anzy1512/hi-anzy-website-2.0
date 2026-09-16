@@ -7,11 +7,11 @@ const SIGNAL = "#df5634";
 const MOSS = "#81947c";
 
 const CASE_BANNERS = {
-  "the-storefront-was-never-the-problem": { variant: "retention", code: "LOOP / 01", caption: "DISCOVER → RETURN" },
-  "a-rebrand-that-turned-out-to-be-a-pricing-problem": { variant: "pricing", code: "OFFER / 02", caption: "CLARITY → CONFIDENCE" },
-  "commerce-untangled": { variant: "hospitality", code: "NETWORK / 03", caption: "VENUE → GUEST → TEAM" },
-  "launch-systems-for-a-festival-season": { variant: "launch", code: "LAUNCH / 04", caption: "STORY → MOMENT → REACH" },
-  "the-dashboard-nobody-opened": { variant: "dashboard", code: "DECISION / 05", caption: "SEE → DECIDE → ACT" },
+  "the-storefront-was-never-the-problem": { variant: "retention", code: "LOOP", caption: "DISCOVER → RETURN" },
+  "a-rebrand-that-turned-out-to-be-a-pricing-problem": { variant: "pricing", code: "OFFER", caption: "CLARITY → CONFIDENCE" },
+  "commerce-untangled": { variant: "hospitality", code: "NETWORK", caption: "VENUE → GUEST → TEAM" },
+  "launch-systems-for-a-festival-season": { variant: "launch", code: "LAUNCH", caption: "STORY → MOMENT → REACH" },
+  "the-dashboard-nobody-opened": { variant: "dashboard", code: "DECISION", caption: "SEE → DECIDE → ACT" },
 };
 
 const SERVICE_BANNERS = {

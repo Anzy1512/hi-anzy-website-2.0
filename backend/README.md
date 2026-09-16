@@ -45,3 +45,7 @@ From the project root, with local MongoDB running:
 ```
 
 Tests create and remove their own uniquely named `hianzy_test_*` database. They never use the preview database for submissions. The rate limiter is in memory and assumes a single API worker; multiple workers require a shared store.
+
+## Operations
+
+`operations.py` owns durable notification attempts and retry leases. `manage.py` provides the local operator console. Enquiries retain their review and delivery state in MongoDB. Newsletter delivery requires explicit confirmation and includes unsubscribe handling. See [operations](../docs/operations.md) before enabling real mail.

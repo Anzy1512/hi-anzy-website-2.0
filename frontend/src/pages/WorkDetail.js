@@ -102,7 +102,7 @@ export default function WorkDetail() {
                 <div className="sm:col-span-3">
                   <p className={`sys-chip flex items-center gap-2 ${s.key === "result" ? "accent-orange-text" : "text-[#232A2A]/55"}`}>
                     {s.key === "gap" && <span className="red-bar" />}
-                    {String(i + 1).padStart(2, "0")} {s.label}
+                    {s.label}
                   </p>
                 </div>
                 <p className={`text-[17px] leading-[1.6] sm:col-span-9 ${s.key === "result" ? "text-[#F7F5EE]/88" : "text-[#232A2A]/85"}`}>{cs[s.key]}</p>

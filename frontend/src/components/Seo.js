@@ -41,32 +41,7 @@ const upsertLink = (rel, href) => {
   el.setAttribute("href", href);
 };
 
-/**
- * This app has no server-side render — the HTML nginx hands out is the same
- * static shell for every route, and only fills in per-page title/meta/schema
- * once JavaScript runs. Anything that reads raw HTML without executing JS
- * (link-preview bots on Slack/WhatsApp/LinkedIn, some SEO crawlers in their
- * default mode) previously saw an identical, generic page for all 49 routes.
- * Google's own render pass does execute JS and picks these up correctly, but
- * that is a second, delayed pass — it is not the same as being right the
- * first time. canonical/og:url/twitter:card close the correctness gap for
- * every JS-executing consumer; a real prerendered og:image per page is a
- * separate, larger piece of work and is deliberately not faked here with a
- * stretched wordmark.
- *
- * Direct DOM writes in a plain useEffect, not react-helmet-async. That
- * library was the original approach here — it exists specifically to make
- * head tags work identically whether a page is server- or client-rendered,
- * which is a real problem for apps with SSR and not one this app has. It
- * also, confirmed by testing the single simplest possible case (a static
- * <Helmet><title>x</title></Helmet> rendered directly in the provider, no
- * route, no props, no re-renders), silently produced no output at all in
- * this environment: document.title never left the static index.html value
- * on any of 49 routes, and neither did a single og:/twitter:/canonical tag
- * or JSON-LD block ever reach <head> — not stale content, none. A dependency
- * an app doesn't need the one thing it does is not worth debugging further
- * when the replacement is four small DOM helpers.
- */
+/** Keep metadata current during client-side navigation; builds also generate it in raw HTML. */
 export const Seo = ({ title, description, jsonLd, image, noIndex }) => {
   useEffect(() => {
     document.title = title;

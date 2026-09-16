@@ -563,7 +563,7 @@ export default function Network() {
                                   ))}
                                 </ul>
                                 {r.note && <p className="font-mono-sys mt-3 text-[12px] leading-relaxed text-[#232A2A]/55">{r.note}</p>}
-                                <p className="sys-chip mt-3 text-[#232A2A]/35">VERIFIED {r.lastVerified}</p>
+                                <p className="sys-chip mt-3 text-[#232A2A]/35">LAST VERIFIED {r.lastVerified}</p>
                               </article>
                             </Reveal>
                           ))}

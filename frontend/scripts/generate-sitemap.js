@@ -83,6 +83,8 @@ const getJson = (url) =>
     });
   });
 
+const validRecords = (items) => Array.isArray(items) && items.every(item => item && typeof item.slug === "string" && /^[a-z0-9-]+$/.test(item.slug));
+
 const xmlEscape = (s) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
@@ -98,7 +100,7 @@ const xmlEscape = (s) =>
 
   const insights = await getJson(`${API}/api/insights`);
   let insightCount = 0;
-  if (Array.isArray(insights)) {
+  if (validRecords(insights)) {
     insights.forEach((i) => {
       if (!i || !i.slug) return;
       urls.push({ loc: `/insights/${i.slug}`, priority: 0.7, changefreq: "monthly" });
@@ -108,7 +110,7 @@ const xmlEscape = (s) =>
 
   const cases = await getJson(`${API}/api/case-studies`);
   let caseCount = 0;
-  if (Array.isArray(cases)) {
+  if (validRecords(cases)) {
     cases.forEach((c) => {
       if (!c || !c.slug) return;
       urls.push({ loc: `/work/${c.slug}`, priority: 0.7, changefreq: "monthly" });
@@ -142,45 +144,30 @@ const xmlEscape = (s) =>
 
   const out = path.join(ROOT, "public", "sitemap.xml");
 
-  /**
-   * If the API was unreachable, this run produced a sitemap missing every
-   * database-backed page. Overwriting a fuller one with it would quietly shrink
-   * the site's coverage — which is exactly what happened building inside a
-   * container, where localhost is the container's own loopback and nothing is
-   * listening on it. A partial sitemap is fine to create; it is not fine to
-   * write over a complete one.
-   */
-  const apiReachable = insightCount + caseCount > 0;
-  let wroteExisting = false;
-  if (!apiReachable && fs.existsSync(out)) {
-    const existing = fs.readFileSync(out, "utf8");
-    const existingCount = (existing.match(/<loc>/g) || []).length;
-    if (existingCount > final.length) {
-      /**
-       * Coverage from the old file is worth keeping; its domain is not. The
-       * file on disk was written by whatever SITE_URL that earlier run had —
-       * almost always the real production domain, since a container build is
-       * exactly the situation with no API to reach. Writing it back unchanged inside a
-       * container built for a different origin (say http://localhost:8080)
-       * would ship a sitemap that correctly lists every page and incorrectly
-       * tells every one of them apart from where they actually are. Every
-       * <loc> is re-based onto this run's SITE, and lastmod is not touched —
-       * these paths were not actually re-verified today.
-       */
-      const rebased = existing.replace(
-        /<loc>https?:\/\/[^/]+(\/[^<]*)<\/loc>/g,
-        (m, pathPart) => `<loc>${xmlEscape(SITE + pathPart)}</loc>`
-      );
-      fs.writeFileSync(out, rebased, "utf8");
-      wroteExisting = true;
-      console.log(
-        `sitemap: kept the existing ${existingCount} urls, re-based onto ${SITE} — ` +
-          `this run reached no API and would have written only ${final.length}`
-      );
+  // Recover only the route families whose endpoint failed. A successful empty
+  // array is authoritative and must remove stale URLs for that family.
+  const failedFamilies = [
+    !validRecords(insights) && "/insights/",
+    !validRecords(cases) && "/work/",
+  ].filter(Boolean);
+  let outputXml = xml;
+  if (failedFamilies.length && fs.existsSync(out)) {
+    const previous = fs.readFileSync(out, "utf8");
+    const preserved = [];
+    for (const block of previous.match(/<url>[\s\S]*?<\/url>/g) || []) {
+      const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
+      if (!loc) continue;
+      const route = new URL(loc.replace(/&amp;/g, "&")).pathname;
+      if (!failedFamilies.some(prefix => route.startsWith(prefix)) || byLoc.has(route)) continue;
+      preserved.push(block.replace(/<loc>[^<]+<\/loc>/, `<loc>${xmlEscape(SITE + route)}</loc>`));
     }
+    outputXml = xml.replace("</urlset>", preserved.join("\n") + "\n</urlset>");
+    console.log(`sitemap: preserved ${preserved.length} paths from unavailable content endpoints`);
   }
-
-  if (!wroteExisting) fs.writeFileSync(out, xml, "utf8");
+  if (failedFamilies.length && !fs.existsSync(out)) {
+    throw new Error("Cannot generate a complete sitemap: content API unavailable and no previous sitemap exists");
+  }
+  fs.writeFileSync(out, outputXml, "utf8");
 
   // robots.txt should name the sitemap; add it once, keep it current
   const robotsPath = path.join(ROOT, "public", "robots.txt");
