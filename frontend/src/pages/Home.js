@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Seo } from "@/components/Seo";
 import { PunRow } from "@/components/PunPop";
 import { SectionConnector } from "@/components/SectionConnector";
@@ -18,7 +18,10 @@ import { Trust } from "@/pages/home/Trust";
 import { WhoWith } from "@/pages/home/WhoWith";
 import { Closing } from "@/pages/home/Closing";
 
-import ConnectedStory from "@/pages/home/ConnectedStory";
+// This experience is optional and only appears after the visitor opens the
+// model explorer. Keeping it behind React.lazy prevents its UI, case-study
+// helpers and nested 3D dependency graph from joining the initial home bundle.
+const ConnectedStory = lazy(() => import("@/pages/home/ConnectedStory"));
 
 /* ================================ PAGE ================================ */
 export default function Home() {
@@ -96,7 +99,11 @@ export default function Home() {
           <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-5 font-display text-xl font-semibold">
             Explore the connected business in 3D <span className="faq-plus" aria-hidden="true">+</span>
           </summary>
-          {modelOpen && <ConnectedStory mode="model" />}
+          {modelOpen && (
+            <Suspense fallback={<div className="px-6 py-8 sys-chip text-[#232A2A]/50">Preparing the model…</div>}>
+              <ConnectedStory mode="model" />
+            </Suspense>
+          )}
         </details>
       </div>
       <div className="container-page -mt-2 mb-6">
@@ -110,13 +117,6 @@ export default function Home() {
         />
       </div>
       <WhatWeDoGrid />
-      {/* The method used to be explained twice back-to-back here: a compact
-          MethodSection (deleted) immediately followed by this same
-          PinnedSequence, both reading METHOD_STAGES. PinnedSequence is the
-          fuller, canonical version — duration/inputs/outputs per stage, an
-          already-reduced-motion-safe pinned scroll sequence — so it is now
-          the sole method section, with one connector leading into it instead
-          of a pair bracketing the pair. */}
       <SectionConnector variant="left" label="CAPABILITY → METHOD" testId="connector-capability-method" />
       <PinnedSequence
         kicker="THE SEQUENCE"
