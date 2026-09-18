@@ -15,16 +15,19 @@ this session. All rows below are `hi-anzy-website-2.0` on `launch/step-1`.
 | `pytest tests/test_api.py` | PASS (58/59) | real Mongo 7 container on :27117, matching CI. 1 error is a Windows-only pytest tmpdir permission issue, not a code defect — doesn't occur on CI's Ubuntu runner |
 | GitHub Actions `check.yml` (actual CI run) | NOT RUN | not triggered this session; local runs matched CI's own commands exactly |
 
-## DEPLOYMENT
+## DEPLOYMENT (re-audited — architecture corrected from legacy builds/routes to Services)
 | Check | Status | Note |
 |---|---|---|
-| `vercel.json` present | PASS | added this session |
-| `vercel.json` JSON syntax valid | PASS | |
-| Referenced paths exist (`backend/server.py`, `backend/requirements.txt`, `frontend/package.json`) | PASS | |
-| `vercel build` against a real project | BLOCKED | requires `vercel link` with the owner's Vercel account |
-| FastAPI ASGI detection by `@vercel/python` | NOT RUN | can't verify without a real deploy |
-| `/api/*` routing on Vercel | NOT RUN | same |
-| SPA/prerendered-HTML routing on Vercel | NOT RUN | same |
+| `vercel.json` present | PASS | |
+| `vercel.json` JSON syntax valid | PASS | re-validated after rewrite to `services` model |
+| Services architecture verified against current official docs, not assumed | PASS | fetched `vercel.com/docs/services`, `/services/routing`, `/services/config-reference` live |
+| Referenced paths exist (`frontend/`, `backend/`, `backend/server.py`, `backend/requirements.txt`) | PASS | |
+| `vercel dev -L` detects both services from config | PASS | printed `frontend [Vite]`, `backend [FastAPI]` — real CLI output, not inferred |
+| Full local `vercel dev -L` boot | BLOCKED | local machine's Python 3.11 vs. the CLI's own tooling requiring ≥3.12 — a local-tooling limitation, not a config defect; doesn't reflect Vercel's actual cloud Python version |
+| `vercel build`/deploy against a real linked project | BLOCKED | requires `vercel link` with the owner's Vercel account, and "Services (Beta)" + dashboard Framework Preset set to Services |
+| `/api/*` path-preservation traced against documented routing table | PASS | docs explicitly confirm the backend receives the full original path (`/api/users` stays `/api/users`), matching `APIRouter(prefix="/api")` exactly — no code change, no `/api/api` duplication |
+| SPA/prerendered-HTML routing (`cleanUrls`) | NOT RUN (real deploy) | reasoned from documented `cleanUrls` semantics + this project's existing prerendered `.html`/`404.html` files; not blindly copied from generic Vite-SPA advice, which would have regressed the prerender mechanism |
+| Experience Lab present in the Vercel-served output | NOT RUN (real deploy) | traced that Vite's build never touches `frontend/lab/` (outside its `public/` convention) and would omit it; added a scoped `buildCommand` copy step as the fix — reasoning verified, execution needs a real deploy |
 | Mongo connection from Vercel's network | NOT RUN | needs production Mongo URI (owner action) |
 
 ## DOCKER (local parity check — not the production deploy target)
