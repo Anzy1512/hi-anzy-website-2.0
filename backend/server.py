@@ -522,18 +522,20 @@ async def require_admin(request: Request) -> dict:
 
 
 @api_router.get("/subscribers")
-async def list_subscribers(request: Request):
+async def list_subscribers(request: Request, response: Response):
     """Return subscribers to configured administrators."""
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
 
     cursor = db.subscribers.find({}, {"_id": 0, "ip": 0, "confirmationToken": 0, "confirmationHash": 0, "unsubscribeToken": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=500)
 
 
 @api_router.get("/contact-submissions")
-async def list_contact_submissions(request: Request):
+async def list_contact_submissions(request: Request, response: Response):
     """Return enquiries to administrators, excluding stored IP addresses."""
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
 
     cursor = db.contact_submissions.find({}, {"_id": 0, "ip": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=200)
@@ -574,8 +576,9 @@ async def retry_enquiry(record_id: str, request: Request):
 
 
 @api_router.get("/operations/status")
-async def operations_status(request: Request):
+async def operations_status(request: Request, response: Response):
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
     return {"mailConfigured": mail_configured(),
             "notificationRecipientConfigured": bool(os.environ.get("CONTACT_NOTIFY_EMAIL")),
             "newEnquiries": await db.contact_submissions.count_documents({"reviewStatus": {"$in": ["new", None]}}),
@@ -796,7 +799,8 @@ async def auth_session(request: Request, response: Response):
 
 
 @api_router.get("/auth/me")
-async def auth_me(request: Request):
+async def auth_me(request: Request, response: Response):
+    response.headers["Cache-Control"] = "no-store"
     user = await session_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
