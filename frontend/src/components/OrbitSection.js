@@ -50,7 +50,15 @@ export const OrbitSection = () => {
             who, what or where the brief needs next.
           </Reveal>
 
-          <div className="mt-14">
+          {/* The fan's own two outermost cards are deliberately positioned
+              past the stage's measured box -- that's the geometry in
+              useGeometry, not a bug. Left unclipped, they also bled past this
+              section's own container-page edge and forced a page-wide
+              horizontal scrollbar on any viewport under ~1700px. Clipping at
+              the section's width (not the stage's) keeps every card's lift,
+              tilt and drag exactly as EvidenceDeck computes it -- this only
+              stops the bleed from becoming a second, page-level scrollbar. */}
+          <div className="mt-14 overflow-x-hidden">
             <EvidenceDeck items={items} testId="orbit-deck" />
           </div>
 
