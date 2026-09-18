@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import "@/pages/networkPage.css";
 import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, ArrowRight, ChevronDown } from "lucide-react";

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import "@/pages/portfolioWall.css";
 import { Link } from "react-router-dom";
 import { ArrowRight, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
