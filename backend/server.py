@@ -43,7 +43,23 @@ def required_setting(name: str) -> str:
 
 mongo_url = required_setting("MONGO_URL")
 database_name = required_setting("DB_NAME")
-client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
+
+# Vercel sets VERCEL=1 in every deployed function runtime. There the process is
+# a Vercel Function, not a container we own: instances appear and disappear
+# around traffic, several can be live at once, and execution is not guaranteed
+# to continue between requests. Anything that assumes one long-lived process
+# has to be gated on this.
+IS_SERVERLESS = bool(os.environ.get("VERCEL"))
+
+# One client per instance, created at import and reused by every warm
+# invocation — never per request. The smaller serverless pool is deliberate:
+# each live instance opens its own, and the driver default of 100 multiplied by
+# however many instances traffic spins up exhausts a shared Atlas tier's
+# connection cap long before it exhausts the app.
+mongo_options = {"serverSelectionTimeoutMS": 5000}
+if IS_SERVERLESS:
+    mongo_options["maxPoolSize"] = 10
+client = AsyncIOMotorClient(mongo_url, **mongo_options)
 db = client[database_name]
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "production").strip().lower()
@@ -51,19 +67,33 @@ IS_PRODUCTION = ENVIRONMENT not in {"development", "dev", "local"}
 
 @asynccontextmanager
 async def lifespan(app):
-    prune_task = None
-    delivery_task = None
+    tasks = []
     try:
-        await seed()
-        prune_task = asyncio.create_task(_prune_rate_limiter_loop())
-        delivery_task = asyncio.create_task(notification_loop(db, send_contact_notification, send_subscription_confirmation, mail_configured))
+        if IS_SERVERLESS:
+            # Startup runs again on every cold start here, so it has to be fast
+            # and it has to be safe. seed() is neither: ~70 round trips and a
+            # write path, and a transient Mongo error during it takes the whole
+            # instance down — every request 500s instead of degrading. Seeding
+            # is an explicit operator step instead: `python manage.py seed`.
+            #
+            # Both loops below are `while True` workers, and a Vercel Function
+            # is not guaranteed to execute between requests. The prune loop is
+            # also pointless (per-instance memory dies with the instance) and
+            # the delivery retry loop is documented as post-launch. Contact and
+            # subscribe still save durably and still attempt delivery inline,
+            # which is the part that carries the data.
+            logger.info("Serverless runtime: skipping seed and background workers")
+        else:
+            await seed()
+            tasks.append(asyncio.create_task(_prune_rate_limiter_loop()))
+            tasks.append(asyncio.create_task(notification_loop(db, send_contact_notification, send_subscription_confirmation, mail_configured)))
         yield
     finally:
-        for task in (prune_task, delivery_task):
-            if task:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await task
+        # Vercel allows ~500ms after SIGTERM, so teardown stays cancels-only.
+        for task in tasks:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
         client.close()
 
 
@@ -307,7 +337,24 @@ async def send_subscription_confirmation(record):
         "This link expires in seven days. If you did not request this, ignore the message.", record["email"])
 
 
-# One worker owns these buckets. Multiple workers need a shared rate-limit store.
+def client_ip(request: Request) -> str:
+    """The visitor's address, not the proxy sitting in front of us.
+
+    On Vercel the socket peer is Vercel's own infrastructure, so
+    `request.client.host` is the same value for every visitor — a rate limit
+    keyed on it would be one shared global bucket that real users lock each
+    other out of. Vercel overwrites `x-forwarded-for` on the way in and refuses
+    to forward a caller-supplied value, so it is trustworthy *there*. It is not
+    trustworthy anywhere else, which is why nothing reads it off-platform.
+    """
+    if IS_SERVERLESS:
+        forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        if forwarded:
+            return forwarded
+    return request.client.host if request.client else "unknown"
+
+
+# Best-effort, per-instance. See the multi-instance note in LAUNCH_STATE.md.
 _rate: Dict[str, List[float]] = {}
 _RATE_PRUNE_AFTER = 900  # comfortably longer than any bucket's own window
 
@@ -422,7 +469,7 @@ async def list_portfolio():
 
 @api_router.post("/contact")
 async def create_contact(payload: ContactCreate, request: Request):
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
 
     if payload.orgField:
         return {"ok": True, "id": None, "emailSent": False}
@@ -449,7 +496,7 @@ async def create_contact(payload: ContactCreate, request: Request):
 @api_router.post("/subscribe")
 async def create_subscription(payload: SubscribeCreate, request: Request):
     """Save an address once without disclosing existing subscriptions."""
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
 
     if payload.orgField:
         return {"ok": True}
@@ -607,7 +654,7 @@ async def newsletter_action_page(action: str, token: str = ""):
 async def newsletter_action(action: str, request: Request):
     if action not in {"confirm", "unsubscribe"}:
         raise HTTPException(404, "Unknown subscription action")
-    if rate_limited("newsletter_action", request.client.host if request.client else "unknown", 20, 600):
+    if rate_limited("newsletter_action", client_ip(request), 20, 600):
         raise HTTPException(429, "Please try again later")
     is_json = "application/json" in request.headers.get("content-type", "")
     if is_json:
@@ -650,7 +697,7 @@ async def newsletter_action(action: str, request: Request):
 
 @api_router.post("/analytics/event")
 async def track_event(evt: AnalyticsEvent, request: Request):
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     if rate_limited("analytics", ip, max_hits=60, window_seconds=60):
         return {"ok": True}
     await db.analytics_events.insert_one({

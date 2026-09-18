@@ -14,7 +14,19 @@ from operations import pending_delivery, deliver_record
 
 async def run(args):
     db = server.db
-    if args.command == "status":
+    if args.command == "seed":
+        # The API seeds itself on startup when it owns a long-lived process.
+        # On Vercel it deliberately does not (see server.lifespan), so content
+        # reaches a production database through this command instead. Safe to
+        # rerun: seed() upserts by natural key and skips unchanged documents.
+        await server.seed()
+        print(json.dumps({"database": db.name,
+            "caseStudies": await db.case_studies.count_documents({}),
+            "networkResources": await db.network_resources.count_documents({}),
+            "insights": await db.insights.count_documents({}),
+            "portfolioGroups": await db.portfolio_groups.count_documents({}),
+            "ecosystemItems": await db.ecosystem_items.count_documents({})}, indent=2))
+    elif args.command == "status":
         print(json.dumps({"database": db.name, "mailConfigured": server.mail_configured(),
             "adminConfigured": bool(server.os.environ.get("ADMIN_EMAILS")),
             "notificationRecipientConfigured": bool(server.os.environ.get("CONTACT_NOTIFY_EMAIL")),
@@ -76,6 +88,7 @@ async def run(args):
 def parser():
     p = argparse.ArgumentParser(description=__doc__)
     commands = p.add_subparsers(dest="command", required=True)
+    commands.add_parser("seed")
     commands.add_parser("status")
     enquiries = commands.add_parser("enquiries")
     enquiries.add_argument("--status", choices=["all", "new", "in_progress", "replied", "closed"], default="all")

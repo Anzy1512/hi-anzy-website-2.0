@@ -424,3 +424,27 @@ def test_public_metadata_snapshot_matches_seed_content():
     root = Path(__file__).resolve().parents[1]
     actual = json.loads((root / 'frontend/scripts/content-snapshot.json').read_text(encoding='utf-8'))
     assert actual == expected
+
+
+def _request(headers, peer='10.0.0.1'):
+    return Mock(headers=headers, client=Mock(host=peer) if peer else None)
+
+
+def test_client_ip_trusts_the_forwarded_header_only_on_vercel(monkeypatch):
+    """Off Vercel the header is attacker-controlled; on Vercel the platform owns it.
+
+    Getting this backwards fails in opposite, equally bad ways: trusting it
+    everywhere lets anyone rotate the header to walk past the rate limit, and
+    trusting it nowhere buckets every Vercel visitor under one shared proxy
+    address, so real users lock each other out of the contact form.
+    """
+    spoofed = _request({'x-forwarded-for': '203.0.113.9, 10.1.1.1'})
+
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    assert server.client_ip(spoofed) == '10.0.0.1'
+
+    monkeypatch.setattr(server, 'IS_SERVERLESS', True)
+    assert server.client_ip(spoofed) == '203.0.113.9'
+    assert server.client_ip(_request({})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '  '})) == '10.0.0.1'
+    assert server.client_ip(_request({}, peer=None)) == 'unknown'
