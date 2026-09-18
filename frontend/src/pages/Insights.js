@@ -1,6 +1,6 @@
 import { CharacterQuote } from "@/components/CharacterQuote";
 import React, { Suspense, lazy, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Seo } from "@/components/Seo";
 import { NotesSubscribe } from "@/components/NotesSubscribe";
@@ -19,10 +19,18 @@ export default function Insights() {
   const ref = useRevealObserver();
   const reduced = useReducedMotion();
   const [show3d, setShow3d] = useState(false);
-  const [active, setActive] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Bookmarkable/shareable and what search results land on: a search hit for
+  // a category-specific link (or anyone pasting a filtered URL) opens
+  // straight into that category instead of always landing on ALL.
+  const active = searchParams.get("category") || null;
   const [posts, setPosts] = useState(null);
   const [loadError, setLoadError] = useState(false);
   const [retry, setRetry] = useState(0);
+
+  const setActive = (category) => {
+    setSearchParams(category ? { category } : {}, { replace: true });
+  };
 
   useEffect(() => {
     setShow3d(!reduced && webglAvailable());

@@ -27,7 +27,17 @@ export const CommandPalette = () => {
     let current = true;
     import("@/lib/commandIndex")
       .then((mod) => {
-        if (current) setSearchCommandsFn(() => mod.searchCommands);
+        if (!current) return;
+        setSearchCommandsFn(() => mod.searchCommands);
+        // Case studies, insights and ecosystem entries are fetched, not
+        // static, so they land after the module itself resolves. Setting
+        // searchCommandsFn again with a fresh closure (same underlying
+        // function, new reference) is what makes the results memo below
+        // recompute once they arrive — a real dependency change, not a
+        // synthetic counter just to force a re-render.
+        mod.loadDynamicIndex().then(() => {
+          if (current) setSearchCommandsFn(() => mod.searchCommands);
+        });
       })
       .catch(() => {
         if (current) setIndexFailed(true);
