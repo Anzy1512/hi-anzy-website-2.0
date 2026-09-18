@@ -12,6 +12,16 @@
          url(/fonts/...) inside an imported stylesheet as a webpack module
          path and fails the build, not a browser URL. See
          scripts/fetch-fonts.py to regenerate if the weight list changes. -->
+    <!-- .font-display (every heading on every page, including the hero H1
+         that paints first) is this one file. Without the preload, the
+         browser only learns it exists once it has downloaded and parsed
+         fonts.css below — a full extra round trip before the file most
+         likely to gate first paint even starts fetching. font-display: swap
+         in fonts.css already prevents invisible text while it loads; this
+         just makes the wait shorter. Not preloading the other 21 files is
+         deliberate: they cover secondary weights/styles, so preloading them
+         too would compete with this one for the same early bandwidth. -->
+    <link rel="preload" href="/fonts/rajdhani-600-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/fonts.css" />
     <!-- Runs before first paint so a night-mode visitor never sees a paper
          flash. External, not inline: the CSP is script-src 'self' with no
