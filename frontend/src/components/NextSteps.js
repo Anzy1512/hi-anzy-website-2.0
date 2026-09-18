@@ -13,6 +13,16 @@ import { track } from "@/lib/api";
  * not a generic "related links" dump.
  */
 const JOURNEY = {
+  "/work": [
+    { to: "/network", label: "Meet the people behind it", note: "The specialists, collaborators and partners who help deliver work like this." },
+    { to: "/how-we-work", label: "How an engagement runs", note: "The stages, from the first conversation to what gets delivered." },
+    { to: "/contact", label: "Start a conversation", note: "Tell us what you are building and where you need clarity." },
+  ],
+  "/work-detail": [
+    { to: "/work", label: "See more case studies", note: "Other situations, decisions and results across the roster." },
+    { to: "/network", label: "Meet the network", note: "Collaborators, creators and partners behind engagements like this one." },
+    { to: "/insights", label: "How we think, in writing", note: "Notes from the work, published openly." },
+  ],
   "/network": [
     { to: "/work", label: "See the capabilities in context", note: "Explore business problems and the work they call for." },
     { to: "/how-we-work", label: "How the work fits together", note: "Follow the stages, responsibilities and deliverables." },

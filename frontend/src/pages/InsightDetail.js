@@ -21,13 +21,13 @@ export default function InsightDetail() {
   const [notFound, setNotFound] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [retry, setRetry] = useState(0);
-  const [related, setRelated] = useState([]);
+  const [allInsights, setAllInsights] = useState([]);
   const depthTracked = useRef(false);
 
   useEffect(() => {
     let current = true;
     setPost(null);
-    setRelated([]);
+    setAllInsights([]);
     setNotFound(false);
     setLoadError(false);
     depthTracked.current = false;
@@ -36,9 +36,28 @@ export default function InsightDetail() {
       if (error?.response?.status === 404) setNotFound(true);
       else setLoadError(true);
     });
-    getInsights().then(all => { if (!current) return; setRelated(all.filter(x => x.slug !== slug).slice(0, 2)); }).catch(() => {});
+    getInsights().then(all => { if (current) setAllInsights(all); }).catch(() => {});
     return () => { current = false; };
   }, [slug, retry]);
+
+  // "Keep reading" used to be a fixed slice(0, 2) of the full list, so every
+  // article except whichever two happened to sort first pointed the same
+  // pair right back to each other -- most of the archive had zero inbound
+  // links from any other article, reachable only via the /insights index
+  // itself. Same-category picks first (an actual relevance signal), then a
+  // fallback rotated by this article's own position in the full list, so a
+  // reader lands on a different pair depending on where they started instead
+  // of the same two dominating every page.
+  const related = React.useMemo(() => {
+    if (!post || allInsights.length === 0) return [];
+    const others = allInsights.filter((x) => x.slug !== slug);
+    const sameCategory = others.filter((x) => x.category === post.category);
+    const rest = others.filter((x) => x.category !== post.category);
+    const startIdx = allInsights.findIndex((x) => x.slug === slug);
+    const offset = rest.length ? ((startIdx % rest.length) + rest.length) % rest.length : 0;
+    const rotatedRest = rest.length ? [...rest.slice(offset), ...rest.slice(0, offset)] : [];
+    return [...sameCategory, ...rotatedRest].slice(0, 2);
+  }, [post, allInsights, slug]);
 
   // article read-depth analytics
   useEffect(() => {

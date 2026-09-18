@@ -10,6 +10,7 @@ import { useRevealObserver } from "@/lib/motion";
 import { getCaseStudy, getCaseStudies, track } from "@/lib/api";
 import { CATEGORY_BY_SLUG } from "@/data/content";
 import { CaseBanner } from "@/components/ContextBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 const SECTIONS = [
   { key: "situation", label: "SITUATION" },
@@ -173,6 +174,7 @@ export default function WorkDetail() {
           </Link>
         )}
       </article>
+      <NextSteps from="/work-detail" />
     </div>
   );
 }

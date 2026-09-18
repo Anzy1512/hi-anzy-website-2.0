@@ -18,6 +18,7 @@ import { CircularCarousel } from "@/components/ui/circular-carousel";
 import { glyphForGroup } from "@/components/deck/InfographicGlyphs";
 import { PortfolioWallInfographic } from "@/components/PortfolioWallInfographic";
 import { CaseGraphic, CASE_VISUALS } from "@/pages/home/caseVisuals";
+import { NextSteps } from "@/components/NextSteps";
 import axios from "axios";
 
 /**
@@ -393,6 +394,7 @@ export default function Work() {
           <p className="font-mono-sys mt-10 text-[12.5px] text-[#232A2A]/50">Live links and walk-throughs shared in conversation. Some builds live behind client walls.</p>
         </div>
       </section>
+      <NextSteps from="/work" />
     </div>
   );
 }
