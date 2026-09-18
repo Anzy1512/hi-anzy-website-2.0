@@ -4,7 +4,7 @@ import "@/App.css";
 // hand-written component rules that are allowed to beat it.
 import "@/dark.generated.css";
 import "@/dark.css";
-import "@/story.css";
+// story.css moved to ConnectedStory.js's own import -- see the comment there.
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { LenisProvider, ScrollToTop } from "@/lib/motion";
 import { AuthProvider, AuthCallback } from "@/lib/auth";

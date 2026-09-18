@@ -1,4 +1,12 @@
 import React, { Component, Suspense, lazy, useEffect, useState } from "react";
+// Was imported globally from App.js. This is the only file that renders with
+// these classes -- WhatWeDoGrid's one dependency on story.css is duplicated
+// into App.css instead (see the comment there) -- so importing it here lets
+// it defer with this chunk instead of shipping on every route. Vite still
+// injects it after dark.generated.css/dark.css load, since this chunk can
+// only load after the app's root import graph has already resolved, which
+// preserves the cascade order App.js's own comment calls out.
+import "@/story.css";
 import { Link } from "react-router-dom";
 import { ArrowDown, ArrowRight, Check, MoveUpRight, Pause, Play } from "lucide-react";
 import { ProvenanceTag } from "@/components/ProvenanceTag";
