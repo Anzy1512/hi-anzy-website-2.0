@@ -216,3 +216,187 @@ noted for completeness since it appeared during navigation testing.
   were not deleted — flagged as dead code, left as-is (outside this pass's
   risk tolerance for an already-twice-touched file).
 - Full CI trigger on GitHub
+
+---
+
+# PART A — VERCEL BACKEND RUNTIME HARDENING
+
+## HOW THE SERVERLESS PATH WAS TESTED
+The serverless branch cannot be proven by reading the diff, so the app was
+booted exactly as Vercel would boot it — `VERCEL=1` set, against an isolated
+throwaway database — and asserted on. Every line below was executed.
+
+| Assertion | Result |
+|---|---|
+| `VERCEL=1` detected (`IS_SERVERLESS is True`) | PASS |
+| Mongo pool capped on serverless (`max_pool_size == 10`) | PASS |
+| App boots and serves `/api/health` → 200 | PASS |
+| Startup did **not** seed (0 case studies, 0 insights after boot) | PASS |
+| Startup started **no** background workers (`_prune_rate_limiter_loop`, `notification_loop` absent from running tasks) | PASS |
+| `client_ip` uses first hop of `x-forwarded-for` when on Vercel | PASS |
+| `client_ip` falls back to the socket peer when the header is absent/blank | PASS |
+| Explicit `seed()` still populates on demand | PASS — 5 case studies, 35 network resources, 10 insights, 8 portfolio groups, 35 ecosystem items |
+
+This also quantified what the change avoids on every cold start: **93 seed
+documents plus 9 index creations** worth of round trips, on a write path.
+
+## NON-SERVERLESS (DOCKER) PATH — UNCHANGED
+| Check | Result |
+|---|---|
+| `api` container rebuilt and healthy | PASS |
+| `/api/health` → `{"status":"ok","db":"connected"}` | PASS |
+| Still seeds automatically at startup (no serverless log line) | PASS |
+| Content endpoints still serve real data (`/api/case-studies`, `/api/ecosystem?category=built_here`) | PASS |
+| `manage.py seed` runs and reports counts | PASS — 5 / 35 / 10 / 8 / 35 |
+
+## CLIENT IP REGRESSION TEST (permanent)
+Added `test_client_ip_trusts_the_forwarded_header_only_on_vercel`, asserting
+**both** directions — trusting the header off-platform would let anyone rotate
+it past the rate limit; trusting it nowhere would bucket every Vercel visitor
+into one shared global limit. Both failure modes are silent, so both are
+pinned by the test.
+
+## EMAIL
+No real email was sent at any point. Mail was left unconfigured throughout, so
+`mail_configured()` was false and delivery was skipped — which is itself the
+verification that the app boots and accepts enquiries without credentials.
+
+## PRODUCTION DATA
+None touched. All backend testing ran against the local Docker database or an
+isolated `hianzy_sl_*` / `hianzy_test_*` database that was dropped afterwards.
+
+---
+
+# PART B — STEP 4 VERIFICATION
+
+## HOW THE VERCEL MODEL WAS SIMULATED LOCALLY
+Vercel itself could not be deployed to (owner blocker), so the real production
+build was served through a local stand-in that reproduces the parts that
+matter: same-origin `/api` proxying (as the rewrite does), `cleanUrls`
+resolution, and the **exact headers parsed out of `vercel.json`** so the test
+cannot drift from the committed config. Controls were run on the same build
+with headers removed, and with the existing nginx CSP, to isolate cause.
+
+## ROUTE + METADATA SWEEP (19 routes, real slugs)
+| Check | Result |
+|---|---|
+| All 19 public routes return 200 | PASS |
+| Each serves its **own** prerendered title (not a generic shell) | PASS |
+| Canonical matches the route on every page | PASS |
+| 6 Open Graph tags per page | PASS |
+| 4 Twitter tags per page | PASS |
+| Real H1 present | PASS |
+| `/lab/` serves the Experience Lab's own app | PASS — title "Hi Anzy — Experience Lab", own bundle, real content |
+| Unknown path returns 404 with the 404 page | PASS |
+| JSON-LD present in the DOM at runtime | PASS — `/contact` carries `ProfessionalService` + `ContactPage` |
+| No invented ratings/testimonials/awards/clients/addresses | PASS — `sameAs` left commented, as the source already intended |
+
+## SITEMAP / ROBOTS
+| Check | Result |
+|---|---|
+| 56 URLs, all `https://hianzy.com` | PASS |
+| No duplicate URLs | PASS |
+| No Lab or internal paths | PASS |
+| Correct dynamic slugs | PASS |
+| `Sitemap:` points at the production domain | PASS |
+| No accidental global `Disallow` | PASS |
+| No staging/debug paths exposed | PASS |
+
+## SECURITY HEADERS / CSP (A5, verified in the browser)
+| Check | Result |
+|---|---|
+| All five headers present on HTML and assets | PASS |
+| Homepage mounts under the new CSP | PASS |
+| All three homepage canvases initialise (Three.js runs under `script-src 'self'`, no `unsafe-eval`) | PASS |
+| GSAP inline styles work (`style-src 'unsafe-inline'` retained) | PASS |
+| Same-origin `/api` calls succeed under `connect-src 'self'` | PASS |
+| `/lab/` runs under the same CSP | PASS — zero console errors |
+| No CSP violation reported on any route | PASS |
+| Control: same build, headers removed | Identical behaviour — confirms the policy degrades nothing |
+| Control: same build, existing nginx CSP | Identical behaviour |
+| Vercel CLI 59.23.1 parses the config with the new `headers` block | PASS — `Detected services: frontend [Vite], backend [FastAPI]` |
+
+## STEP-3 VISUAL REGRESSION GATE
+| Check | Result |
+|---|---|
+| Initial CSS is only `fonts.css` + `index-*.css` before the model explorer opens | PASS |
+| `ConnectedStory-*.css` loads **when** the explorer opens | PASS |
+| Story UI is actually styled, not just loaded (`.story-home` → `position: relative`) | PASS — no FOUC |
+| `.story-mini-object` present and styled (the rules duplicated into App.css) | PASS |
+| 4th canvas appears only on open — lazy split still holds | PASS |
+| Home / What We Do / Work / Network / Why hiAnzy mount with real H1s | PASS |
+| Zero broken images across those routes | PASS |
+| Why hiAnzy serves `art-cube-head.avif` with no `loading` attribute | PASS |
+| Dark theme applies correctly | PASS |
+| No horizontal overflow on any route checked | PASS |
+
+## MOBILE / BREAKPOINT
+| Width | Overflow | Nav | Result |
+|---|---|---|---|
+| 320 | none | mobile toggle | PASS |
+| 375 | none | mobile toggle | PASS |
+| 390 | none | mobile toggle | PASS |
+| 430 | none | mobile toggle + menu opens (6 items + Say Hi) | PASS |
+| 1179 | none | mobile toggle | PASS |
+| 1180 | none | desktop nav | PASS |
+| 1182 | none | desktop nav, 6 links | PASS |
+| desktop | none | desktop nav | PASS |
+
+**No dead zone** — exactly one navigation visible at every width tested.
+
+## CONSOLE / NETWORK
+| Check | Result |
+|---|---|
+| Failed chunks / fonts / images / CSS | NONE |
+| Duplicate API requests on a clean load | NONE — exactly 2 calls, 1 each |
+| CSP violations | NONE |
+| CORS issues (same-origin model) | NONE |
+| Anonymous `/api/auth/me` 401 | Expected, not a defect |
+| React `removeChild` NotFoundError | **Observed intermittently — see below** |
+
+### The one unresolved observation
+A React `NotFoundError: Failed to execute 'removeChild'` appeared twice in the
+browser pane: on its very first cold load, and once when `/lab/` fell through
+to the SPA 404 (because a bare `npm run build` had cleared `build/lab`).
+
+Investigated rather than assumed:
+- **Not the CSP.** Fresh tabs with the new CSP load clean; the error never
+  appeared on the no-CSP control or the nginx-CSP control.
+- **Not reproducible on demand** — repeated fresh loads of `/`, `/contact`,
+  `/work` and two 404 routes were all clean.
+- **Not fatal** — in every instance where mount state was measured afterwards,
+  the app was mounted and rendering normally.
+
+Recorded as an open P3 for the independent review rather than being written
+off. Screenshots could not be used to corroborate visually: the browser pane
+repeatedly failed to capture (it reports the page may not draw while the
+window is behind another), so all visual conclusions here come from DOM and
+computed-style inspection, which is more precise for CSS/FOUC questions
+anyway. Pixel-level visual confirmation is therefore **NOT RUN**.
+
+---
+
+# PART C — FINAL VALIDATION (all executed)
+| Command | Result |
+|---|---|
+| `npm run lint` | **PASS** — clean, exit 0 |
+| `npm test` (vitest) | **PASS** — 8/8, 3 files |
+| `npm run test:build` | **PASS** — 6/6 |
+| `npm run build` | **PASS** — **56 public HTML pages generated**, expected chunk sizes |
+| `pytest tests/` | **PASS** — 60/60 (59 existing + 1 new client_ip test) |
+| `vercel dev -L` config parse | **PASS** — both services detected |
+| `vercel` full local boot | **BLOCKED** — local Python 3.11.16 vs `vercel-runtime` requiring 3.12+. Local toolchain only; Vercel builds with its own Python. |
+| Real Vercel cloud deploy | **BLOCKED — OWNER** (Services Beta + project link) |
+| Pixel-level visual screenshots | **NOT RUN** — browser pane could not capture reliably |
+
+# EXPERIENCE GATE — PARTS A + B
+| Item | Status |
+|---|---|
+| 3D objects / geometry / materials / lighting changed | NO |
+| 3D quality reduced | NO |
+| Three.js scenes altered | NO — no file under `components/three/` touched |
+| GSAP choreography / ScrollTrigger / Lenis feel changed | NO |
+| Animation timing changed | NO |
+| Framer Motion changed | NO |
+| Approved layout / content / visual identity changed | NO |
+| Frontend source changed at all | NO — the only frontend-affecting change is response headers declared in `vercel.json` |

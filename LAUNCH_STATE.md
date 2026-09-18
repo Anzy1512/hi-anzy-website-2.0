@@ -530,3 +530,287 @@ organization/CSS/font/image/dependency/caching, per the GLOBAL LOCK.
 - `3c62216` perf(cache): explicitly no-store the four private/admin GET responses
 
 ## STEP 3 STATUS: COMPLETE
+
+---
+
+# PART A — VERCEL BACKEND RUNTIME HARDENING
+
+The backend was written for a container it owns for its entire life. Vercel
+runs it as a Vercel Function on Fluid compute instead. Three assumptions did
+not survive that, and all three are now fixed and verified. Docker behaviour
+is deliberately unchanged — it still seeds at startup and still runs both
+background workers.
+
+Platform facts were taken from current Vercel documentation, not assumed:
+lifespan events are supported (`/docs/frameworks/backend/fastapi`), shutdown
+is capped at ~500ms after SIGTERM, `VERCEL=1` is exposed at runtime
+(`/docs/environment-variables/system-environment-variables`), Vercel
+overwrites `x-forwarded-for` and refuses to forward a caller-supplied value
+(`/docs/headers/request-headers`), HSTS is applied automatically
+(`/docs/cdn-security/encryption`), and `headers` is a documented per-service
+key (`/docs/services/config-reference`).
+
+## A1 — LIFESPAN: FIXED
+| Item | Before | After |
+|---|---|---|
+| `seed()` at startup | Ran on every startup — on Vercel that is every cold start: **93 seed documents + 9 index creations** of round trips, on a write path, before the first request is served. A transient Mongo error aborted ASGI startup, so every request to that instance would 500 rather than degrade. | Skipped when `VERCEL` is set. Content reaches a database through the new explicit `python manage.py seed` command. Docker still seeds automatically. |
+| `_prune_rate_limiter_loop()` | `while True` worker started at boot | Not started on serverless — per-instance memory dies with the instance, so it has nothing to prune. |
+| `notification_loop()` | `while True` retry worker started at boot | Not started on serverless. A function is not guaranteed to execute between requests, so it could not be relied on. |
+| Teardown | cancelled both tasks | Same, kept cancels-only to fit the ~500ms SIGTERM budget. |
+
+**Durability is preserved.** `/contact` and `/subscribe` still write to Mongo
+first and still call `deliver_record(...)` inline on the request, so the
+enquiry is saved and delivery is attempted immediately. Only the *delayed
+retry* depended on the loop.
+
+**Automatic delayed retry is POST-LAUNCH.** Durable delivery state
+(`delivery.status`/`attempts`/`nextAttemptAt`/`leaseUntil`) is untouched and
+still on every record, so nothing is lost and a retry mechanism can be added
+later without a migration. No Celery/Redis/queue infrastructure was
+introduced. In the meantime a failed notification is recoverable by hand:
+`manage.py retry <id>`, and `manage.py status` reports `failedNotifications`.
+
+## A2 — MONGODB: VERIFIED, ONE CHANGE
+| Requirement | Status |
+|---|---|
+| Client not recreated per request | **Already correct** — module-level `AsyncIOMotorClient`, created once at import, reused by every warm invocation. |
+| Reused across warm invocations | **Yes** — same instance-level client. |
+| No leak | `client.close()` in lifespan teardown; no per-request clients anywhere. |
+| Startup safe | Now safe on serverless: nothing blocking or failable runs at startup. |
+| `MONGO_URL` / `DB_NAME` hard-required | **Unchanged** — `required_setting()` still raises at import if either is missing. |
+| `/api/health` honest about DB failure | **Unchanged** — pings the DB and returns 503 on failure. |
+| No hardcoded credentials | Confirmed — both come from the environment only. |
+| **Changed:** pool size | `maxPoolSize=10` on serverless only. Every concurrent instance opens its own pool; the driver default of 100 multiplied by however many instances traffic spins up would exhaust a shared Atlas tier's connection cap before it exhausted the app. Docker keeps the default. |
+
+## A3 — CLIENT IP: FIXED (this was a real, user-visible bug)
+`request.client.host` behind Vercel is Vercel's own infrastructure — the same
+value for every visitor. Every IP-keyed rate limit would have become **one
+shared global bucket**: five contact submissions from anyone, worldwide,
+would have locked the form for everyone else. That is worse than no limiter.
+
+New `client_ip(request)` helper reads the first hop of `x-forwarded-for`
+**only when `VERCEL` is set** — Vercel overwrites that header and refuses to
+forward a caller-supplied value, so it is trustworthy there and nowhere else.
+Off-platform it still uses the socket peer, so the header remains unspoofable
+in Docker and local runs. Applied to contact, subscribe, newsletter-action
+and analytics rate limits, and to the stored enquiry IP.
+
+Covered by a regression test asserting **both** directions, because getting
+it backwards fails silently in opposite ways.
+
+## A4 — RATE LIMITING: OPTION A (kept in-process), documented
+Chosen on evidence, per "prefer stability over architecture expansion":
+- The A3 fix is what actually makes the limiter meaningful. It was globally
+  broken on Vercel; it is now correct per instance.
+- Mongo-backed limiting would add a write to **every** contact, subscribe,
+  newsletter and analytics request. Analytics alone is limited at 60/60s and
+  fires on ordinary user interaction, so this roughly doubles write load on
+  the hottest endpoint to protect the coldest ones.
+- No Redis/Upstash/Celery/queue introduced.
+
+**Documented limitation:** limits are per instance. With N live Fluid compute
+instances the effective ceiling is up to N × the configured limit. It remains
+a real brake on single-source bursts, and it is not the only defence —
+honeypot (`orgField`), Pydantic length/type validation, request-size caps,
+and Vercel's own platform protection all sit alongside it. Revisit with a
+shared store only if abuse is observed.
+
+## A5 — SECURITY HEADERS ON VERCEL: FIXED (real gap)
+nginx supplies the CSP and browser headers today; **Vercel does not run
+`nginx.conf.template`**, so the HTML and static assets would have shipped
+with no CSP, no `nosniff`, and no clickjacking protection. The API was never
+affected — it sets its own headers in middleware.
+
+Now declared in `vercel.json` scoped to the **frontend service**, which is
+what the Services config reference documents ("Header rules scoped to the
+service"). Backend left alone to avoid conflicting with its middleware.
+
+Policy is the one nginx already ships, minus two things that do not apply:
+| Directive | Decision |
+|---|---|
+| `connect-src` | `'self'` only — the API is same-origin behind the `/api` rewrite, so nginx's cross-origin `${CSP_CONNECT_SRC}` is unnecessary. |
+| `img-src` | dropped `https://images.unsplash.com` — grepped the frontend source, backend and seed data: **nothing references it.** |
+| `style-src 'self' 'unsafe-inline'` | **Kept.** GSAP animates through inline style attributes; removing `'unsafe-inline'` would break animation. |
+| `script-src 'self'` | Kept, no `'unsafe-eval'` — verified Three.js, GSAP and the Lab all run without it. |
+| `frame-ancestors 'self'` + `X-Frame-Options: SAMEORIGIN` | Kept at parity with the approved nginx config. |
+| HSTS | **Deliberately absent** — Vercel applies it automatically. |
+
+## A6 — ENVIRONMENT BEHAVIOUR: VERIFIED, NO CHANGES
+Re-verified against the code; the table under ENV VARIABLES above is accurate
+and unchanged. `MONGO_URL` and `DB_NAME` remain the only hard requirements.
+No optional variable was promoted to required. Expected production posture is
+unchanged: `SITE_URL=https://hianzy.com`, `PUBLIC_API_URL` falls back to
+`SITE_URL`, `REACT_APP_BACKEND_URL` stays unset so the frontend calls
+same-origin `/api`.
+
+One addition, read-only and automatic: **`VERCEL`** is set by the platform and
+is what gates all the serverless behaviour above. It is never set by hand.
+
+## A7 — EMAIL: VERIFIED, NO CHANGES
+Strategy is unchanged and already correct: Resend if configured → SMTP if
+configured → otherwise save the record and skip the notification. `send_email`
+returns `False` and logs rather than raising when unconfigured, and
+`mail_configured()` gates delivery attempts, so **the app boots and accepts
+enquiries with no email credentials at all**. No real email was sent during
+testing; mail was left unconfigured throughout.
+
+---
+
+# PART B — STEP 4: SEO, PRERENDER, QA, CLEANUP
+
+## B1 — PRERENDER: VERIFIED, ARCHITECTURE KEPT
+`scripts/prerender-metadata.cjs` generates **56 real HTML pages**, one per
+route, each with route-specific metadata. Not replaced, not migrated to
+Next.js, no new prerender framework — it works.
+
+Verified by serving the real build through a local stand-in for the Vercel
+deployment (same-origin `/api`, `cleanUrls`, and the exact headers parsed out
+of `vercel.json`). Every route returns its own prerendered HTML with a real
+title, not a generic SPA shell — for example `/contact` gives "Say Hi |
+hiAnzy" and `/work` gives "Work | Proof, With Context | hiAnzy". This is also
+the confirmation that `cleanUrls: true` resolves extension-less routes to
+their `.html` file correctly, which is why no SPA catch-all rewrite is used.
+
+**`npm run build` alone does not produce `/lab/`.** Vite clears the output
+directory, and the Lab is copied in by the `buildCommand` in `vercel.json`.
+That is by design; noted because a bare local build leaves `/lab/` missing.
+
+## B2 — METADATA: VERIFIED
+All 19 public routes checked: unique real title, meta description, canonical
+matching the route, 6 Open Graph tags, 4 Twitter tags, real H1.
+
+**JSON-LD is present but injected client-side** by `components/Seo.js`
+(`ORG_JSONLD` plus per-page schema), so it is absent from the raw HTML by
+design and appears once React runs — verified in the DOM (`/contact` carries
+`ProfessionalService` + `ContactPage`). Left as-is rather than duplicating it
+into the prerender script.
+
+Nothing invented: no ratings, testimonials, awards, client relationships,
+addresses or business claims were added. The schema's `sameAs` block is
+**already** commented out in the source with an explicit note that real
+profile URLs are needed — there are no real social URLs anywhere in the
+codebase, so it stays an owner action rather than a guess.
+
+## B3 — SITEMAP: PASS
+56 URLs, all on `https://hianzy.com`, no duplicates, no dead routes, correct
+dynamic slugs, no Lab or internal paths, canonicals consistent with the
+prerendered pages.
+
+## B4 — ROBOTS: PASS
+Correct `Sitemap: https://hianzy.com/sitemap.xml`, `Allow: /` for `*`, no
+accidental global `Disallow`, no staging or debug paths exposed. The
+selective bot blocks and Content-Signal policy are deliberate and documented
+in the file itself; left alone.
+
+## B5 — FAVICON: STILL OPEN — DOCUMENTED, NOT DESIGNED
+`/favicon.ico` returns **404** and no `<link rel="icon">` is declared.
+
+Not fixed, on purpose. The only brand marks in the repo are `logo-light.png`
+(667x220) and `logo-dark.png` (1167x388) — both **3:1 wordmarks**. At 16px a
+3:1 wordmark renders about 5px tall and is illegible, so wiring one in would
+be choosing a new brand presentation, which is a design decision the GLOBAL
+LOCK reserves. **Owner action:** provide a square icon. Impact is cosmetic
+(P3): a 404 in logs and a blank tab icon. No SEO or functional effect.
+
+## B6 — ROUTE QA: PASS (19 routes + Lab + 404, real slugs)
+Every route below returned 200 with its own prerendered title and, where
+checked in-browser, mounted and rendered real content:
+`/`, `/what-we-do`, `/what-we-do/advisory-security-scale`, `/how-we-work`,
+`/work`, `/work/built-here`, `/work/built-together`,
+`/work/a-rebrand-that-turned-out-to-be-a-pricing-problem`, `/network`,
+`/network/ai`, `/why-hi-anzy`, `/insights`,
+`/insights/a-better-funnel-cannot-rescue-a-confused-offer`, `/contact`,
+`/who-we-work-with`, `/collaborate`, `/careers`, `/resources`,
+`/coming-soon`. `/lab/` serves the Experience Lab's own app and content.
+An unknown path correctly returns **404** with the 404 page.
+
+## B7 — STEP-3 VISUAL REGRESSION GATE: PASS
+The highest-risk item was the CSS split. Verified directly:
+- **Before** opening the model explorer: only `fonts.css` + `index-*.css`.
+- **After** opening it: `ConnectedStory-*.css` loads, the story element is
+  present **and styled** (`.story-home` computes `position: relative`, which
+  only story.css sets), `.story-mini-object` present and styled, element has
+  real height. **No FOUC** — the CSS arrives with the UI, not after it.
+- The 4th canvas (`BusinessFlowScene`) appears only on open, confirming the
+  lazy split still holds.
+
+Home, What We Do, Work, Network, Why hiAnzy: all mounted, real H1s, **zero
+broken images**, no horizontal overflow, canvases present, dark theme
+applying correctly. Why hiAnzy's Step-3 image fix confirmed in this serving
+model too: `art-cube-head.avif`, loaded, no `loading` attribute.
+
+## B8 — MOBILE QA: PASS
+| Width | Overflow | Nav |
+|---|---|---|
+| 320 | none | mobile toggle |
+| 375 | none | mobile toggle |
+| 390 | none | mobile toggle |
+| 430 | none | mobile toggle; menu opens with all 6 items + Say Hi CTA |
+| 1179 | none | mobile toggle |
+| 1180 | none | desktop nav (exact switchover) |
+| 1182 | none | desktop nav, 6 links |
+| desktop | none | desktop nav |
+
+**No dead zone at the 1180 boundary** — exactly one navigation is visible at
+every width tested. 3D quality untouched.
+
+## B9 — CONSOLE / NETWORK: PASS, with one honest caveat
+No failed chunks, fonts, images or CSS. **No duplicate API requests** — a
+clean homepage load makes exactly two calls, one each to
+`/api/case-studies?featured=true` and `/api/auth/me`. No CSP violations on
+any route, including `/lab/`. No CORS issues in the same-origin model. The
+anonymous `/api/auth/me` 401 is expected and was not treated as a defect.
+
+**Observed and not explained (P3, flagged for review):** a React
+`NotFoundError: Failed to execute 'removeChild'` appeared intermittently in
+the browser pane — on the pane's very first cold load, and once when `/lab/`
+fell through to the SPA 404. It is **not** caused by the new CSP: the same
+build reproduces clean in fresh tabs with the new CSP, and the error never
+appeared on the no-CSP or nginx-CSP control servers. It could not be
+reproduced on demand across repeated fresh loads of `/`, `/contact`, `/work`
+and two 404 routes, and in every instance where mount state was measured
+afterwards the app was mounted and rendering. Recorded rather than dismissed.
+
+## B10 — CLEANUP: MINIMAL
+`npm run lint` is clean, so there are no dead imports. `@tanstack/react-query`
+is fully gone from `package.json` and source. `.vercel/` is gitignored and
+uncommitted. `backend/requirements.txt` exists with all six dependencies
+pinned, which is what Vercel's Python runtime installs from. No obsolete
+config conflicting with Vercel was found — `nginx.conf.template` and the
+Dockerfiles are still live for the Docker deployment and were left alone. No
+refactor, restructure or migration performed.
+
+---
+
+# UPDATED OWNER ACTIONS (supersedes the earlier list where they overlap)
+
+1. **Enable Services (Beta)** and set the project's Framework Preset to
+   **Services**. Still owner-only, unchanged.
+2. **Link the project and deploy** to confirm end-to-end. Local
+   `vercel dev -L` on CLI 59.23.1 **parsed the new config and detected both
+   services** (`frontend [Vite]`, `backend [FastAPI]`), so the schema —
+   including the new service-scoped `headers` — is accepted. A full local
+   boot still stops at a local toolchain limit, not a config error: this
+   machine has Python 3.11.16 and `vercel-runtime` requires 3.12 or newer.
+   Vercel builds with its own Python, so this does not affect the deployment.
+3. **NEW — seed the production database once** after setting `MONGO_URL` and
+   `DB_NAME`: `python backend/manage.py seed`. The API no longer seeds itself
+   on Vercel (see A1). Without this the site deploys but shows no case
+   studies, network, insights or ecosystem content. Safe to rerun — it
+   upserts by natural key and skips unchanged documents. It prints the
+   resulting counts so the result is checkable.
+4. **Set the backend env vars.** Minimum to boot: `MONGO_URL`, `DB_NAME`.
+   Production posture: `ENVIRONMENT=production`, `COOKIE_SECURE=true`.
+   `CORS_ORIGINS` is only needed if something calls the API cross-origin.
+5. **Provide a production Mongo URI** — owner action, not fabricated.
+6. **Choose an email path** (`RESEND_API_KEY` + `RESEND_FROM` recommended),
+   or confirm contact email stays off for launch. The app runs either way.
+7. **Confirm `SITE_URL`** — defaults to `https://hianzy.com`.
+8. **NEW — provide a square brand icon** for the favicon (see B5). The
+   existing wordmarks are the wrong shape and designing one is out of scope.
+9. **NEW — provide real LinkedIn/Instagram profile URLs** to uncomment
+   `sameAs` in `components/Seo.js`. The source already flags this as the
+   biggest remaining schema gap; it is left empty rather than guessed.
+10. Decide the auth product question (P2) — not a launch blocker.
+
+## PART A + B STATUS: COMPLETE
