@@ -41,18 +41,33 @@ export const CommandPalette = () => {
   );
 
   const close = useCallback(() => {
+    if (indexFailed) {
+      // Resetting indexFailed here used to be the whole fix, and it looked
+      // right: it clears the effect's guard, so the next open calls import()
+      // again. Verified live that it is not enough. A browser's module
+      // registry caches a *failed* dynamic import against its exact URL for
+      // the life of the page — a second import() for that same URL rejects
+      // immediately from the cache, with no network request at all, even
+      // once the file is back and serving 200. Confirmed directly: the same
+      // specifier kept failing after the file was restored; only a request
+      // with a different URL (or a fresh page) succeeded. Vite resolves
+      // "@/lib/commandIndex" to a fixed hashed URL at build time, so there is
+      // no query-string trick available here without breaking that
+      // resolution. A reload is the standard recovery for a failed chunk
+      // load for exactly this reason — it is also what actually fixes the
+      // far more common real-world case a transient blip stands in for
+      // here: a new deploy shipped while this tab was open, so the loaded
+      // bundle is asking for a chunk hash the server no longer has, and no
+      // in-page retry can produce a hash the current bundle doesn't know.
+      window.location.reload();
+      return;
+    }
     setOpen(false);
     setQuery("");
     setActive(0);
-    // A failed dynamic import (offline, a flaky deploy) otherwise disabled
-    // search for the rest of the session: the load effect bails out early
-    // while indexFailed is set, and nothing else ever clears it. Closing is
-    // the natural point to reset it, so the next open is a real retry rather
-    // than an early return to the same cached failure.
-    setIndexFailed(false);
     const el = returnFocusRef.current;
     if (el && document.contains(el)) el.focus();
-  }, []);
+  }, [indexFailed]);
 
   const openPalette = useCallback(() => {
     returnFocusRef.current = document.activeElement;
