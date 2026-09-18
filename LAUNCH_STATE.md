@@ -393,3 +393,140 @@ themselves (about to be committed).
 - Approved layout/brand — untouched. The only visual-adjacent change is the
   Hero backdrop, which is additive CSS behind an already-transparent canvas,
   not a change to the canvas, scene, or motion itself.
+
+---
+
+# STEP 3 — PERFORMANCE PASS (this session, continued)
+
+Priority order followed exactly as specified (unnecessary initial JS → data →
+duplicate requests → React rerenders → route modules → search index →
+non-critical global code → caching → CSS → images → fonts → deps → dead code
+→ duplicated init bugs). Zero changes to Three.js/3D/GSAP/ScrollTrigger/Lenis/
+Framer/visual identity/layout — every fix below is deployment/build/code-
+organization/CSS/font/image/dependency/caching, per the GLOBAL LOCK.
+
+## FIXES LANDED (measured, verified live, each its own commit)
+
+1. **`a3e4692`** — extracted `CASE_VISUALS`/`CaseGraphic` out of
+   `ConnectedStory.js` into a new `pages/home/caseVisuals.js`. Vite's own build
+   warning showed `ConnectedStory.js` was both `lazy()`-imported (Home.js) and
+   statically imported (`Work.js`, `WorkPreview.js`) — Vite can't split a
+   file that's both, so the whole lazy chunk was shipping in the main bundle
+   regardless. Splitting the shared piece out let the lazy import actually
+   take effect. **Main bundle: 723.78kB → 706.71kB raw (243.31kB → 238.12kB
+   gzip).** Verified live: network log shows `ConnectedStory`/
+   `BusinessFlowScene` chunks only load when the homepage's model explorer
+   opens, not on initial page load.
+2. **`b656dc6`** — moved `story.css`'s import from the global `App.js` into
+   `ConnectedStory.js` itself, so its CSS now ships in the same lazy chunk as
+   its JS. `WhatWeDoGrid.js` (always rendered) needs 9 small
+   `.story-mini-object` rules from the same file; rather than risk splitting a
+   shared, minified, media-query-fused declaration (explicitly flagged as
+   risky — "do not blindly move story.css"), those 9 rules were duplicated
+   into the always-loaded `App.css`. **Initial CSS: 136.16kB → 96.84kB raw
+   (27.04kB → 19.47kB gzip).** Verified live: WhatWeDoGrid's icon renders
+   correctly on every route; the model explorer's own styling is intact when
+   its CSS chunk loads.
+3. **`16d87ce`** — `WhyHiAnzy.js` was serving a raw 128KB PNG via a bare
+   `<img>` instead of the site's own `Picture` component (which already
+   auto-generates AVIF/WebP with PNG fallback — a 30KB AVIF sibling existed
+   and was unused), and had `loading="lazy"` on an image the code's own
+   comment identifies as above the fold, which delays a likely LCP candidate
+   instead of saving anything. Both fixed; swept the rest of the codebase for
+   the same pattern and found no other instance. Verified live: network log
+   shows `.avif` loading, screenshot pixel-identical to before.
+4. **`12ec9bd`** — added one `<link rel="preload">` for
+   `rajdhani-600-normal-latin.woff2`, the one font every `.font-display`
+   heading site-wide (including the hero H1) uses. Without it the browser
+   only discovers the `@font-face` URL after downloading and parsing
+   `fonts.css` — an extra round trip before the most first-paint-critical
+   font starts fetching. Deliberately not preloading the other 21 font files
+   (secondary weights/styles — preloading them would compete for the same
+   early bandwidth). Verified live: no "preload not used" browser warning,
+   confirmed as the first font request in the network log.
+5. **`98a8e40`** — removed `@tanstack/react-query` entirely (`npm uninstall`
+   + removed the `QueryClientProvider` wrapper from `index.js`). Grepped for
+   every hook the library exposes (`useQuery`, `useMutation`,
+   `useQueryClient`, `useInfiniteQuery`) — zero real usage anywhere; every
+   actual data-fetch in the app is plain axios + `useState`/`useEffect`. The
+   provider was standing up a `QueryClient` (with its own online/visibility
+   listeners) for no benefit. **Main bundle: 706.71kB → 681.77kB raw
+   (238.12kB → 231.14kB gzip).** Verified: build/test/lint pass; live-checked
+   `/`, `/work`, `/network`, `/contact` for console errors (clean except the
+   pre-existing, expected anonymous-visitor 401 on `/api/auth/me`).
+
+   Also checked `next-themes` and `class-variance-authority` on the same
+   suspicion (installed but maybe unused) — an initially flawed grep pattern
+   suggested they might be dead too; a corrected search found both are
+   genuinely used (`next-themes`'s `useTheme` powers `sonner.jsx`'s
+   `Toaster`, rendered in `App.js` and actually invoked via
+   `toast.error(...)` in `lib/auth.js`/`Contact.js`; `class-variance-authority`'s
+   `cva` powers `sheet.jsx`, which Nav's mobile menu depends on). Correctly
+   **not** removed.
+6. **`3c62216`** — `/api/auth/me`, `/api/subscribers`, `/api/contact-submissions`,
+   and `/api/operations/status` returned no `Cache-Control` header at all
+   (relying purely on FastAPI/Starlette defaults), leaving them exposed to
+   heuristic caching by any intermediate shared cache/proxy — a real concern
+   for `/auth/me` specifically, since it's cookie-scoped per-user identity
+   data. Added explicit `Cache-Control: no-store` to all four. The two
+   pre-existing `no-store` usages (newsletter confirm/unsubscribe pages) were
+   already doing exactly this for the same reason — this extends the same
+   established pattern. Public content endpoints (`/case-studies`,
+   `/network`, `/ecosystem`, `/insights`, `/portfolio`) are untouched.
+   Verified live: inserted a throwaway session+user directly into the local
+   dev Mongo, confirmed a real 200 from `/auth/me` carries
+   `cache-control: no-store`, then deleted the test rows.
+
+## CHECKED, NO ACTION TAKEN (verified correct as-is, not a gap)
+
+- **Three.js allowed-optimizations checklist** (duplicate asset downloads,
+  cache delivery, correct URLs, memory/listener leaks, duplicate scene init):
+  none of the 8 scene files under `components/three/` load any external
+  texture/GLTF asset (`useLoader`/`useTexture`/`useGLTF`/`TextureLoader` —
+  zero matches; all scenes are procedural geometry/shaders), so
+  duplicate-download/cache/URL concerns don't apply. Every
+  `addEventListener` (`SystemCore.js`, `useSceneVisibility.js`) has a paired
+  `removeEventListener` in cleanup. Exactly one `<Canvas>` per scene file, no
+  duplicate scene instantiation found.
+- **Home.js eager (non-lazy) import**: `Home` is the one route in `App.js`
+  not wrapped in `lazy()`, unlike every other route. This does mean its
+  subtree (including large chunks of `data/content.js` via
+  `WhatWeDoGrid`/`Diagnostic`/etc.) ships in the initial bundle regardless of
+  landing route. Deliberately left as-is: `/` is this site's primary entry
+  point, and making it lazy would introduce a loading-skeleton flash for the
+  majority of visits — the exact failure mode the protocol names as
+  unacceptable for primary content (see the ConnectedStory reasoning above).
+  Not a defect; a correct, deliberate tradeoff.
+- **`AuthContext.Provider` value object**: `lib/auth.js` constructs a new
+  `{ user, setUser, loading, login, logout }` object on every `AuthProvider`
+  render — textbook unstable-context-value shape. Checked its actual blast
+  radius: exactly one consumer (`Nav.js`) via `useAuth()`, and
+  `AuthProvider`'s own state changes rarely (mount resolution, login,
+  logout) — not "broad," not "repeated." Per the explicit "do not blanket
+  memoize" instruction, left unmemoized.
+- **Lenis/GSAP ticker initialization** (`lib/motion.js`): single instance,
+  created once, torn down correctly (`gsap.ticker.remove`, `lenis.destroy()`,
+  `window.__lenis = null`) — no duplicated-initialization bug found.
+- **ConnectedStory's unreachable render modes** (`gap`/`services`/`method`/
+  `summary`/`work`/`team`/`start`): confirmed dead code (only `mode="model"`
+  is ever reached, via Home.js's one `lazy()` call) — flagged, not removed;
+  outside this pass's risk tolerance for a component already touched twice
+  this session.
+
+## TEST BASELINE — STEP 3
+| Check | Result |
+|---|---|
+| `npm run build` (frontend) | PASS — 681.77kB main bundle (231.14kB gzip), 56 pages prerendered |
+| `npm test` (vitest) | PASS — 8/8, 3 files |
+| `pytest tests/test_api.py` (real Mongo, port 27117) | 59/59 PASS (the 1 prior Windows-tmpdir-permission flake re-ran clean with a writable `--basetemp`) |
+| Docker `api` rebuild + live curl verification of `Cache-Control` headers | PASS — `/auth/me` 401 path confirmed headerless-before/no-store-after mechanism; 200 path (via throwaway test session) confirmed `cache-control: no-store`; `/case-studies` confirmed unaffected |
+
+## COMMITS MADE (Step 3, in order)
+- `a3e4692` fix(perf): extract CASE_VISUALS/CaseGraphic so ConnectedStory can actually lazy-split
+- `b656dc6` fix(perf): move story.css import into ConnectedStory's own lazy chunk
+- `16d87ce` fix(perf): serve WhyHiAnzy's cube-head art via Picture, drop harmful lazy-load
+- `12ec9bd` fix(perf): preload the one font every heading site-wide depends on
+- `98a8e40` fix(perf): remove unused @tanstack/react-query dependency
+- `3c62216` perf(cache): explicitly no-store the four private/admin GET responses
+
+## STEP 3 STATUS: COMPLETE

@@ -151,6 +151,68 @@ noted for completeness since it appeared during navigation testing.
 - Full GitHub Actions CI trigger (local runs matched CI's own commands exactly)
 - Vercel cloud deploy (owner-side, in progress in parallel per this session's brief)
 - SEO per-route metadata audit
-- Broad performance/CSS/font/dependency work (explicitly out of scope for Step 2)
 - SEO per-route metadata audit
+
+---
+
+# STEP 3 — PERFORMANCE VERIFICATION
+
+## MEASURED BEFORE/AFTER
+| Metric | Before Step 3 | After Step 3 |
+|---|---|---|
+| Main JS bundle (raw / gzip) | 723.78kB / 243.31kB | 681.77kB / 231.14kB |
+| Initial CSS (raw / gzip) | 136.16kB / 27.04kB | 96.84kB / 19.47kB |
+| `ConnectedStory` + 3D model-explorer deps | shipped in main bundle (lazy split defeated by a static/dynamic import conflict) | genuinely deferred — own chunk, loads only on model-explorer open |
+| `WhyHiAnzy` hero-adjacent image | 128KB PNG, `loading="lazy"` on an above-the-fold image | 30KB AVIF (via `Picture`), no lazy attribute |
+| Critical heading font | discovered only after `fonts.css` downloads+parses | `<link rel="preload">`, first font request in network log |
+| `@tanstack/react-query` | installed + `QueryClientProvider` mounted, zero real usage | removed |
+| `Cache-Control` on `/auth/me`, `/subscribers`, `/contact-submissions`, `/operations/status` | absent (framework default) | `no-store`, verified live on both the 401 and a real 200 |
+
+## LIVE VERIFICATION PERFORMED (not just code review)
+- Network tab confirmed `ConnectedStory`/`BusinessFlowScene` chunks do not
+  load until the homepage's model explorer is opened.
+- Network tab confirmed `.avif` (not `.png`) loads for the `WhyHiAnzy`
+  collage image; screenshot pixel-identical to pre-change.
+- Network tab confirmed the preloaded font is the first font request; no
+  "preload not used" console warning.
+- Live-checked `/`, `/work`, `/network`, `/contact` after the react-query
+  removal: zero new console errors (only the pre-existing, expected
+  anonymous-visitor 401 from `/api/auth/me`).
+- Rebuilt the `api` Docker container after the caching fix; inserted a
+  throwaway session + user document directly into the local dev Mongo (not
+  production data), hit `/api/auth/me` with that session cookie, confirmed a
+  real `200 OK` response carries `cache-control: no-store`, then deleted the
+  test rows. Also confirmed the 401 (unauthenticated) path and the untouched
+  `/api/case-studies` (public) response.
+
+## EXPERIENCE GATE — STEP 3
+| Item | Status |
+|---|---|
+| 3D objects/geometry/materials/lighting changed | NO |
+| Three.js scenes altered, removed, or re-initialized differently | NO — audited all 8 scene files; no loaded assets, no duplicate canvases, listeners already correctly paired |
+| Animations, GSAP choreography, ScrollTrigger, Lenis feel changed | NO |
+| Framer Motion timing changed | NO |
+| Visual identity/layout/approved content changed | NO |
+| Any visual regression observed during live verification | NO |
+
+## REGRESSION CHECKS
+| Check | Result |
+|---|---|
+| `npm run build` | PASS — build output sizes match expected before/after deltas above |
+| `npm test` (vitest, 3 files) | PASS — 8/8 |
+| `pytest tests/test_api.py` (59 tests) | PASS — 59/59 |
+| Docker `api` rebuild | PASS — healthy |
+| Public content endpoints unaffected by caching fix | PASS — `/api/case-studies` confirmed to carry no new headers |
+
+## NOT DONE THIS STEP (explicitly out of scope or restraint-gated)
+- `Home.js` was not converted to `lazy()` — investigated, deliberately left
+  eager (see LAUNCH_STATE.md reasoning: would trade a loading-flash onto the
+  majority of visits landing on `/`).
+- `AuthContext.Provider`'s per-render value object was not memoized —
+  investigated, blast radius is a single consumer with infrequent parent
+  re-renders; memoizing would be exactly the "blanket memoize" the protocol
+  says not to do.
+- `ConnectedStory`'s unreachable render modes (`gap`/`services`/`method`/etc.)
+  were not deleted — flagged as dead code, left as-is (outside this pass's
+  risk tolerance for an already-twice-touched file).
 - Full CI trigger on GitHub
