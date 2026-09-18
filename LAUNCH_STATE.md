@@ -136,12 +136,38 @@ makes that unnecessary. Local Docker dev is unaffected.
 None found by execution.
 
 ## P1 BUGS
-**Fixed this session** (commit `defd3da`): CommandPalette could not retry a
-failed command-index load. `close()` now also resets `indexFailed`.
+**Fixed, Step 1** (`defd3da`): CommandPalette's `close()` reset `indexFailed`
+so the load effect's guard would clear on next open.
+
+**Found AND fixed, Step 2** (`fe783da`): the Step 1 fix was necessary but not
+sufficient. Verified live with a real forced failure (renamed the served
+chunk on disk to get a genuine 404, confirmed the error UI, restored the
+file): reopening still showed the same failure. Root cause, confirmed with
+an isolated test outside React: a browser's ES module registry caches a
+*rejected* dynamic import against its exact URL for the life of the page —
+a second `import()` for that same URL rejects immediately from the cache,
+with zero network request, even once the file is genuinely available again.
+No React-state reset can undo that. Fixed by having `close()` do a real
+`window.location.reload()` specifically when closing a failed state (the
+industry-standard recovery for a failed chunk load, and also what actually
+fixes the more common real-world trigger this stands in for — a new deploy
+shipping mid-session, where no in-page retry can produce a chunk hash the
+loaded bundle doesn't know about). Re-verified end to end with the same
+forced-404 technique: after the reload, reopening returns real, correctly
+filtered search results.
 
 ## P2 BUGS
 Anonymous visitors 401 on `/api/auth/me` on every load (auth wiring points at
 a third-party scaffold host). Product decision, not a launch blocker.
+
+## P3 (polish, not fixed — logged only, per scope)
+- `GET /favicon.ico` → 404 on every page load.
+- Nav sits perfectly flush (0px gap) against the logo and the action cluster
+  at exactly its 1180px breakpoint — no overlap, no dead zone, resolves to a
+  comfortable 116px by 1440px. Pre-existing, untouched by any Step 1/2
+  change (Step 1 correctly classified the platform repo's breakpoint fix as
+  not applicable to this repo — see PORTING RESULTS). Not fixed: cosmetic
+  only, and GLOBAL LOCK excludes redesign of untouched, working behavior.
 
 ## PORTING RESULTS (this session)
 
@@ -200,6 +226,53 @@ built_here 3, built_together 2, collaborator 7, creator 10, partner 10,
 venue 3). All routes in `App.js` for Work/Work-detail/Built-Here/
 Built-Together/Network/Network-detail/ecosystem categories present and
 correctly wired. **No regression found — nothing to restore.**
+
+**Re-verified in a live browser, Step 2** (real slugs pulled from the running
+API, not guessed): `/work/the-storefront-was-never-the-problem` — full case
+study, 19 detail sections, real content. `/work/built-here` — 3 cards.
+`/work/built-together` — 2 cards. `/network/strategy` — real discipline page.
+`/insights/why-we-package-services` — full article, correct title. All real,
+rendered content — no placeholders, no empty states, nothing invented.
+
+## STEP 2 — PRODUCTION BUG SWEEP + REGRESSION QA (this session)
+
+Full route matrix, client-side + hard-refresh navigation, mobile sweep,
+Command Palette (including a real forced failure), `isDarkUnderNav`,
+WorkPreview, and Contact/API all exercised live against the Docker stack.
+Full results in `LAUNCH_TESTS.md`. Headline findings:
+
+- **CommandPalette retry — found genuinely broken, then fixed for real.**
+  See P1 above. The Step 1 fix was code-correct but incomplete; Step 2's
+  live re-verification (a real forced 404, not a design review) is what
+  caught it.
+- **`isDarkUnderNav` throttle** — verified against ground truth, not just
+  "still runs": ran the exact untouched detection logic directly (bypassing
+  the throttle entirely) at 12 points across the homepage's full 13,702px
+  height, and it returned `dark:true` at every single one. The throttled,
+  live version matched exactly. The homepage's nav literally never left the
+  dark state across its whole length — that's the page's actual design
+  (dark base ground, light content sits in inset panels), not a detection
+  failure. Confirmed the throttle changes call *frequency* only, never the
+  result.
+- **WorkPreview** — scroll-linked row: correct card order, `scrollLeft`
+  advances monotonically with scroll fraction (0→0→5→9 of a 15px max),
+  matching the pre-fix behavior's contract exactly.
+- **Contact/API** — valid (200), invalid email (422), missing field (422),
+  too-short message (422), honeypot (200 fake-success, no record created),
+  rate limit (5 hits/10min, then real 429) — all correct, all intentional.
+  No production email sent, no production data touched (local Docker Mongo
+  only).
+- **Mobile/breakpoint sweep** — no horizontal overflow at 320/375/390/430.
+  1391/1400 (the values named in the Step 2 brief) show no dead zone in
+  2.0 — expected, since 2.0's nav breakpoint is 1180, untouched by any
+  session change (see PORTING RESULTS: the platform repo's 1400 fix was
+  correctly classified SKIP here). The *actual* relevant boundary, 1180,
+  also has no dead zone, though it is flush (0px gap) exactly at the
+  threshold — logged as P3, not fixed (pre-existing, cosmetic, no redesign).
+- Full client-side navigation chain (5 routes, no reload) — no console
+  errors, no stale state, homepage remounts correctly on return. One benign
+  `console.log` (not error/warn) from Three.js's own "Context Lost" WebGL
+  lifecycle logging on canvas unmount — normal, not a defect.
 
 ## ENV VARIABLES DISCOVERED
 Full sweep of `backend/server.py` + `backend/manage.py` + frontend
@@ -286,7 +359,8 @@ themselves (about to be committed).
 - `687908c` fix(perf): throttle isDarkUnderNav, adapted from platform fix
 - `defd3da` fix(search): allow retry after a failed command-index load
 - `545a134` feat(deploy): add Vercel config (legacy builds/routes — since replaced)
-- (pending) fix(deploy): replace legacy Vercel builds/routes with Services architecture
+- `ba34322` fix(deploy): replace legacy Vercel builds/routes with Services architecture
+- `fe783da` fix(search): retry a failed command-index load with a real reload (Step 2 — the Step 1 retry fix was incomplete; see P1 above)
 
 ## OWNER ACTIONS
 1. **Confirm "Services (Beta)" is enabled** on the Vercel account, and set
