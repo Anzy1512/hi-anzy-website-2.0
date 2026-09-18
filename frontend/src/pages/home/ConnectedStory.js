@@ -5,8 +5,8 @@ import { ProvenanceTag } from "@/components/ProvenanceTag";
 import { CATEGORIES } from "@/data/content";
 import { getCaseStudies } from "@/lib/api";
 import { useReducedMotion, webglAvailable } from "@/lib/motion";
-import { CaseBanner } from "@/components/ContextBanner";
 import { SITE_CONTACT } from "@/data/site";
+import { CASE_VISUALS, CaseGraphic } from "@/pages/home/caseVisuals";
 
 const BusinessFlowScene = lazy(() => import("@/components/three/BusinessFlowScene"));
 
@@ -29,14 +29,6 @@ const METHOD = [
   { title: "Connect", copy: "Join up the tools, teams and handoffs. Test the complete journey.", output: "An operational system" },
   { title: "Scale", copy: "Review what happens, improve the weak points and plan the next move.", output: "A measured next step" },
 ];
-export const CASE_VISUALS = [
-  { slug: "the-storefront-was-never-the-problem", labels: ["Discover", "Buy", "Return"], name: "A complete customer journey", result: "Retention designed into the journey.", copy: "Replenishment flows and follow-up gave customers a reason to return beyond a discount." },
-  { slug: "a-rebrand-that-turned-out-to-be-a-pricing-problem", labels: ["Scope", "Price", "Propose"], name: "A repeatable sales system", result: "An offer the whole team could sell.", copy: "Named service tiers and a shared proposal system reduced dependence on the founder." },
-  { slug: "commerce-untangled", labels: ["Guest", "Venue", "Team"], name: "One connected operating picture", result: "Connected information. Clearer operations.", copy: "A shared guest record and connected workflows replaced fragmented venue data." },
-  { slug: "launch-systems-for-a-festival-season", labels: ["Create", "Live", "Reach"], name: "One launch story", result: "The launch read as one story.", copy: "Creators, venues, media and logistics moved to one accountable calendar." },
-  { slug: "the-dashboard-nobody-opened", labels: ["Decide", "View", "Act"], name: "Decision-first reporting", result: "Three useful views replaced one ignored dashboard.", copy: "Focused decision views and weekly digests gave leadership a reason to look." },
-];
-
 function Chapter({ number, label }) {
   return <p className="story-eyebrow"><span className="story-chapter">{number}</span>{label}</p>;
 }
@@ -47,9 +39,6 @@ class SceneBoundary extends Component {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
-}
-export function CaseGraphic({ visual }) {
-  return <CaseBanner visual={visual} />;
 }
 function SelectedWork() {
   const [cases, setCases] = useState(null);

@@ -7,7 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { ProvenanceTag } from "@/components/ProvenanceTag";
 import { getCaseStudies, track } from "@/lib/api";
 import { subscribeScroll, useReducedMotion } from "@/lib/motion";
-import { CASE_VISUALS, CaseGraphic } from "@/pages/home/ConnectedStory";
+import { CASE_VISUALS, CaseGraphic } from "@/pages/home/caseVisuals";
 
 const firstSentence = (text = "") => text.match(/^.*?[.!?](?:\s|$)/)?.[0] || text;
 

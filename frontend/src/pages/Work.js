@@ -17,7 +17,7 @@ import { abs } from "@/lib/absoluteUrl";
 import { CircularCarousel } from "@/components/ui/circular-carousel";
 import { glyphForGroup } from "@/components/deck/InfographicGlyphs";
 import { PortfolioWallInfographic } from "@/components/PortfolioWallInfographic";
-import { CaseGraphic, CASE_VISUALS } from "@/pages/home/ConnectedStory";
+import { CaseGraphic, CASE_VISUALS } from "@/pages/home/caseVisuals";
 import axios from "axios";
 
 /**
