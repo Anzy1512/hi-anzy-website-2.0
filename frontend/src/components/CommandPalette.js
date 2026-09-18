@@ -44,6 +44,12 @@ export const CommandPalette = () => {
     setOpen(false);
     setQuery("");
     setActive(0);
+    // A failed dynamic import (offline, a flaky deploy) otherwise disabled
+    // search for the rest of the session: the load effect bails out early
+    // while indexFailed is set, and nothing else ever clears it. Closing is
+    // the natural point to reset it, so the next open is a real retry rather
+    // than an early return to the same cached failure.
+    setIndexFailed(false);
     const el = returnFocusRef.current;
     if (el && document.contains(el)) el.focus();
   }, []);
