@@ -39,11 +39,26 @@ export const Nav = () => {
   // labels never sit on a same-shade backdrop.
   useEffect(() => {
     let frame = 0;
+    let lastCheck = 0;
+    /* Measured with a DevTools performance trace: isDarkUnderNav does three
+       elementsFromPoint() hit-tests plus a getComputedStyle() per hit, each of
+       which forces the browser to do real layout/style work — rAF-coalescing
+       (below) caps this at once per frame, but "once per frame" during an
+       active scroll is still ~60 times a second. That was the single largest
+       contributor to scroll jank found in the trace, well ahead of anything
+       Lenis or GSAP were doing. The answer this computes — light or dark —
+       only changes when scroll crosses a section boundary, far less often
+       than every frame, so re-checking every 120ms instead loses no visible
+       precision (nobody notices a nav recolor lagging scroll by a tenth of a
+       second) while cutting the call frequency by roughly 8x. */
     const evaluate = (scroll) => {
       setScrolled(scroll > 8);
       if (frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
+        const now = performance.now();
+        if (now - lastCheck < 120) return;
+        lastCheck = now;
         setOnDark(isDarkUnderNav(84));
       });
     };
