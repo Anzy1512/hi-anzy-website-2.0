@@ -491,6 +491,20 @@ html {
   border-radius: 18px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 }
+
+/* Sits behind the hero's SystemCore diagram, inside its .panel-dark frame.
+   That canvas is transparent by design (see the comment at its call site), so
+   it painted directly onto .panel-dark's flat fill. The glow is centred
+   because the scene's camera looks straight at the origin, which is where the
+   hub node sits (see SystemCore.js) — so it reads as the hub's own light
+   rather than an unrelated decoration. */
+.hero-core-backdrop {
+  background:
+    radial-gradient(52% 52% at 50% 50%, rgba(241, 144, 32, 0.22), transparent 72%),
+    radial-gradient(90% 70% at 50% 100%, rgba(0, 0, 0, 0.4), transparent 65%),
+    radial-gradient(rgba(247, 245, 238, 0.06) 1.1px, transparent 1.3px);
+  background-size: auto, auto, 22px 22px;
+}
 .panel-paper {
   background: var(--white-d);
   border: 1px solid rgba(35, 42, 42, 0.16);
