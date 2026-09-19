@@ -58,7 +58,7 @@ export const OrbitSection = () => {
               the section's width (not the stage's) keeps every card's lift,
               tilt and drag exactly as EvidenceDeck computes it -- this only
               stops the bleed from becoming a second, page-level scrollbar. */}
-          <div className="mt-14 overflow-x-hidden">
+          <div className="sticky-cta-avoid mt-14 overflow-x-hidden">
             <EvidenceDeck items={items} testId="orbit-deck" />
           </div>
 
