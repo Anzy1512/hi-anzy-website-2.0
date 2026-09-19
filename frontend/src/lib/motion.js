@@ -174,9 +174,21 @@ export const ScrollToTop = () => {
         else toTop();
         return;
       }
-      const top = el.getBoundingClientRect().top + window.scrollY - 96;
-      if (window.__lenis) window.__lenis.scrollTo(top, { immediate: true });
-      else window.scrollTo(0, top);
+      const scrollToEl = () => {
+        const top = el.getBoundingClientRect().top + window.scrollY - 96;
+        if (window.__lenis) window.__lenis.scrollTo(top, { immediate: true });
+        else window.scrollTo(0, top);
+      };
+      scrollToEl();
+      // Self-hosted fonts render in a fallback face until they load, then
+      // swap -- on a page with several long capability cards that is enough
+      // reflow to leave this target hundreds of pixels from where it was
+      // first measured (confirmed live on /what-we-do#build). document.fonts
+      // .ready resolves exactly when that swap is done, so this re-measures
+      // at the moment layout actually settles, not after a guessed delay.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(scrollToEl);
+      }
     };
 
     if (hash) toHash();
