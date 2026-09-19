@@ -169,7 +169,7 @@ export default function Contact() {
                 Say Hi<span className="accent-signal-text">.</span>
               </h1>
             </Reveal>
-            <Reveal delay={160} as="p" className="mt-6 max-w-md text-base leading-relaxed text-[#232A2A]/85">
+            <Reveal delay={160} as="p" className="mt-6 max-w-md text-[16px] leading-relaxed text-[#232A2A]/85">
               Tell us what you want to achieve, what is getting in the way and any timing or budget constraints. You can start with the problem; we will help shape the next step.
             </Reveal>
             <Reveal delay={220} as="p" className="mt-5 text-[14px] leading-relaxed text-[#232A2A]/75">Have a brief or portfolio? Include a link in your message. Make sure the link is accessible to the people reviewing it.
@@ -197,7 +197,7 @@ export default function Contact() {
               <div className="panel-dark relative overflow-hidden p-10 sm:p-14" data-testid="contact-form-success-message" role="status">
                 <div className="h-[4px] w-24 rounded-full bg-[#F19020]" />
                 <p className="font-display mt-6 text-5xl leading-none text-[#F7F5EE]">Message received.</p>
-                <p className="mt-4 max-w-md text-lg text-[#F7F5EE]/85">Thank you for sharing the context. Your message has been received for review.</p>
+                <p className="mt-4 max-w-md text-[18px] text-[#F7F5EE]/85">Thank you for sharing the context. Your message has been received for review.</p>
                 <p className="mt-6 text-[14px] text-[#F7F5EE]/75">We will use the email address you provided to reply.</p>
                 <MagneticButton to="/work" className="btn-orange mt-8" testId="contact-success-work-link">
                   Explore Our Work <ArrowRight size={15} />

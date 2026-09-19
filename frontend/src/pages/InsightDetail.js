@@ -73,11 +73,11 @@ export default function InsightDetail() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [post, slug]);
 
-  if (loadError) return <div role="alert" className="container-page py-32"><h1 className="font-display text-4xl">We could not load this page.</h1><button type="button" className="btn-ink mt-6" onClick={() => setRetry(value => value + 1)}>Try again</button></div>;
+  if (loadError) return <div role="alert" className="container-page py-32 pt-[84px]"><h1 className="font-display text-4xl">We could not load this page.</h1><button type="button" className="btn-ink mt-6" onClick={() => setRetry(value => value + 1)}>Try again</button></div>;
 
   if (notFound) {
     return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 pt-[84px]" data-testid="insight-not-found">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 px-4 text-center pt-[84px]" data-testid="insight-not-found">
         <p className="font-display text-5xl text-[#232A2A]">That note wandered off.</p>
         <MagneticButton to="/insights" className="btn-ink">Back to Insights</MagneticButton>
       </div>
