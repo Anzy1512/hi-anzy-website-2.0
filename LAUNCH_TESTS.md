@@ -594,3 +594,42 @@ surfaced the wrong page. Renamed to "Venue Partners" (matches its real route
 | Docker `web` rebuild + live smoke test | PASS |
 
 ## PART 2A TEST STATUS: COMPLETE
+
+---
+
+# PART 28A — FINAL UI SYSTEM CONSISTENCY GATE
+
+## AUDIT SCOPE
+Home used as system reference; every other major page checked against it
+for font family/weight/size/line-height, heading spacing, alignment,
+section rhythm, cards, buttons, nav, labels, page width, responsive
+margins, dark/light surface relationships. Work/Network/Insights/Lab's
+deliberate visual character explicitly preserved, not flagged.
+
+## FINDINGS FIXED
+| # | File | Issue | Fix |
+|---|---|---|---|
+| 1 | WorkDetail.js / InsightDetail.js | `loadError` fallback missing `pt-[84px]` nav offset (present in every other state in the same files) | Added |
+| 2 | WorkDetail.js / InsightDetail.js | `notFound` state missing `px-4 text-center` (present in ServiceDetail.js/Discipline.js's copies of the same pattern) | Added |
+| 3 | Contact.js | Two spots used `text-base`/`text-lg` instead of the sitewide explicit-pixel convention | Changed to `text-[16px]`/`text-[18px]` |
+| 4 | WhyHiAnzy.js | Three card headings used fixed `text-5xl` instead of the established card-title `clamp()` scale | Changed to `clamp(2rem,3vw,2.8rem)`, matching Packages.js |
+
+## ADDITIONAL BUG (user-reported live, screenshot-confirmed)
+StickyCta's fixed-position show window (1.4–3.2 viewports) overlapped the
+Orbit deck's active card on `/work`, covering its "Explore" link with the
+bar's own "Start a Conversation" link. Fixed with an opt-in
+`.sticky-cta-avoid` class + IntersectionObserver (15% threshold), applied
+to the Orbit deck wrapper, with a 20×300ms poll for the late-mounting
+deck (mirrors ScrollToTop's existing retry pattern). Verified live:
+suppressed while deck in view, resumes normal behavior once scrolled clear.
+
+## VALIDATION
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS |
+| `npm test` | PASS — 8/8 |
+| `npm run build` | PASS — 56 pages, 682.63 KB raw / 231.40 KB gzip |
+| `pytest tests/` | PASS — 60/60 |
+| Docker rebuild + live verification | PASS — no new console errors |
+
+## PART 28A TEST STATUS: COMPLETE

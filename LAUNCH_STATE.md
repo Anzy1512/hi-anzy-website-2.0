@@ -1244,3 +1244,74 @@ generated-entry loops. No material regression.
 - `5b441aa` feat(search): make search results represent distinct sections, not just pages
 
 ## PART 2A STATUS: COMPLETE
+
+---
+
+# PART 28A — FINAL UI SYSTEM CONSISTENCY GATE
+
+Side-by-side audit using Home (`Home.js` + `pages/home/*.js`) as the system
+reference, across font family/weight/size/line-height, heading spacing,
+alignment, section rhythm, cards, buttons, nav, labels, page width,
+responsive margins, and dark/light surface relationships. Every other major
+page (Work, Network, Insights, WhatWeDo, HowWeWork, WhyHiAnzy, Contact,
+Discipline, ServiceDetail, WorkDetail, InsightDetail, ecosystem category
+pages, Resources, Careers, Collaborate, ComingSoon) was checked against it.
+
+Per this part's own explicit instruction, Work/Network/Insights/Experience
+Lab's deliberate visual character (Portfolio Wall's dark-panel infographic
+style, Network's constellation identity, ConnectedStory's model-explorer
+treatment) was preserved and not flagged — only accidental drift was.
+
+## FOUR GENUINE DRIFTS FOUND AND FIXED
+
+1. **`WorkDetail.js`/`InsightDetail.js` `loadError` fallback** — missing the
+   `pt-[84px]` fixed-nav offset every other state in the same two files
+   already carries. Added.
+2. **`WorkDetail.js`/`InsightDetail.js` `notFound` state** — missing
+   `px-4 text-center`, which the same boilerplate pattern's other two copies
+   (`ServiceDetail.js:106`, `Discipline.js:47`) already have. Added.
+3. **`Contact.js`** — two spots used Tailwind's semantic `text-base`/
+   `text-lg` instead of the explicit-pixel sizing convention used everywhere
+   else on the site, including elsewhere in the same file. Changed to
+   `text-[16px]`/`text-[18px]`.
+4. **`WhyHiAnzy.js`** — three card headings ("Why 'Hi'?", "Dreamers +
+   Doers", "Compass + Engine") used a fixed `text-5xl` where every
+   comparable card-title heading elsewhere (`Packages.js:62`, `Work.js:185`,
+   `Network.js:422,476`) uses a responsive `clamp()` scale. Matched to
+   `Packages.js`'s card-title clamp (`clamp(2rem,3vw,2.8rem)`).
+
+## ADDITIONAL BUG FOUND LIVE (not from the audit — user-reported with a
+screenshot, fixed the same pass)
+
+**StickyCta covering the Orbit deck's own CTA.** The global "Not sure which
+part is broken?" bar (`StickyCta.js`) is fixed-position and appears in a
+scroll window (1.4-3.2 viewports) on any long page. On `/work` that window
+overlapped the Orbit deck's active card, covering its "Explore" link with
+the bar's own "Start a Conversation" link — two stacked CTAs, one unusable.
+Fixed with an opt-in `.sticky-cta-avoid` class: an `IntersectionObserver`
+(15% threshold) suppresses the bar while any such element is in view,
+independent of the scroll-window logic. Applied to the Orbit deck's wrapper.
+Because `EvidenceDeck` mounts after `Work.js`'s own async data fetch
+resolves, the avoid-zone lookup polls (20×300ms, mirroring `ScrollToTop`'s
+existing retry pattern for the identical late-mount problem) rather than
+querying only once on mount — a first version of this fix that queried once
+on mount silently failed to find the element and was caught before commit.
+Verified live: sticky bar suppressed while the deck is in view, resumes
+normal show/hide once scrolled clear.
+
+## VALIDATION
+
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS — clean |
+| `npm test` (vitest) | PASS — 8/8 |
+| `npm run build` | PASS — 56 pages, 682.63 KB raw / 231.40 KB gzip main JS |
+| `pytest tests/` | PASS — 60/60 |
+| Docker `web` rebuild + live verification | PASS — sticky-CTA suppression confirmed live; no new console errors (only the pre-existing anonymous `auth/me` 401 pattern) |
+
+## COMMITS
+
+- `c514246` fix: stop the sticky CTA bar from covering the Orbit deck's own CTA
+- `616cfc8` fix: correct four genuine UI-consistency drifts found in system audit
+
+## PART 28A STATUS: COMPLETE
