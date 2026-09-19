@@ -528,3 +528,69 @@ anyway. Pixel-level visual confirmation is therefore **NOT RUN**.
 | Docker full stack (rebuild + live test) | PASS — including a real forced API outage |
 
 ## STEP 6 TEST STATUS: COMPLETE
+
+---
+
+# PART 2A — SECTION-LEVEL SEARCH VERIFICATION
+
+## SECTION ANCHORS (new this part — 14 entries)
+Each checked live: correct page, correct anchor, actual heading/content
+element measured against the sticky nav's bottom edge (not the outer
+`<section>` boundary, which can legitimately sit at scrollY 0 for a page's
+first section without being "covered").
+
+| Anchor | Content top (px) | Nav bottom (px) | Status |
+|---|---|---|---|
+| `/#home-hero-section` | 143 (h1) | 85 | PASS |
+| `/#home-diagnostic-section` | 96 | 85 | PASS |
+| `/#home-what-we-do-section` | 96 | 85 | PASS |
+| `/#home-work-section` | 95 | 85 | PASS |
+| `/#home-network-section` | 95 | 85 | PASS |
+| `/#home-who-section` | 96 | 85 | PASS |
+| `/work#work-case-studies` | 89 | 85 | PASS |
+| `/work#orbit` | 96 | 85 | PASS |
+| `/work#portfolio-wall` | 96 | 85 | PASS |
+| `/network#network-disciplines-section` | 127 | 85 | PASS |
+| `/network#network-rosters` | 96 | 85 | PASS |
+| `/network#network-specialists` | 96 | 85 | PASS |
+| `/what-we-do#packages` | 271 (normal `section-pad` gap) | 85 | PASS |
+| `/what-we-do#build` | 96 | 85 | PASS — re-confirms Step 6's font-swap-reflow fix |
+
+## ECOSYSTEM-CATEGORY & INSIGHT-CATEGORY ENTRIES (generated, not hand-listed)
+| Check | Result |
+|---|---|
+| 6 ecosystem routes resolve to correct, distinct pages | PASS |
+| `/network/venues` vs `/network/venue-partners` are two different pages | PASS — collision confirmed resolved |
+| 5 Insights `?category=` filters match live API category values | PASS (one test initially used the CSS-uppercased chip text instead of the real title-case value and looked broken; retested with correct casing — confirmed a testing mistake, not an app bug) |
+
+## BROWSER BACK
+| Scenario | Result |
+|---|---|
+| Same-page hash (`/` → `/#home-work-section` → Back) | PASS — returns to `/` at scrollY 0 |
+| Cross-page anchor (`/work` → `/network#network-rosters` → Back) | PASS — returns to `/work` |
+
+## "VENUES" COLLISION BUG
+Ecosystem entry originally labeled "Venues" tied `NETWORK_SUBCATS`'
+pre-existing "Venues" discipline (`/network/venues`) on exact-match score;
+insertion-order tie-break made the discipline win, so searching "Venues"
+surfaced the wrong page. Renamed to "Venue Partners" (matches its real route
+`/network/venue-partners`). Verified via direct chunk import
+(`searchCommands()`) that both queries now return distinct, correct results.
+
+## PERFORMANCE REGRESSION
+| Metric | Step 6 | After PART 2A | Delta |
+|---|---|---|---|
+| Main JS raw | 682.07 KB | 682.22 KB | +0.15 KB |
+| Main JS gzip | 231.21 KB | 231.26 KB | +0.05 KB |
+| Initial CSS | 96.84 KB / 19.47 KB gzip | unchanged | 0 |
+
+## FULL VALIDATION SUITE
+| Command | Result |
+|---|---|
+| `npm run lint` | PASS |
+| `npm test` | PASS — 8/8 |
+| `npm run build` | PASS — 56 pages |
+| `pytest tests/` | PASS — 60/60 (one Windows-only tmpdir-permission flake, confirmed passing in isolation) |
+| Docker `web` rebuild + live smoke test | PASS |
+
+## PART 2A TEST STATUS: COMPLETE

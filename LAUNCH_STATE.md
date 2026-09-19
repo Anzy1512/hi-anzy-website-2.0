@@ -1133,3 +1133,114 @@ material regression.
 | Docker full stack | PASS — rebuilt and live-tested throughout, including a real forced API outage for the error-state fixes |
 
 ## STEP 6 STATUS: COMPLETE
+
+---
+
+# PART 2A — SEARCH RESULTS MUST REPRESENT DISTINCT SECTIONS
+
+Follow-up to Step 6's own search-coverage note (Part 1): the palette indexed
+every *page*, but a long page still resolved every one of its sections to the
+same top-of-page destination. This part makes 25 additional entries resolve
+to their own place on the page, not a shared catch-all.
+
+## WHAT WAS ADDED
+
+- **`SECTION_ANCHORS`** (`frontend/src/lib/commandIndex.js`) — 14 hand-picked
+  sections across Home (6), Work (3), Network (3) and What We Do (2). Each
+  entry's title/keywords are quoted from the section's own kicker/heading,
+  not invented. `id` attributes were added to the corresponding JSX
+  (`Hero.js`, `Diagnostic.js`, `WhatWeDoGrid.js`, `WorkPreview.js`,
+  `NetworkPreview.js`, `WhoWith.js`, `Work.js`, `Network.js`) so each entry
+  has a real DOM target.
+- **6 ecosystem-category entries**, generated from `ORBIT_CATEGORIES` — the
+  same data `EcosystemCategoryPage.js` already renders from, not a second
+  hand-maintained list.
+- **5 Insights-category entries**, generated from `INSIGHT_CATEGORIES`,
+  landing on the existing `?category=` filtered view.
+
+**Deliberately excluded** (too thin or too risky to be their own
+destination): Home's `SomethingsOff`/`WhyHowNow`/`Trust`/`Closing` sections,
+and Home's pinned method sequence (`PinnedSequence`, GSAP `ScrollTrigger`
+`pin: true`) — a direct anchor jump into a pinned scroll-scrub section would
+land mid-animation rather than at a stable, readable position. Search intent
+for "the method"/"how it works" is left resolving to the already-indexed,
+safer `/how-we-work` page instead of manufacturing a risky in-page anchor.
+
+## BUG FOUND AND FIXED: "Venues" label collision
+
+`NETWORK_SUBCATS` already has a real discipline literally named **"Venues"**
+(`/network/venues`, the Events & Venue Production capability). Giving the new
+ecosystem roster entry the same label tied its exact-match score, and since
+disciplines are pushed into the index before ecosystem entries, the
+discipline won `searchCommands`' stable-sort tie-break — searching "Venues"
+surfaced the wrong page first. Renamed the ecosystem entry to **"Venue
+Partners"**, matching its real route (`/network/venue-partners`). Verified
+live via a direct chunk import (`import('/assets/commandIndex-*.js')` →
+`searchCommands()`) that both "Venues" and "Venue Partners" now each return
+their own correct, unambiguous top result.
+
+## LIVE VERIFICATION (per this part's own checklist: SEARCH → exact result →
+correct page → correct anchor → sticky header does not cover heading →
+section is visibly identifiable → browser Back works correctly)
+
+All 14 `SECTION_ANCHORS` entries checked directly in the browser (measuring
+the actual heading/content element's position against the sticky nav's
+bottom edge, not just the outer `<section>` boundary — the outer boundary can
+correctly sit at `scrollY:0`/top-of-viewport for a page's first section by
+design, which is not the same as being covered):
+
+| Anchor | Result |
+|---|---|
+| `/#home-hero-section` | PASS — h1 at 143px, nav bottom 85px |
+| `/#home-diagnostic-section` | PASS — 96px |
+| `/#home-what-we-do-section` | PASS — 96px |
+| `/#home-work-section` | PASS — 95px |
+| `/#home-network-section` | PASS — 95px |
+| `/#home-who-section` | PASS — 96px |
+| `/work#work-case-studies` | PASS — 89px |
+| `/work#orbit` | PASS — 96px |
+| `/work#portfolio-wall` | PASS — 96px |
+| `/network#network-disciplines-section` | PASS — 127px |
+| `/network#network-rosters` | PASS — 96px |
+| `/network#network-specialists` | PASS — 96px |
+| `/what-we-do#packages` | PASS — 271px (normal `section-pad` container gap above the visible kicker/heading, not a miss) |
+| `/what-we-do#build` | PASS — 96px (re-confirms Step 6's font-swap-reflow fix still holds) |
+
+All 6 ecosystem-category routes resolve to their correct, distinct page
+(confirmed `/network/venues` and `/network/venue-partners` are two different
+pages, not a collision). All 5 Insights category filters confirmed correct
+against the live API's actual (title-case) category values — one initial
+test used the CSS-uppercased chip text instead of the real value and
+appeared to fail; re-tested with the correct casing and confirmed working,
+so this was a testing mistake, not an app bug.
+
+**Browser Back** verified for both a same-page hash jump (`/` →
+`/#home-work-section` → Back returns to `/` at scrollY 0) and a cross-page
+anchor jump (`/work` → `/network#network-rosters` → Back returns to `/work`).
+
+## VALIDATION
+
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS — clean |
+| `npm test` (vitest) | PASS — 8/8 |
+| `npm run build` | PASS — 56 pages prerendered |
+| `pytest tests/` | PASS — 60/60 (one Windows-only pytest tmpdir permission flake, confirmed passing in isolation with `--basetemp`; not a code defect, matches the same pre-existing flake noted in Step 2/3) |
+| Docker `web` rebuild + live smoke test | PASS |
+
+## PERFORMANCE
+
+| Metric | Step 6 | After PART 2A |
+|---|---|---|
+| Main JS | 682.07 KB raw / 231.21 KB gzip | 682.22 KB raw / 231.26 KB gzip |
+| Initial CSS | 96.84 KB raw / 19.47 KB gzip | unchanged |
+
++0.15KB raw / +0.05KB gzip — the `SECTION_ANCHORS` array and the two new
+generated-entry loops. No material regression.
+
+## COMMITS
+
+- `7a81f71` fix: add stable section ids for search-driven anchor navigation
+- `5b441aa` feat(search): make search results represent distinct sections, not just pages
+
+## PART 2A STATUS: COMPLETE
