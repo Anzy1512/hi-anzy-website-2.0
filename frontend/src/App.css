@@ -4,8 +4,9 @@
 :root {
   --font-system: "Rajdhani", "Arial Narrow", system-ui, sans-serif;
   --font-editorial: "Newsreader", Georgia, "Times New Roman", serif;
-  /* Figtree stays fetched (fetch-fonts.py) purely as this stack's fallback --
-     nothing sets it as a primary face anymore. */
+  /* Figtree stays fetched (fetch-fonts.py) as --font-pun's own fallback below
+     and as the primary face inside story.css's .story-home (the homepage
+     model explorer) -- it is not unused, just not part of this token set. */
   --font-pun: "Amaranth", "Figtree", sans-serif;
 }
 
