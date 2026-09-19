@@ -49,6 +49,7 @@ export const MagneticButton = ({
   const ref = useRef(null);
   const pulseRef = useRef(null);
   const pull = useRef({ x: 0, y: 0 });
+  const rectRef = useRef(null);
   const [hover, setHover] = useState(false);
   const reduced = prefersReducedMotion();
 
@@ -64,9 +65,20 @@ export const MagneticButton = ({
     el.style.transform = `translate(${x}px, ${y}px)${pressed ? " scale(0.97)" : ""}`;
   }, []);
 
+  // Rect measured once on enter, not per move — mousemove fires at the
+  // pointer's poll rate, and getBoundingClientRect is the one genuinely
+  // costly thing this handler could do on every one of those events. Same
+  // pattern MotifFrame.js uses for its tilt, for the same reason: the button
+  // cannot move under the cursor between enter and leave without the pointer
+  // also leaving it.
+  const onEnter = () => {
+    setHover(true);
+    if (ref.current) rectRef.current = ref.current.getBoundingClientRect();
+  };
+
   const onMove = (e) => {
-    if (prefersReducedMotion() || !ref.current) return;
-    const r = ref.current.getBoundingClientRect();
+    const r = rectRef.current;
+    if (prefersReducedMotion() || !r) return;
     const dx = e.clientX - (r.left + r.width / 2);
     const dy = e.clientY - (r.top + r.height / 2);
     const max = 8;
@@ -79,6 +91,7 @@ export const MagneticButton = ({
 
   const onLeave = () => {
     setHover(false);
+    rectRef.current = null;
     pull.current = { x: 0, y: 0 };
     paint(false);
   };
@@ -142,7 +155,7 @@ export const MagneticButton = ({
     className: `${className} will-change-transform`,
     style: { transition: "transform 0.25s cubic-bezier(0.22,1,0.36,1)" },
     onMouseMove: onMove,
-    onMouseEnter: () => setHover(true),
+    onMouseEnter: onEnter,
     onMouseLeave: onLeave,
     onPointerDown: () => paint(true),
     onPointerUp: () => paint(false),
