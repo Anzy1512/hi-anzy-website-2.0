@@ -8,7 +8,7 @@ import { DIAGNOSTIC_AREAS, DIAGNOSTIC_OUTCOMES } from "@/data/content";
 
 /* =========================== S06 — DIAGNOSTIC =========================== */
 export const Diagnostic = () => (
-  <section className="container-page section-pad" data-testid="home-diagnostic-section">
+  <section id="home-diagnostic-section" className="container-page section-pad" data-testid="home-diagnostic-section">
     <div className="panel-dark diag-grid relative overflow-hidden p-7 sm:p-10 lg:p-14">
       <div className="scanline" style={{ "--scan-h": "100%" }} />
       <div className="grid gap-10 lg:grid-cols-12">

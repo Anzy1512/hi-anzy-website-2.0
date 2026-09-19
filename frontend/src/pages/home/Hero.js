@@ -36,7 +36,7 @@ export const Hero = ({ show3d }) => {
   const handleCoreFailed = useCallback(() => setCoreReady(false), []);
 
   return (
-    <section className="relative container-page pb-10 pt-[100px] lg:pb-14 lg:pt-[112px]" data-testid="home-hero-section">
+    <section id="home-hero-section" className="relative container-page pb-10 pt-[100px] lg:pb-14 lg:pt-[112px]" data-testid="home-hero-section">
       <div className="grid items-center gap-10 lg:grid-cols-12">
         <div className="lg:col-span-6">
           <Reveal as="p" className="font-display text-[clamp(0.82rem,1vw,1.06rem)] font-semibold uppercase leading-[1.1] tracking-[0.08em]" testId="hero-kicker">

@@ -155,7 +155,7 @@ export default function Work() {
         </div>
       </section>
 
-      <section className="container-page section-pad-b" data-index-label="CASE STUDIES">
+      <section id="work-case-studies" className="container-page section-pad-b" data-index-label="CASE STUDIES">
         {error && <p role="alert" className="panel-paper p-6 text-[15px] text-[#232A2A]/80" data-testid="work-error">The case studies could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">contact us</Link> about relevant work.</p>}
         {!cases && !error && (
           <div className="grid gap-6 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="panel-paper h-[260px] animate-pulse" />)}</div>

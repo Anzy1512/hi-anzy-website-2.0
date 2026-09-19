@@ -414,7 +414,7 @@ export default function Network() {
       </section>
 
       {/* ── The sixteen disciplines, each explained on its own page ─────── */}
-      <section className="container-page section-pad" data-testid="network-disciplines">
+      <section id="network-disciplines-section" className="container-page section-pad" data-testid="network-disciplines">
         <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> THE DISCIPLINES, EXPLAINED
         </Reveal>
@@ -468,7 +468,7 @@ export default function Network() {
           from the Work page's Orbit section. The two work categories (Built
           Here / Built Together) deliberately stay there; this is the "right
           category in the right section" split. */}
-      <section className="container-page section-pad" data-index-label="THE ROSTERS" data-testid="network-orbit-deck-section">
+      <section id="network-rosters" className="container-page section-pad" data-index-label="THE ROSTERS" data-testid="network-orbit-deck-section">
         <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> THE ROSTERS
         </Reveal>

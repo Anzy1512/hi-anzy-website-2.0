@@ -11,7 +11,7 @@ import { CATEGORIES } from "@/data/content";
 const spans = ["lg:col-span-5", "lg:col-span-7", "lg:col-span-7", "lg:col-span-5", "lg:col-span-4", "lg:col-span-8"];
 
 export const WhatWeDoGrid = () => (
-  <section className="container-page section-pad" data-testid="home-what-we-do-section">
+  <section id="home-what-we-do-section" className="container-page section-pad" data-testid="home-what-we-do-section">
     <div className="flex flex-wrap items-end justify-between gap-6">
       <SectionHeading kicker="CAPABILITIES" title={<>A business is one system.<br />Our capabilities behave like one too.</>} testId="what-we-do-heading" className="max-w-3xl" />
       <Reveal delay={150}>

@@ -33,7 +33,7 @@ const MarqueeRow = ({ items, reverse = false }) => (
  * rather than fully restating it.
  */
 export const WhoWith = () => (
-  <section className="container-page section-pad relative" data-testid="home-who-section">
+  <section id="home-who-section" className="container-page section-pad relative" data-testid="home-who-section">
     <div className="flex flex-wrap items-end justify-between gap-6">
       <SectionHeading kicker="WHO WE WORK WITH" title="People building things that have to work." testId="who-heading" className="max-w-3xl" />
       <Reveal delay={150}>

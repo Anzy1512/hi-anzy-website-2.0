@@ -90,7 +90,7 @@ export const WorkPreview = () => {
   }, [cases, reduced]);
 
   return (
-    <section ref={sectionRef} className="container-page section-pad" data-testid="home-work-section">
+    <section ref={sectionRef} id="home-work-section" className="container-page section-pad" data-testid="home-work-section">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading kicker="PROOF" title="Less portfolio. More proof." testId="work-heading" />
         <Reveal delay={150}>
