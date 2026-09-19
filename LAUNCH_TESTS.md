@@ -400,3 +400,131 @@ anyway. Pixel-level visual confirmation is therefore **NOT RUN**.
 | Framer Motion changed | NO |
 | Approved layout / content / visual identity changed | NO |
 | Frontend source changed at all | NO — the only frontend-affecting change is response headers declared in `vercel.json` |
+
+---
+
+# STEP 6 — FINAL PRODUCT COMPLETION VERIFICATION
+
+## SEARCH
+| Check | Status | Note |
+|---|---|---|
+| Case studies indexed | PASS | verified in prior turn, re-confirmed |
+| Insights indexed | PASS | |
+| Network/ecosystem profiles indexed | PASS | built_here/built_together deliberately excluded — duplicates of already-indexed case studies |
+| No private/admin routes in index | PASS | dynamic sources are all public GET endpoints only |
+
+## SECTION ANCHORS
+| Anchor | Status | Note |
+|---|---|---|
+| `/what-we-do#build` | **FAIL → FIXED** | landed ~5876px short before fix (font-swap reflow after initial measure); now lands 96px below nav |
+| `/what-we-do#packages` | PASS | unaffected, already correct |
+| `/resources#privacy` | PASS | |
+| `/resources#terms` | PASS | |
+| `/work#orbit` (new) | PASS | added; "Back to the Orbit" now reaches the actual section |
+
+## SITE-WIDE LINK AUDIT
+| Category | Result |
+|---|---|
+| CTA label/destination mismatches | 0 found (~60 CTAs traced) |
+| Hardcoded broken internal links | 0 found |
+| Missing/inappropriate alt text | 0 found |
+| Placeholder/lorem/unfinished copy | 0 found (one non-user-facing TODO: Seo.js sameAs, pre-existing/documented) |
+
+## INSIGHTS
+| Check | Status | Note |
+|---|---|---|
+| All 10 published articles searchable | PASS | |
+| Category filter URL-synced | PASS | `?category=...`, verified round-trip in prior turn |
+| Related-content orphans | 1 of 10 (down from 7 of 10) | "The Problem Behind the Problem" — sole member of its category; not force-linked, per explicit instruction not to fabricate a relationship |
+| New articles created | 0 | no candidate assemblable from existing material without inventing facts |
+
+## TYPOGRAPHY
+| Check | Status | Note |
+|---|---|---|
+| `var(--font-display)` undefined in portfolioWall.css | **FAIL → FIXED** | 5 occurrences corrected to `var(--font-system)`; verified live, computed font now Rajdhani |
+| Font file ↔ @font-face mapping | PASS | 22 files, 22 rules, 1:1, no 404 risk, no unreferenced files |
+| `font-display: swap` on all faces | PASS | 22/22 |
+| Preload matches hero H1's actual font | PASS | rajdhani-600-normal-latin.woff2 |
+| Fallback stacks end in a safe generic | PASS | all 3 `--font-*` tokens |
+| Cross-page heading/body font consistency | PASS | 8 representative pages checked |
+| App.css stale comment (Figtree) | FIXED | comment-only, no behavior change |
+| tailwind.config.js editorial=Figtree drift | FIXED | corrected to Newsreader; was dormant (App.css always wins), no rendered change |
+
+## WORK / NETWORK UI RE-AUDIT
+| Check | Status |
+|---|---|
+| Portfolio Wall diagrams (color, not black) | PASS |
+| Portfolio Wall label spacing | PASS |
+| Portfolio Wall font (post-fix) | PASS — verified `Rajdhani, ...` computed |
+| Orbit deck fan/tilt/drag/lift | PASS — unchanged |
+| Orbit overflow fix (prior turn) | PASS — re-verified at 375/1180/1440 |
+| Network constellation/accordions/filters | PASS |
+| ConnectedStory unaffected | PASS — `.story-home` position/font both correct |
+| No page-wide horizontal scrollbar | PASS |
+
+## SCROLL PERFORMANCE
+| Item | Action |
+|---|---|
+| MagneticButton uncached rect-per-mousemove | FIXED — cached on enter, mirrors MotifFrame's proven pattern |
+| CardCarousel/PopIllustration read/write interleave | Investigated, not changed — opacity/transform don't invalidate layout, no measurable benefit to reordering |
+| CollapseOnScroll sitewide querySelectorAll on scroll | Investigated, not changed — small real cost, protects a documented correctness fix, gating judged higher-risk than benefit |
+| ScrollTrigger/GSAP instance cleanup | PASS — all 5 sites have matching cleanup, no leaks |
+| Card-media CLS risk (Work/Network/Insights) | PASS — no external raster images in any card grid |
+
+## ERROR / EMPTY STATES
+| Page | Before | After | Verified against real outage? |
+|---|---|---|---|
+| Work.js (portfolio) | error silently rendered as empty | dedicated error message + retry | YES — stopped `api` container, confirmed message, confirmed recovery |
+| Discipline.js (network) | error rendered misleading "still being verified" copy | dedicated error message; skeleton no longer spins forever | YES — same real-outage test |
+| ServiceDetail.js (proof cases) | silent no-op on failure | left as-is (no persistent label to look broken) | N/A — reviewed, not changed |
+
+## API EFFICIENCY (duplicate requests, live-measured)
+| Page | Total API calls | Duplicates |
+|---|---|---|
+| /work | 3 (auth/me, case-studies, portfolio) | 0 |
+| /network | 4 (auth/me, ecosystem, network/categories, network) | 0 |
+| /insights | 2 (auth/me, insights) | 0 |
+
+## BACKEND CLEANUP
+| Check | Result |
+|---|---|
+| Dead imports | 0 found |
+| Debug/launch-only code | 0 found |
+| Commented-out code blocks | 0 found |
+| Broad rewrite performed | NO — none needed |
+
+## MOBILE (375px, 1179/1180 boundary)
+| Page | 375px overflow | 1180px overflow |
+|---|---|---|
+| /work | 0 | 0 (-15, normal) |
+| /network | 0 | not re-tested this width (unaffected by this step's changes) |
+| /insights | 0 | not applicable |
+| /what-we-do | 0 | not applicable |
+
+## SEO
+| Check | Result |
+|---|---|
+| Sitemap URL count | 56 (unchanged) |
+| Prerendered HTML pages | 56 + 404.html (unchanged) |
+| Spot-checked titles (Work/Network/Insights/What We Do) | PASS, unchanged |
+| New public routes requiring sitemap changes | 0 (new anchor is a section of an existing page) |
+
+## PERFORMANCE REGRESSION
+| Metric | Step-3 baseline | After Step 6 | Delta |
+|---|---|---|---|
+| Main JS raw | 681.77 KB | 682.07 KB | +0.30 KB |
+| Main JS gzip | 231.14 KB | 231.21 KB | +0.07 KB |
+| Initial CSS raw | 96.84 KB | 96.84 KB | 0 |
+| Initial CSS gzip | 19.47 KB | 19.47 KB | 0 |
+
+## FULL VALIDATION SUITE
+| Command | Result |
+|---|---|
+| `npm run lint` | PASS |
+| `npm test` | PASS — 8/8 |
+| `npm run test:build` | PASS — 6/6 |
+| `npm run build` | PASS — 56 pages |
+| `pytest tests/` | PASS — 60/60 |
+| Docker full stack (rebuild + live test) | PASS — including a real forced API outage |
+
+## STEP 6 TEST STATUS: COMPLETE

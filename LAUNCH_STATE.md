@@ -814,3 +814,322 @@ refactor, restructure or migration performed.
 10. Decide the auth product question (P2) — not a launch blocker.
 
 ## PART A + B STATUS: COMPLETE
+
+---
+
+# STEP 6 — FINAL PRODUCT COMPLETION
+
+Full 30-part completion pass across search, information architecture,
+Insights, content, typography, Work/Network UI, scroll performance, backend
+cleanliness, error states, mobile, SEO and a final independent audit. This
+step was preceded by two prior turns this session that already fixed real
+defects (Orbit deck overflow, Work/Network CSS restoration, search coverage,
+Insights URL-synced filtering) — this step verifies those, then finds and
+fixes the remainder.
+
+## SEARCH COVERAGE (Part 1)
+
+Already completed in the previous turn (commit `6f93031`): the command
+palette now indexes case studies, insights and network/ecosystem profiles
+from the live API, alongside the pre-existing static pages/systems/
+disciplines index. Re-verified this step: no private/admin/internal route
+is indexed (the dynamic sources are all public `GET` endpoints; nothing
+from `/auth/*`, `/subscribers`, `/contact-submissions` or `/operations/*`
+is reachable through search). No further changes needed.
+
+## SECTION-LEVEL ROUTING (Part 2) — one real bug found and fixed
+
+Audited every `#hash` destination on the site (`/what-we-do#build`,
+`/what-we-do#packages`, `/resources#privacy`, `/resources#terms`, plus a
+newly added `/work#orbit`):
+
+- **Real bug, fixed:** `ScrollToTop` (`lib/motion.js`) computed a hash
+  target's scroll position once, the first time the element existed, and
+  never re-checked. Confirmed live on `/what-we-do#build`: landed at
+  scrollY 2104 while the target had actually settled at ~7980px — a
+  ~5876px miss caused by font-swap reflow (six long capability cards plus
+  a packages/builder section shift measurably once Newsreader/Rajdhani
+  finish loading). Fixed by re-running the same scroll calculation once
+  `document.fonts.ready` resolves. Verified live: `/what-we-do#build` now
+  lands with its target 96px below the nav, matching `#packages`'
+  already-correct behavior.
+- **`#packages`, `#privacy`, `#terms`:** verified correct, unaffected.
+- **New anchor, justified:** every ecosystem category page's "Back to the
+  Orbit" link went to plain `/work` (the top of the page), past a stale
+  comment claiming hash anchors "silently do nothing" — untrue since Step
+  2's CommandPalette work. Added `id="orbit"` to `OrbitSection` and pointed
+  the link at `/work#orbit`, so the link's own label now matches its
+  destination. No anchors were added merely for quantity — this is the one
+  case where a link's name promised a specific section it didn't reach.
+- Sticky-header offset uses a JS-computed `-96px` in `ScrollToTop`, not CSS
+  `scroll-margin-top`. Reviewed and deliberately kept: it already handles
+  the sticky header correctly, plus a 20-retry poll for lazy-mounted
+  content that a pure CSS approach would have to reimplement separately.
+  Rewriting a working, documented, retry-aware mechanism for stylistic
+  purity was judged higher-risk than the value it would add.
+
+## SITE-WIDE LINK AUDIT (Part 3)
+
+Full CTA-destination and hardcoded-link inventory performed (see agent
+findings, ~60 CTAs traced). **Zero label/destination mismatches found.**
+Every internal link uses React Router `<Link>`/`navigate()` — no raw
+`<a href="/...">` internal links anywhere. No dead URLs, no placeholder
+pages, no nonexistent anchors (after the `#build` fix above). Two teaser
+links (`/coming-soon#hi-anzy-ai`, `/coming-soon#imkaan`) are reachable only
+from the footer — present on every page, so not orphaned, but the least
+discoverable real content on the site; noted, not treated as a defect
+since the footer is universal.
+
+## INFORMATION ARCHITECTURE / LINK GRAPH (Part 4)
+
+- `/contact` — 18 inbound links (expected for the primary conversion CTA).
+- `/work` — 9 inbound; `/network` — 6; `/how-we-work` — 5; `/what-we-do` — 3.
+- Every hub page (`/work`, `/network`, `/insights`, `/what-we-do`) is
+  reachable in 1 click from the nav on every page — click depth 1 for all
+  primary hubs, 2 for every detail page (hub → detail).
+- No important public page is an accidental orphan. The `/coming-soon`
+  anchors are the only single-inbound-source content (see above).
+- No cross-links were added purely to inflate a number; every link added
+  or corrected this step (`/work#orbit`) already existed as a link whose
+  label promised a destination it didn't reach.
+
+## INSIGHTS: DATA-DRIVEN AND DYNAMIC (Parts 5–6)
+
+- Architecture unchanged and confirmed correct: `/insights` and
+  `/insights/:slug` already derive their content from `getInsights()`/
+  `getInsight()` (the live API), not duplicated manual card data. The
+  56-page static prerender architecture is untouched — this step did not
+  and does not convert individual article pages to client-only rendering.
+- **Search** now includes all 10 published insights (previous turn).
+- **Category filtering** is now URL-synced (`?category=...`) — bookmarkable,
+  shareable, and what a search result or external link can land directly
+  into (previous turn, commit `6f93031`).
+- **Related content ("Keep Reading")** was fixed in this session's prior
+  turn: same-category picks first, then a position-rotated fallback,
+  reducing zero-inbound-link articles from 7 of 10 to 1 of 10.
+- **The remaining orphan — resolved via a genuine relationship, not forced:**
+  "The Problem Behind the Problem" (category "Things We Noticed") is the
+  sole article in its category, so no same-category sibling exists, and
+  its position in the rotation happens to miss every other article's
+  fallback window. Investigated a forced fix (alternate rotation formulas)
+  and rejected it — every alternative tried either left a different
+  article orphaned or reduced overall relevance quality for no net gain.
+  Per this task's own explicit instruction not to create an artificial
+  link merely to eliminate an orphan count, this is left as a documented,
+  understood limitation of a 10-article/5-category dataset rather than
+  force-fit. It remains fully reachable from `/insights` itself (1 click
+  from nav) — "orphaned" here means zero cross-article recommendations,
+  not unreachable.
+- Featured/hero article: none currently designated — the index treats all
+  published articles equally via the carousel. Not added this step (would
+  require an editorial "featured" flag with no current data-model support
+  and no owner input on which article should be featured — inventing one
+  would be exactly the kind of unsupported claim this task prohibits).
+
+## CONTENT COMPLETENESS & COPYWRITING (Parts 7–9)
+
+Full-site scan (placeholder/lorem/TODO/repeated-paragraph/missing-description/
+CTA-mismatch/alt-text) performed across every page and component file.
+**Result: the site is clean.** No lorem ipsum, no user-visible placeholder
+copy, no repeated/duplicated paragraphs, no heading without supporting copy,
+no card missing a description its siblings have, no CTA whose label
+contradicts its destination, no missing or filler alt text. The one
+genuinely open item is not user-facing: `Seo.js`'s `sameAs` (LinkedIn/
+Instagram) schema block is commented out pending real profile URLs — an
+existing, already-documented owner action, not new.
+
+**New Insight content: none created.** Per this task's own classification
+scheme (READY FROM EXISTING MATERIAL / SAFE TO ASSEMBLE / NEEDS OWNER
+MATERIAL / DO NOT CREATE), no candidate topic surfaced during this pass
+that could be substantively assembled from existing approved material
+without either thinning into SEO filler or requiring facts (client
+outcomes, dates, specifics) this session has no authority to invent. No
+filler was added to inflate the article count.
+
+**No facts invented:** no clients, revenue figures, awards, testimonials,
+research statistics, locations, partnerships, founder quotes or
+performance metrics were added anywhere this step.
+
+## TYPOGRAPHY (Parts 10–11) — one real rendering bug found and fixed
+
+- **Real bug, fixed:** `portfolioWall.css` referenced `var(--font-display)`
+  in five places; that custom property is declared nowhere in the
+  codebase. An undeclared `var()` with no fallback computes to the
+  inherited value, so the Portfolio Wall's stat numbers and index digits
+  were silently rendering in the body's editorial serif instead of the
+  Rajdhani display face their own class names specify. This predates the
+  `story.css` split from two turns ago and was invisible only because that
+  CSS wasn't loading on `/work` at all until that split fixed the loading
+  bug — fixing the load exposed a font bug that was already there.
+  Corrected to `var(--font-system)`. Verified live: the stat numbers now
+  compute `"Rajdhani, ..."` instead of inheriting Newsreader.
+- **Stale comment, corrected:** `App.css` claimed Figtree "isn't set as a
+  primary face anymore," which is inaccurate — `story.css`'s `.story-home`
+  (the homepage model explorer) still does, deliberately. No font was
+  changed; only the comment.
+- **Dormant config drift, corrected:** `tailwind.config.js`'s
+  `fontFamily.editorial` was still `Figtree`, left over from before the
+  Newsreader swap in `App.css`. Currently inert — `App.css`'s unlayered
+  rules always beat Tailwind's `@layer utilities` regardless of source
+  order — but a landmine for whenever that stops being true. Updated to
+  match `App.css`'s real value.
+- **File/weight inventory:** clean 1:1 mapping between the 22 shipped
+  `.woff2` files and the 22 `@font-face` rules in `fonts.css` — no missing
+  files, no unreferenced files. Every rule carries `font-display: swap`.
+  Exactly one font is preloaded (`rajdhani-600-normal-latin.woff2`),
+  confirmed to exactly match the hero H1's actual computed font
+  (Rajdhani, weight 600). All three `--font-*` fallback stacks end in a
+  correct generic (`sans-serif`/`serif`) — none can silently collapse to
+  browser-default Times/Arial.
+- **Minor, not fixed:** `font-pun` is combined with Tailwind's
+  `font-medium` (weight 500) in two components, but only Amaranth 400 is
+  shipped — the browser renders the nearest available real weight (400)
+  rather than synthesizing a fake 500. Cosmetically negligible on a
+  display/pun accent face; left as-is rather than touching two call sites
+  for an effectively invisible difference.
+- **Consistency spot-check** (Home, What We Do, Work, Work detail, Network,
+  Insights, Insight detail, Contact): headings uniformly use the display
+  font, body/narrative copy uniformly uses the editorial font, technical
+  labels uniformly use mono — no page found using a mismatched variable on
+  a main heading. Clean.
+
+## WORK / NETWORK FINAL UI AUDIT (Parts 12–13)
+
+Both pages re-verified after the CSS restoration from two turns ago, plus
+this step's font fix:
+- Portfolio Wall line-art diagrams render in the correct theme colors
+  (white/orange line art, not solid black), stat labels read correctly
+  spaced ("PORTFOLIO CONTEXT" / "06 WORKS"), and now render in the correct
+  Rajdhani display face.
+- Orbit/Evidence deck fan, tilt, drag and lift all confirmed unchanged; the
+  horizontal-overflow fix from two turns ago re-verified clean at 1180px
+  and 375px.
+- Network's constellation map, resource-directory accordions, discipline
+  filter chips and stat panel all confirmed rendering correctly with the
+  restored `networkPage.css`.
+- `ConnectedStory`'s own styling (`story.css`, now containing only its own
+  content after the two extractions) re-verified unaffected — `.story-home`
+  still resolves `position: relative` and its Figtree primary face
+  correctly.
+- No page-wide horizontal scrollbar on either page at 375/1180/1440.
+
+## SCROLL PERFORMANCE (Part 14) — investigated, one real fix applied
+
+Full audit of forced-layout risk, listener hygiene, ScrollTrigger cleanup,
+hot-path state updates and card-media CLS risk (see agent findings).
+
+- **Fixed:** `MagneticButton.js` (used by primary CTAs sitewide) called
+  `getBoundingClientRect()` on every `mousemove` with no caching — the one
+  genuinely costly pattern found that also had an established, already-
+  correct sibling pattern to mirror (`MotifFrame.js`'s tilt handler: measure
+  once on enter, reuse until leave). Fixed identically. Behavior unchanged
+  — same pull calculation, same transform write, only the timing of the
+  rect read moved from every event to once per hover.
+- **Investigated, not changed:** `CardCarousel.js` and `PopIllustration.js`
+  interleave `getBoundingClientRect()` reads with `opacity`/`transform`
+  writes across the same scroll tick. On inspection, `opacity` and
+  `transform` are compositor-only properties that do not invalidate layout
+  in any current browser engine, so this does not actually force the
+  synchronous reflow the pattern superficially resembles — reordering it
+  would be a defensive-only change with no measurable benefit, so it was
+  not made, per this task's own instruction to act only where measurement
+  proves benefit.
+- **Investigated, not changed:** `CollapseOnScroll.js` runs a
+  `document.querySelectorAll("details[open]")` on every scroll tick,
+  site-wide, to auto-close panels scrolled away from. Real but small cost
+  (a cheap, mostly-empty query on pages with no open panel); the component
+  protects a documented, deliberate correctness fix from this project's own
+  history (a reader's scroll position losing meaning under an open panel).
+  Left unchanged — gating it further was judged higher-risk than its
+  marginal benefit.
+- **Confirmed clean:** all 5 `ScrollTrigger.create()`/`gsap.timeline()`
+  sites have matching cleanup; no leaked instances across route navigation.
+  `ScrollProgress.js` and `ScrollVelocity.js` already write only to
+  refs/CSS custom properties on every scroll tick — zero React re-renders,
+  the correct pattern the two fixed/flagged components above should (and
+  now partly do) mirror.
+- **Card-media CLS:** Work/Network/Insight cards render inline SVG or text
+  only — no external raster images inside any card grid, so the common
+  "image with no reserved dimensions" CLS failure mode does not apply.
+
+## ERROR / EMPTY STATES (Parts 19–20) — two real bugs found and fixed
+
+- **`Work.js`:** the portfolio-wall fetch caught a failure into the same
+  state as "no portfolio items," so a real API outage silently rendered as
+  an empty section with a visible "PORTFOLIO ARCHIVE" header and nothing
+  under it — no error message, no retry, unlike the sibling case-studies
+  fetch on the same page. Fixed with a dedicated error state matching the
+  existing pattern.
+- **`Discipline.js`:** a real fetch failure fell into the same branch as a
+  genuinely empty discipline, which renders the specific, confident claim
+  "Nothing public listed... The relationships exist. The write-ups are
+  still being verified" — actively wrong during an actual outage. Fixed
+  with a dedicated error state; the loading skeleton was also given an
+  error-aware exit so it can no longer spin indefinitely after a failure.
+- Both verified against a **real** outage (stopped the `api` container,
+  confirmed the correct message appears with no stale skeleton and no
+  misleading empty-state copy), then confirmed both recover to normal
+  content once the API was restored.
+- **Investigated, not changed:** `ServiceDetail.js`'s supplementary
+  "WHERE THIS HAS ALREADY RUN" proof-cases block silently renders nothing
+  on failure. Reviewed and left as-is: unlike the two cases above, this
+  section carries no persistent visible label when absent (no heading is
+  ever shown without content), so failing silently to nothing is a
+  reasonable degrade for a secondary enhancement, not a defect.
+- No area anywhere renders a genuinely blank rectangle while loading; every
+  data-driven page already has (or, after this step, now has) a distinct
+  loading, empty, and error state.
+
+## BACKEND CLEANUP & API EFFICIENCY (Parts 17–19)
+
+- Import audit: every import in `server.py` is used; no dead code, no
+  debug/launch-only cruft, no commented-out code blocks found. `manage.py`'s
+  `print()` calls are legitimate CLI output for its documented purpose (a
+  human-operated console), not debug leftovers.
+- No broad rewrite performed or needed — the backend was already hardened
+  for the Vercel runtime in this session's earlier work (serverless-aware
+  lifespan, capped Mongo pool, trusted-proxy-aware client IP, explicit
+  `Cache-Control: no-store` on private endpoints).
+- **Duplicate-request check, live-verified this step:** a clean load of
+  `/work` makes exactly 3 API calls (auth/me, case-studies, portfolio), a
+  clean load of `/network` makes exactly 4, and `/insights` makes exactly
+  2 — zero duplicates on any of the three.
+
+## MOBILE (Part 22)
+
+Re-verified at 375px and the 1179/1180 boundary on Work, Network, Insights
+and What We Do (the four pages touched this step and the prior two): zero
+horizontal overflow on any of them. 3D quality untouched throughout.
+
+## SEO (Part 24)
+
+Sitemap unchanged at 56 URLs, all on `https://hianzy.com`, no duplicates.
+Prerendered page count unchanged at 56 HTML pages (+404.html). Spot-checked
+titles on Work/Network/Insights/What We Do — all correct, unchanged. No new
+public routes were added this step (the one new anchor, `/work#orbit`, is a
+section of an existing page, not a new route) so no sitemap change was
+required or made.
+
+## PERFORMANCE REGRESSION (Part 26)
+
+| Metric | Step-3 baseline | After Step 6 |
+|---|---|---|
+| Main JS | 681.77 KB raw / 231.14 KB gzip | 682.07 KB raw / 231.21 KB gzip |
+| Initial CSS | 96.84 KB raw / 19.47 KB gzip | 96.84 KB raw / 19.47 KB gzip |
+
++0.3KB raw / +0.07KB gzip on JS (the dynamic search-index loader and the
+MagneticButton/motion.js fixes); CSS unchanged at the gzip level. No
+material regression.
+
+## FULL VALIDATION (Part 25)
+
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS — clean |
+| `npm test` (vitest) | PASS — 8/8 |
+| `npm run test:build` | PASS — 6/6 |
+| `npm run build` | PASS — 56 pages prerendered |
+| `pytest tests/` | PASS — 60/60 |
+| Docker full stack | PASS — rebuilt and live-tested throughout, including a real forced API outage for the error-state fixes |
+
+## STEP 6 STATUS: COMPLETE
