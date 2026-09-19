@@ -26,7 +26,7 @@ export const OrbitSection = () => {
   // transition. Removed so this boundary matches the standard rhythm exactly
   // like every other one does.
   return (
-    <section className="container-page section-pad" data-index-label="THE HI ANZY ORBIT" data-testid="orbit-section">
+    <section id="orbit" className="container-page section-pad" data-index-label="THE HI ANZY ORBIT" data-testid="orbit-section">
       <div
         data-testid="orbit-explore-bar"
         className="flex w-full items-center gap-4 rounded-full border border-[#232A2A]/15 bg-[#F7F5EE] px-6 py-4 text-left"

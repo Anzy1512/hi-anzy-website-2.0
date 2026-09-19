@@ -92,10 +92,10 @@ export const EcosystemCategoryPage = ({ category }) => {
           </Reveal>
         </div>
         <Reveal delay={260} className="mt-8">
-          {/* Plain /work, not a #hash — ScrollToTop (lib/motion.js) resets scroll
-              on every pathname change and has no hash-anchor handling today,
-              so a hash here would silently do nothing. */}
-          <Link to="/work" className="link-draw inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#232A2A]/70">
+          {/* ScrollToTop (lib/motion.js) does handle #hash targets, with a
+              retry for lazy-mounted content, so this can land on the actual
+              Orbit section rather than just the top of /work. */}
+          <Link to="/work#orbit" className="link-draw inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#232A2A]/70">
             <ArrowLeft size={14} /> Back to the Orbit
           </Link>
         </Reveal>
