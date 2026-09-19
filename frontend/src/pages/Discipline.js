@@ -27,6 +27,7 @@ export default function Discipline() {
   const ref = useRevealObserver();
   const d = DISCIPLINE_BY_SLUG[slug];
   const [members, setMembers] = useState(null);
+  const [membersError, setMembersError] = useState(false);
 
   useEffect(() => {
     if (!d) return;
@@ -34,7 +35,11 @@ export default function Discipline() {
     // nests it into ?category[category]= and the filter silently no-ops.
     getNetwork(d.category)
       .then(setMembers)
-      .catch(() => setMembers([]));
+      // A real failure used to render identically to a genuinely empty
+      // category (below), which specifically claims "the relationships
+      // exist, the write-ups are still being verified" -- a confident,
+      // specific claim that is simply wrong during an actual outage.
+      .catch(() => setMembersError(true));
   }, [d]);
 
   if (!d) {
@@ -211,13 +216,19 @@ export default function Discipline() {
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> WHO DOES IT
         </Reveal>
 
-        {!members && (
+        {!members && !membersError && (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => <div key={i} className="panel-paper h-[170px] animate-pulse" />)}
           </div>
         )}
 
-        {members && members.length === 0 && (
+        {membersError && (
+          <p role="alert" className="panel-paper mt-6 p-6 text-[15px] leading-relaxed text-[#232A2A]/75" data-testid="discipline-error">
+            This list could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">contact us</Link> in the meantime.
+          </p>
+        )}
+
+        {members && members.length === 0 && !membersError && (
           <p className="panel-paper mt-6 p-6 text-[15px] leading-relaxed text-[#232A2A]/75" data-testid="discipline-empty">
             Nothing public listed under {d.name} yet. The relationships exist. The write-ups are still being
             verified, and we would rather be slow than inventive.

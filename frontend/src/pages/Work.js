@@ -54,11 +54,16 @@ export default function Work() {
   const [cases, setCases] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
   const [error, setError] = useState(false);
+  const [portfolioError, setPortfolioError] = useState(false);
   const [expanded, setExpanded] = useState(null);
   const [details, setDetails] = useState({});
   useEffect(() => {
     getCaseStudies().then(setCases).catch(() => setError(true));
-    axios.get(`${API}/portfolio`).then((r) => setPortfolio(r.data)).catch(() => setPortfolio([]));
+    // A genuine failure here used to render identically to "no portfolio
+    // items yet" -- both fell into setPortfolio([]), so an actual outage on
+    // this endpoint silently looked like there was nothing to show, with no
+    // error message and no retry, unlike the case-studies fetch above.
+    axios.get(`${API}/portfolio`).then((r) => setPortfolio(r.data)).catch(() => setPortfolioError(true));
   }, []);
 
   // An expanded case is the tallest thing on this page; leaving it open while
@@ -317,7 +322,8 @@ export default function Work() {
             </div>
           )}
 
-          {!portfolio && <div className="mt-10 grid gap-5 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="panel-paper h-[150px] animate-pulse" />)}</div>}
+          {portfolioError && <p role="alert" className="mt-10 panel-paper p-6 text-[15px] text-[#232A2A]/80" data-testid="work-portfolio-error">The portfolio archive could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">contact us</Link> about relevant work.</p>}
+          {!portfolio && !portfolioError && <div className="mt-10 grid gap-5 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="panel-paper h-[150px] animate-pulse" />)}</div>}
 
           {/* One orbital deck per category, stacked vertically. Replaces the
               chip-wall: the same projects and the same links, but each
