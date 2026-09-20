@@ -4,6 +4,8 @@
 !.env.example
 # Docker template: no values, and a teammate needs it to start the stack.
 !.env.docker.example
+# AWS production env template - no real values, safe to commit.
+!.env.aws.example
 
 # ── Dependencies ──────────────────────────────────────────────────────────
 node_modules/

@@ -1,0 +1,36 @@
+# Amplify Hosting custom HTTP response headers.
+# Amplify reads this file automatically from the repository root.
+# These replace the equivalent headers that vercel.json set for the Vercel deployment.
+#
+# IMPORTANT — connect-src change from Vercel:
+#   Vercel: connect-src 'self'          (frontend + backend share an origin)
+#   Amplify: connect-src 'self' https://api.hianzy.com
+#            (frontend on hianzy.com calls backend on api.hianzy.com)
+#
+# Update api.hianzy.com if the API subdomain changes.
+
+customHeaders:
+  - pattern: '**/*'
+    headers:
+      - key: X-Content-Type-Options
+        value: nosniff
+      - key: X-Frame-Options
+        value: SAMEORIGIN
+      - key: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - key: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+      - key: Content-Security-Policy
+        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.hianzy.com"
+
+  # Immutable cache for content-hashed assets (Vite appends ?v=<hash> or [hash] in filenames)
+  - pattern: 'assets/**'
+    headers:
+      - key: Cache-Control
+        value: public, max-age=31536000, immutable
+
+  # Revalidate HTML every request so fresh prerendered pages are served immediately
+  - pattern: '**/*.html'
+    headers:
+      - key: Cache-Control
+        value: no-cache, no-store, must-revalidate

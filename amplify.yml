@@ -1,0 +1,45 @@
+# Amplify Hosting build spec.
+#
+# Uses the monorepo `applications`/`appRoot` format because the app lives in
+# frontend/, not the repo root. With appRoot: frontend, Amplify runs every
+# command from inside frontend/ and resolves artifact paths relative to it —
+# so each path below matches vercel.json's frontend service 1:1.
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            # Node >=22.14.0 is required (engines field in frontend/package.json).
+            # Amplify build images ship nvm; install v22 if it is not already active.
+            - nvm install 22
+            - nvm use 22
+            - node --version
+            - npm ci
+        build:
+          commands:
+            # npm run build triggers the npm lifecycle hooks automatically:
+            #   prebuild  → check:opacity, check:seo, sitemap
+            #   build     → vite build --configLoader native
+            #   postbuild → prerender-metadata.cjs (writes 56 prerendered HTML pages)
+            - npm run build
+            # Copy the Experience Lab static bundle into the artifact root.
+            # Vercel does this inside vercel.json's buildCommand; here it is explicit.
+            - cp -r lab build/lab
+      artifacts:
+        baseDirectory: build
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+
+# Build-time environment variable, set in the Amplify Console under
+# App settings → Environment variables. Never commit the value here:
+#
+#   REACT_APP_BACKEND_URL=https://api.hianzy.com
+#
+# vite.config.mjs declares envPrefix: ['VITE_', 'REACT_APP_'], so this existing
+# variable name reaches the bundle with no code change. Leave it unset for
+# same-origin local/Docker development.
