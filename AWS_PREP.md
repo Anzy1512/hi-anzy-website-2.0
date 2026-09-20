@@ -31,10 +31,31 @@ Key points:
 
 > **Why not `cd frontend` in each command:** within an Amplify phase the working directory persists between commands, so a `cd frontend` in the build phase followed by a root-relative path would resolve against `frontend/` and break. `appRoot` removes the ambiguity entirely.
 
-**Amplify build environment variable (set in Amplify Console, not committed):**
+**Amplify build environment variables (set in Amplify Console, not committed):**
 ```
+AMPLIFY_MONOREPO_APP_ROOT=frontend      # REQUIRED — must equal appRoot
 REACT_APP_BACKEND_URL=https://api.hianzy.com
 ```
+
+> **`AMPLIFY_MONOREPO_APP_ROOT` is not optional.** AWS requires it to hold the
+> same value as `appRoot`. The Console sets it for you when you specify the app
+> root while first connecting the repository, but you must set it by hand for
+> an app that already exists or is created through CloudFormation. **The build
+> fails without it.**
+
+### Custom headers and the monorepo format
+
+`customHttp.yml` lives at the repo root, is read automatically, and overrides
+anything configured in the Console's Custom headers section.
+
+Because `amplify.yml` uses the monorepo `applications` format, each entry in
+`customHttp.yml` also carries an `appRoot: frontend` key matching the build
+spec. AWS documents that monorepo custom headers use a specific YAML format.
+
+> **Verify at setup:** download the canonical `customHttp.yml` from the Amplify
+> Console once during setup and confirm the committed file's shape matches. If
+> `appRoot` is wrong the headers silently fail to apply — which would drop the
+> CSP and every other protection in that file without any build error.
 
 ---
 

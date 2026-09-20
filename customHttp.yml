@@ -1,6 +1,7 @@
 # Amplify Hosting custom HTTP response headers.
-# Amplify reads this file automatically from the repository root.
-# These replace the equivalent headers that vercel.json set for the Vercel deployment.
+# Amplify reads this file automatically from the repository root, and it
+# overrides anything set in the console's Custom headers section.
+# These replace the equivalent headers vercel.json set for the Vercel deployment.
 #
 # IMPORTANT — connect-src change from Vercel:
 #   Vercel: connect-src 'self'          (frontend + backend share an origin)
@@ -8,9 +9,20 @@
 #            (frontend on hianzy.com calls backend on api.hianzy.com)
 #
 # Update api.hianzy.com if the API subdomain changes.
+#
+# appRoot is required because amplify.yml uses the monorepo applications
+# format; it must match the appRoot there (frontend) and the
+# AMPLIFY_MONOREPO_APP_ROOT environment variable set in the Amplify Console.
+#
+# VERIFY AT SETUP: AWS documents that monorepo custom headers use a specific
+# YAML format. Amplify's own Console can emit a canonical customHttp.yml —
+# download it once during setup and confirm this file's shape matches before
+# relying on these headers. If appRoot is wrong the headers silently do not
+# apply, which would drop CSP and the other protections below.
 
 customHeaders:
-  - pattern: '**/*'
+  - appRoot: frontend
+    pattern: '**/*'
     headers:
       - key: X-Content-Type-Options
         value: nosniff
@@ -23,14 +35,16 @@ customHeaders:
       - key: Content-Security-Policy
         value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.hianzy.com"
 
-  # Immutable cache for content-hashed assets (Vite appends ?v=<hash> or [hash] in filenames)
-  - pattern: 'assets/**'
+  # Immutable cache for content-hashed assets (Vite emits [hash] in filenames)
+  - appRoot: frontend
+    pattern: 'assets/**'
     headers:
       - key: Cache-Control
         value: public, max-age=31536000, immutable
 
   # Revalidate HTML every request so fresh prerendered pages are served immediately
-  - pattern: '**/*.html'
+  - appRoot: frontend
+    pattern: '**/*.html'
     headers:
       - key: Cache-Control
         value: no-cache, no-store, must-revalidate

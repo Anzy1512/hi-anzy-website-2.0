@@ -35,11 +35,16 @@ applications:
         paths:
           - node_modules/**/*
 
-# Build-time environment variable, set in the Amplify Console under
-# App settings → Environment variables. Never commit the value here:
+# Environment variables to set in the Amplify Console under
+# App settings → Environment variables. Never commit values here.
+#
+#   AMPLIFY_MONOREPO_APP_ROOT=frontend
+#     REQUIRED. AWS requires this to equal the appRoot above. The Console sets
+#     it automatically when you specify the app root while first connecting the
+#     repo, but it must be set by hand for an app that already exists or is
+#     created via CloudFormation. The build fails without it.
 #
 #   REACT_APP_BACKEND_URL=https://api.hianzy.com
-#
-# vite.config.mjs declares envPrefix: ['VITE_', 'REACT_APP_'], so this existing
-# variable name reaches the bundle with no code change. Leave it unset for
-# same-origin local/Docker development.
+#     vite.config.mjs declares envPrefix: ['VITE_', 'REACT_APP_'], so this
+#     existing variable name reaches the bundle with no code change. Leave it
+#     unset for same-origin local/Docker development.
