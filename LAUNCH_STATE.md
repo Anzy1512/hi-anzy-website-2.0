@@ -1379,7 +1379,132 @@ ScrollTrigger pin-spacer cleanup racing React unmount in `PinnedSequence.js`.
 Non-fatal, page keeps working, pre-existing, and not reproducible at real
 user navigation speed. Left alone per the A3 rule.
 
+**More precise reproduction found in the scroll-lag investigation below**: this
+same error also fires from a single fast scroll gesture straight through
+`PinnedSequence` on `/` alone — no route navigation needed. Confirmed
+pre-existing by building the untouched pre-session `motion.js` and reproducing
+it identically; not introduced by anything in this session. Still non-fatal,
+still LOW. Updating the reproduction steps here since "rapid route navigation"
+undersold how easily it triggers.
+
 ## PHASE A STATUS: COMPLETE
+
+---
+
+# SCROLL LAG INVESTIGATION (continued from the "increase scrolling speed and
+# watch for lag" user report — real profiling this time, not just inspection)
+
+## WHAT WAS DONE
+
+Chrome DevTools MCP's own browser instance could not be reached this session
+(stale profile lock, `--isolated` not exposed as a tool parameter). Built a
+real profiling harness instead, directly in the live page: `PerformanceObserver`
+`longtask` entries plus an instrumented `Element.prototype.getBoundingClientRect`
+(call count + total self time). Verified representative: `lenis.scrollTo({duration})`
+bypasses `lerp`/`wheelMultiplier` entirely (a separate, mutually-exclusive
+animation path in Lenis's own `animate.ts`), so all real measurements used
+synthetic `WheelEvent` dispatch instead — the actual lerp-damped path a real
+user's scroll wheel drives.
+
+## SHIPPED: scroll speed (commit `b6a8f47`)
+
+`lerp: 0.12 -> 0.16`, added `wheelMultiplier: 1.2` in `LenisProvider`
+(`lib/motion.js`). Verified via ctx7 against Lenis's current README/types
+before touching it. Baseline: 80 synthetic wheel ticks at the old settings
+only moved the page half their nominal input distance (8800 of a notional
+8800px — full catch-up, but see below) actually the *speed* gain is the
+distance-per-tick: at 1.0x it reached scrollY 8800 for 80x110px of input; at
+1.2x it reached scrollY 10560, exactly 80x110x1.2 — confirmed live via
+`window.__lenis.options`. This reduces *total* time spent scrolling through a
+long page, and so *total* lag encountered end-to-end, but does not reduce
+*per-frame* cost (see below) — reported to the user as exactly that, not
+oversold as "fixed."
+
+## INVESTIGATED AND RULED OUT: the 3D scenes are not the cause
+
+Per-section long-task attribution (correlating `longtask` timestamps with
+scroll position against measured section boundaries) found cost concentrated
+in Home's first ~40%: `home-hero-section` alone accounted for 572ms across
+only 1167px of scroll — roughly 3.6x the cost-per-pixel of `home-what-we-do-
+section` (323ms across 2375px), the page's largest section. `home-network-
+section` produced the single worst individual long task (111ms).
+
+Both of those sections carry the page's only two R3F canvases (Hero's
+`SystemCore`, NetworkPreview's `Constellation`), which made them look like the
+obvious cause. They are not: both already use `useSceneVisibility`
+(`components/three/useSceneVisibility.js`), a carefully engineered, already-
+measured hook from a prior session — its own comment documents "scrolling
+11,500px away from the hero scene changed total draw calls by 0.3%" before
+this hook existed, i.e. the "runs forever off-screen" bug class is already
+fixed. `Constellation` goes further, adding a third `frameloop="demand"` tier
+between fully active and fully stopped. The cost measured in these sections is
+the genuine, already-tuned, already-approved cost of actively rendering
+approved WebGL scenes while they are on screen — not a bug, and explicitly
+protected by the freeze ("Preserve 3D scenes... Do not remove 3D detail to
+make performance numbers look better"). Not touched.
+
+## TESTED AND FALSIFIED: ScrollTrigger.update() "double firing"
+
+Stack-trace sampling of `getBoundingClientRect` callers during a scroll
+initially showed an even 348/348 split across two call paths into the same
+minified function, suggestive of `ScrollTrigger.update()` firing twice per
+Lenis tick (once from Lenis's own `.on("scroll", ScrollTrigger.update)`
+binding, once from ScrollTrigger's own native `scroll` listener, since Lenis
+writes to real `window.scrollY` every frame per this file's own
+`subscribeScroll` comment). Verified against GSAP's official docs (via ctx7)
+that `scrollerProxy` is the documented mechanism for this integration and that
+ScrollTrigger always listens natively regardless.
+
+Tested directly, twice, in the local Docker container only (never committed,
+never pushed): commented out the explicit `.on("scroll", ScrollTrigger.update)`
+binding, rebuilt, measured with the identical wheel-tick harness.
+**Result: no measurable difference** — 927 calls/986ms/39 long tasks without
+the binding vs. 945/1001ms/40 with it, noise-level variance. Removing it buys
+nothing.
+
+First test run also showed the `removeChild` error above, which looked at
+first like a regression from this change — re-verified against the untouched
+original `motion.js` (built and measured separately) and found it reproduces
+identically there too. Correctly attributed as pre-existing, not caused by the
+experiment; see the updated KNOWN, NOT FIXED entry above. Good that this got
+checked rather than assumed either way, in both directions.
+
+Binding kept, exactly as committed. Its original justification (avoiding a
+one-frame-behind desync for scroll-triggered animations, since anything
+polling `window.scrollY` from its own rAF loop can land a frame behind Lenis's
+authoritative interpolated value) stands unchallenged; removing it had no
+performance case and a documented desync risk.
+
+## REMAINING, UNFIXED, HONEST CONCLUSION
+
+The first ~40% of Home costs more per pixel scrolled because it packs more
+concurrently-active GSAP `ScrollTrigger` instances into less vertical space
+than the rest of the page (Hero's `RouteLine` + several `Reveal`s,
+`SomethingsOff`, `WhyHowNow`, `WhatWeDoGrid`'s card grid, then straight into
+`PinnedSequence`'s own pin/scrub) — each one reads its own `getBoundingClientRect`
+on every `ScrollTrigger.update()`. This is not a bug with a discrete fix; it is
+the measured cost of the approved animation density in that stretch of the
+page, matching almost exactly how the user described the problem ("more info
+and animation"). A change here would mean reducing how many scroll-triggered
+elements are simultaneously active — a real choreography change, which the
+freeze protects and which was not requested. Reported as a location-specific,
+evidence-backed finding rather than something silently left unexplained.
+
+## VALIDATION
+
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS — clean |
+| `npm test` (vitest) | PASS — 8/8 |
+| Docker rebuild + live verification | PASS — `lerp`/`wheelMultiplier` confirmed live via `window.__lenis.options`; `PinnedSequence`'s stage transitions still pin/unpin correctly at the new settings |
+| Two local-only ScrollTrigger.update() experiments | Both reverted; working tree confirmed clean (`git diff --stat`) against commit `b6a8f47` before and after |
+| `removeChild` regression check | Reproduced on untouched original code; confirmed pre-existing, not introduced this session |
+
+## COMMITS
+
+- `b6a8f47` perf(scroll): raise Lenis lerp/wheelMultiplier after measuring real scroll lag
+
+## SCROLL LAG INVESTIGATION STATUS: COMPLETE
 
 ---
 
