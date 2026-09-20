@@ -1478,3 +1478,110 @@ build cache.
 ## PHASE B STATUS: COMPLETE — STOP GATE REACHED
 
 Nothing pushed, nothing merged, no AWS resource created, no DNS touched.
+
+---
+
+# FINAL INDEPENDENT AUDIT
+
+Independent review of the repo's launch readiness, including this session's own
+work. Severity is release-candidate style.
+
+## BLOCKER
+
+**B-1 — CI fails today: `check_frontend_lock.py` is stale by 100+ files.**
+`.github/workflows/check.yml` runs `python scripts/check_frontend_lock.py` on
+every push. It currently fails: `docs/frontend-source-lock.json` was last
+updated 2026-09-16 (`54886e4`), while frontend source changed through
+2026-09-19 (`616cfc8`). Every session since — Orbit, ecosystem pages, search,
+typography, the Part 28A fixes — drifted from the lock.
+
+*Not caused by this session:* Phase A changed no code and Phase B touched only
+root-level files; `git status frontend/` is empty, and `.gitignore` does not
+appear in the failure list (the lock's `.gitignore` key is `frontend/.gitignore`,
+which is untouched).
+
+This blocks the GitHub → AWS flow documented in B13, which names CI as the gate
+before merge to `main`.
+
+**Deliberately not auto-fixed.** Regenerating the lock would rubber-stamp 100+
+files nobody reviewed, which defeats the only thing the lock exists to do. The
+owner should diff the drift, confirm every change is intended, and only then
+regenerate.
+
+**B-2 — The lock can never pass after a build.** `frontend/public/sitemap.xml`
+is *in* the lock, but `npm run build`'s `prebuild` step regenerates it with the
+current date. Any build dirties a locked file. Even a correct regeneration of
+B-1 goes stale the next time anyone builds. The lock needs to exclude generated
+artifacts (`public/sitemap.xml` at minimum) or B-1 will keep recurring.
+
+## HIGH
+
+**H-1 — A naive Amplify SPA rewrite would silently destroy prerendered SEO.**
+Full detail in `AWS_PREP.md` §B3. A blanket extensionless→`/index.html` 200
+rewrite shadows `work.html` and serves the SPA shell; the page looks right to a
+human while crawlers get generic metadata on all 56 pages, with no error
+anywhere. Guidance and a view-source test are documented — **but the behavior is
+unverified against a live Amplify app.** Treat the §B3 test as a launch gate.
+
+**H-2 — MongoDB Atlas network access for App Runner is unsolved.** App Runner's
+default egress IPs are not static, so there is no stable Atlas allowlist. The
+tempting fix — allowing `0.0.0.0/0` in Atlas — exposes the database to the
+internet behind nothing but credentials. The correct fix is a VPC connector plus
+a NAT Gateway with an Elastic IP, which is infrastructure not yet planned or
+costed. Decide before creating the cluster; retrofitting means re-networking a
+live service.
+
+**H-3 — `customHttp.yml` monorepo syntax is not fully verified.** AWS states
+monorepo custom headers use a specific YAML format; the canonical reference page
+could not be retrieved. `appRoot: frontend` was added to every entry based on
+the documented monorepo requirement and the CDK `CustomResponseHeader` contract
+(`appRoot` + `pattern` + `headers`). If the shape is still wrong the headers do
+not apply and CSP, `X-Frame-Options` and the rest silently vanish — with a
+green build. Diff against the Console's own downloaded `customHttp.yml` at
+setup.
+
+## MEDIUM
+
+**M-1 — Dual-deploy risk.** `vercel.json` is intentionally retained (Vercel is
+the live fallback). If both Vercel and Amplify are connected to the repo, both
+build on every push to `main`. Cutover needs an explicit step: disconnect
+Vercel, or confirm the intent to run both.
+
+**M-2 — App Runner config is not in code.** B5/B6 describe port, health check
+and env vars as Console settings. There is no committed `apprunner.yaml`, so
+the service is not reproducible from the repo. Acceptable for a first manual
+deploy; worth committing once the shape is settled.
+
+**M-3 — Cross-subdomain auth is untested end-to-end.** `SameSite=none; Secure`
+is correct and validated at import, but no cookie has actually crossed
+`hianzy.com` → `api.hianzy.com` yet. The pre-existing P2 (auth points at a
+third-party scaffold host) is still unresolved and is the likelier problem.
+
+## LOW
+
+**L-1 — `removeChild` NotFoundError on rapid route changes.** GSAP
+ScrollTrigger pin-spacer cleanup racing React unmount in `PinnedSequence.js`.
+Pre-existing, non-fatal, only reproducible at ~4 routes in 8s. Left alone.
+
+**L-2 — Bundle sizes exceed Vite's 500 KB warning.** `react-three-fiber`
+805 KB, main index 683 KB. Inherent to the locked 3D product; not actionable
+under the freeze. Noted so it is a decision, not an oversight.
+
+**L-3 — Local test friction.** `pytest` expects Mongo on `127.0.0.1:27117`
+but compose leaves Mongo unpublished, so a disposable container is needed; and
+pytest's default Windows temp dir is permission-denied here, needing
+`--basetemp`. CI is unaffected. A documented `TEST_MONGO_URL` or a published
+dev port would remove the trap.
+
+## INFORMATIONAL
+
+**I-1 — Phase A correctly produced zero code changes.** The one candidate was
+examined and rejected as speculative. Recorded so the absence of a diff reads
+as a decision rather than an omission.
+
+**I-2 — The backend needs no code changes for AWS.** Every Vercel/AWS
+difference is a configuration value. `IS_SERVERLESS` already does the right
+thing on App Runner.
+
+**I-3 — Anonymous `401` on `/api/auth/me`** on every page load. Expected,
+documented as P2, unchanged.
