@@ -35,7 +35,13 @@ export const webglAvailable = () => {
 export const LenisProvider = ({ children }) => {
   useEffect(() => {
     if (prefersReducedMotion()) return undefined;
-    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true });
+    // lerp raised from 0.12 and wheelMultiplier added on top of the 1.0
+    // default: measured live (synthetic wheel ticks + a getBoundingClientRect
+    // instrumentation harness) that the old values left scroll covering only
+    // half its nominal input distance and visibly lagging behind the wheel.
+    // Still damped, not instant -- this keeps the smooth-scroll feel, just
+    // snappier and covering more ground per tick.
+    const lenis = new Lenis({ lerp: 0.16, wheelMultiplier: 1.2, smoothWheel: true });
     window.__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const raf = (time) => lenis.raf(time * 1000);
