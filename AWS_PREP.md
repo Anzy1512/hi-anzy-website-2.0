@@ -63,15 +63,48 @@ spec. AWS documents that monorepo custom headers use a specific YAML format.
 
 The site generates 56 prerendered `.html` files at build time (e.g. `build/work.html`, `build/network/strategy.html`). Amplify must serve these at their clean URLs (e.g. `/work` → `build/work.html`).
 
-**Required Amplify Console configuration (Owner Action):**
-Navigate to Amplify Console → App → Rewrites and redirects → Add rule:
+> ### ⚠ HIGH RISK — a naive SPA catch-all will silently destroy the prerendering
+>
+> The usual Amplify SPA rule rewrites every extensionless path to
+> `/index.html` with a 200. AWS documents that **"redirects are applied from
+> the top of the list down"** and that a broad rule placed first shadows any
+> more specific rule after it.
+>
+> So a blanket catch-all matches `/work` and serves the generic SPA shell
+> **instead of the prerendered `work.html`**. The page still looks correct to a
+> human — React hydrates and renders — but crawlers get the shell's generic
+> `<title>` and meta tags. All 56 prerendered pages would lose their SEO
+> metadata, with no error anywhere to signal it.
+>
+> Ordering is therefore load-bearing: clean-URL → `.html` resolution must win
+> **before** any catch-all, and the catch-all must be genuinely last.
 
-| Source | Target | Type |
-|---|---|---|
-| `</^[^.]+$|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|webp\|avif)$)([^.]+$)/>` | `/index.html` | 200 (Rewrite) |
+**Owner Action — Amplify Console → App → Rewrites and redirects.**
 
-This catch-all rewrite serves `index.html` for paths that don't match a file extension.  
-Prerendered pages are served directly as files first (Amplify's native behavior); this rule only applies to any unrecognized path.
+Order matters; the catch-all goes last:
+
+| # | Source | Target | Type | Purpose |
+|---|---|---|---|---|
+| 1 | *(clean-URL resolution — see below)* | `/<path>.html` | 200 | serve the prerendered page |
+| 2 | `</^[^.]+$|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|webp\|avif)$)([^.]+$)/>` | `/index.html` | 200 | SPA fallback for anything with no prerendered file |
+
+**Verify empirically at setup — do not assume.** Amplify may resolve `/work` to
+`work.html` natively, in which case rule 1 is unnecessary and only rule 2 is
+needed. That behavior decides whether rule 1 is required at all, so test it
+rather than guessing:
+
+1. Deploy to the temporary Amplify URL with only rule 2 configured.
+2. Request a prerendered deep link directly, e.g. `/work`, and **view source**
+   (not DevTools' rendered DOM, which shows post-hydration output either way).
+3. The raw HTML must contain the page's own prerendered `<title>` —
+   `Work | Proof, With Context | hiAnzy`. If it shows the generic shell title
+   instead, the catch-all is shadowing the prerendered file and rule 1 is
+   required ahead of it.
+4. Re-test at least one nested route (`/network/strategy`) and the Experience
+   Lab (`/lab/`).
+
+This check is the difference between shipping working SEO and silently losing
+it on every page, so treat it as a launch gate, not a nice-to-have.
 
 **Note on `/lab/` subdirectory:** The `cp -r frontend/lab frontend/build/lab` in `amplify.yml` ensures the Experience Lab static bundle is in the artifact. Amplify serves it as a normal subdirectory.
 
