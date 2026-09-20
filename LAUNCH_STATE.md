@@ -1315,3 +1315,166 @@ normal show/hide once scrolled clear.
 - `616cfc8` fix: correct four genuine UI-consistency drifts found in system audit
 
 ## PART 28A STATUS: COMPLETE
+
+---
+
+# PHASE A — FINAL SCROLL STABILIZATION
+
+Scope rule applied throughout: change scroll code **only** where inspection or
+profiling demonstrates a real cost or correctness risk. Lenis, ScrollTrigger,
+GSAP choreography and all animation timing were preserved exactly.
+
+**3D IMPACT: NONE / ANIMATION IMPACT: NONE / VISUAL DESIGN IMPACT: NONE / CONTENT IMPACT: NONE**
+
+## A1 — DEPENDENCY MAP (built before touching anything)
+
+The scroll architecture has a single source of truth and no competing listeners:
+
+- `LenisProvider` (`lib/motion.js`) — Lenis (`lerp: 0.12`, `smoothWheel: true`)
+  driven by the GSAP ticker, with ScrollTrigger synced to it. One instance,
+  exposed as `window.__lenis`.
+- `subscribeScroll(cb)` (`lib/motion.js`) — the one subscription helper every
+  consumer uses. Polls for `window.__lenis` (40 × 50ms) and falls back to a
+  native passive listener. No component adds its own raw scroll listener.
+- Consumers verified: `Nav.js` (`isDarkUnderNav`, already rAF-throttled to
+  120ms in a prior session), `StickyCta.js`, `SectionIndex.js`, `WorkPreview`.
+
+## A2 — PROFILING
+
+Executed as visual + console inspection across representative routes at 375 /
+430 / 768 / 1180 / 1440px. **Honest limitation:** the in-app browser cannot run
+Chrome DevTools Performance traces (flame charts, fps recording), so this was
+not a flame-chart profile. No scroll performance issue surfaced beyond the one
+candidate A1 identified.
+
+## A3 — OPTIMIZATIONS APPLIED: NONE
+
+The single candidate — `SectionIndex.js:207`, a `getBoundingClientRect` call
+inside a scroll handler — was examined and deliberately left alone: it is
+desktop-only (≥1180px), runs over a small array of 3–8 items, and showed no
+measurable cost. Changing it would have been speculative work against the
+A3 rule, not a fix. **No scroll code was modified in this phase.**
+
+## A4 — PREVIOUSLY INVESTIGATED PATTERNS: RESPECTED
+
+The `isDarkUnderNav` 120ms rAF throttle (ported from the platform repo,
+commit `687908c`) and the `ScrollToTop` retry poll were both left untouched.
+
+## A5 — REGRESSION TEST
+
+Routes `/`, `/work`, `/network`, `/insights`, `/contact`, `/lab/` verified at
+mobile (375), tablet (768) and the SectionIndex breakpoint (1180). Layout,
+Newsreader typography, 3D scenes and navigation all intact.
+
+## A6 — PERFORMANCE COMPARISON
+
+No before/after delta to report, because no code changed. Build output is
+unchanged from Part 28A: 56 pages, 682.72 KB raw / 231.45 KB gzip main JS.
+
+## KNOWN, NOT FIXED (LOW)
+
+`NotFoundError: Failed to execute 'removeChild' on 'Node'` can appear during
+*rapid* successive route navigation (4 routes in ~8s). Cause: a GSAP
+ScrollTrigger pin-spacer cleanup racing React unmount in `PinnedSequence.js`.
+Non-fatal, page keeps working, pre-existing, and not reproducible at real
+user navigation speed. Left alone per the A3 rule.
+
+## PHASE A STATUS: COMPLETE
+
+---
+
+# PHASE B — AWS ARCHITECTURE PREPARATION
+
+Repo-side only. **No AWS resources created, no DNS touched, nothing deployed.**
+Full detail lives in `AWS_PREP.md`; this is the summary.
+
+Target architecture: Amplify Hosting (frontend) + App Runner (backend) +
+MongoDB Atlas, with `hianzy.com` / `www.hianzy.com` → `api.hianzy.com`.
+
+## HEADLINE FINDING: THE BACKEND NEEDS NO CODE CHANGES
+
+The existing architecture is already AWS-compatible. Everything that differs
+between Vercel and AWS is a **configuration value**, not code:
+
+| Concern | Mechanism already in place | AWS value |
+|---|---|---|
+| API base URL | `REACT_APP_BACKEND_URL` (already in `envPrefix`) | `https://api.hianzy.com` |
+| CORS | `CORS_ORIGINS` env var, wildcard actively refused | `https://hianzy.com,https://www.hianzy.com` |
+| Cookies | `COOKIE_SECURE` / `COOKIE_SAMESITE`, validated at import | `true` / `none` (cross-subdomain) |
+| Seeding | `IS_SERVERLESS` gate | `VERCEL` unset on App Runner → seeds normally, which is correct |
+| Health check | `/api/health` (DB ping → 200 or 503) | used as-is by App Runner |
+| Container | `backend/Dockerfile` — 3.12-slim, non-root, `0.0.0.0:8000` | passes App Runner audit unchanged |
+
+## FILES ADDED
+
+| File | Purpose |
+|---|---|
+| `amplify.yml` | Amplify build spec (B2) |
+| `customHttp.yml` | Security headers for Amplify (B2) |
+| `backend/.env.aws.example` | Production env reference for App Runner (B7) |
+| `AWS_PREP.md` | Full B1–B15 documentation |
+| `.gitignore` | one line: un-ignore `.env.aws.example` |
+
+## TWO REAL ISSUES CAUGHT DURING THIS PHASE
+
+1. **CSP would have blocked every API call.** Vercel's CSP ends
+   `connect-src 'self'`, which is correct only while frontend and API share an
+   origin. On AWS they do not. `customHttp.yml` sets
+   `connect-src 'self' https://api.hianzy.com`. Missing this would have
+   produced a fully rendered site whose every API call failed in the browser.
+2. **A first draft of `amplify.yml` was wrong and was fixed before commit.**
+   It used `cd frontend && npm run build` followed by a root-relative
+   `cp -r frontend/lab …`. Within an Amplify phase the working directory
+   persists between commands, so that second path would have resolved to
+   `frontend/frontend/lab` and failed the build. Rewritten using Amplify's
+   documented `applications` / `appRoot: frontend` monorepo format, which
+   removes the ambiguity and makes every path match `vercel.json` 1:1.
+
+## B1 — VERCEL WORK CLASSIFICATION (summary)
+
+- `vercel.json` — **VERCEL ONLY, retire before AWS deploy.** Deliberately
+  *kept* for now: Vercel is still the live fallback and no AWS resource exists.
+- `IS_SERVERLESS` in `server.py:52` — **KEEP**, platform-independent and
+  already does the right thing on App Runner.
+- `REACT_APP_BACKEND_URL` — **KEEP**, only the value changes per platform.
+- `backend/Dockerfile`, `/api/health` — **KEEP**, already App Runner-ready.
+
+## OWNER ACTIONS (B3, B12, B13, B14, B15 — nothing Claude can or should do)
+
+1. Amplify Console → add the SPA catch-all rewrite (exact rule in `AWS_PREP.md` §B3).
+2. Amplify Console → set `REACT_APP_BACKEND_URL=https://api.hianzy.com`.
+3. Secrets Manager → create `MONGO_URL`, `RESEND_API_KEY` (+ `SMTP_PASS` if used).
+4. MongoDB Atlas → create the production cluster and connection string.
+   **Not fabricated or guessed here.**
+5. DNS → only after both services are live and healthy on their temporary URLs.
+
+## PHASE C — VALIDATION
+
+| Check | Result |
+|---|---|
+| `npm run lint` | PASS — clean |
+| `npm test` (vitest) | PASS — 8/8 |
+| `npm run test:build` | PASS — 6/6 |
+| `npm run build` | PASS — 56 pages, 682.72 KB raw / 231.45 KB gzip main JS |
+| `pytest tests/test_api.py` | PASS — 60/60 |
+| `amplify.yml` / `customHttp.yml` YAML parse | PASS |
+| `cp -r lab build/lab` (appRoot-relative) | PASS — verified against the real tree |
+| Docker stack | PASS — `web`, `api`, `mongo` all healthy |
+| Live browser sweep | PASS — `/`, `/work`, `/network`, `/insights`, `/contact`, `/lab/` all render real content; only the pre-existing anonymous `auth/me` 401 pattern in console |
+
+Two test-environment notes, neither a code defect: `pytest` needs Mongo on
+`127.0.0.1:27117` (the dev compose Mongo is unpublished), so a disposable
+`mongo:7` container was run on that port for the suite and removed afterwards;
+and pytest's default Windows temp dir is permission-denied on this machine, so
+`--basetemp` was pointed at the scratchpad.
+
+## PHASE D — CLEANUP
+
+Nothing to remove. No real secrets in any new file (the only `mongodb+srv://`
+strings are `user:pass@cluster0.xxxxx` placeholders). Only `.example` env files
+are tracked. `.vercel/` is untracked, gitignored, and holds nothing but a local
+build cache.
+
+## PHASE B STATUS: COMPLETE — STOP GATE REACHED
+
+Nothing pushed, nothing merged, no AWS resource created, no DNS touched.
