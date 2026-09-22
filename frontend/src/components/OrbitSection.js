@@ -3,6 +3,7 @@ import { Reveal } from "@/components/Reveal";
 import { EvidenceDeck } from "@/components/EvidenceDeck";
 import { ORBIT_CATEGORIES } from "@/data/content";
 import { ORBIT_GLYPHS } from "@/components/deck/OrbitGlyphs";
+import { Link } from "react-router-dom";
 
 /**
  * "The Hi Anzy Orbit" — sits between the verified case studies and the
@@ -65,6 +66,18 @@ export const OrbitSection = () => {
           <p className="font-mono-sys mt-10 text-center text-[12.5px] text-[#232A2A]/50">
             Each card opens its own index — real names, honestly labelled, verified on the date shown.
           </p>
+          {/* Plain links to the same six pages the deck opens. The deck renders
+              real anchors, but only the active card is visually reachable, and a
+              category page should not depend on a carousel to be found. */}
+          <ul className="mt-5 flex flex-wrap justify-center gap-2" aria-label="Orbit categories" data-testid="orbit-category-links">
+            {ORBIT_CATEGORIES.map((c) => (
+              <li key={c.key}>
+                <Link to={c.route} className="sys-chip inline-flex items-center gap-1.5 rounded-full border border-[#232A2A]/25 px-3 py-1.5 text-[#232A2A]/75 transition-colors hover:border-[#F19020] hover:text-[#232A2A]" data-testid={`orbit-link-${c.key}`}>
+                  {c.num} · {c.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

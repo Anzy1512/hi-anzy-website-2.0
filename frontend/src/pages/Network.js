@@ -497,6 +497,15 @@ export default function Network() {
             }}
           />
         </Reveal>
+        <ul className="mt-6 flex flex-wrap justify-center gap-2" aria-label="Network rosters" data-testid="network-roster-links">
+          {networkRosters.map((r) => (
+            <li key={r.id}>
+              <Link to={r.href} className="sys-chip inline-flex items-center gap-1.5 rounded-full border border-[#232A2A]/25 px-3 py-1.5 text-[#232A2A]/75 transition-colors hover:border-[#F19020] hover:text-[#232A2A]" data-testid={`network-roster-link-${r.id}`}>
+                {r.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="network-specialists" className="container-page section-pad" data-index-label="THE SPECIALISTS">
