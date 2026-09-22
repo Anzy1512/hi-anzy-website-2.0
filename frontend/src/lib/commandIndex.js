@@ -5,6 +5,7 @@ import {
   NETWORK_SUBCATS,
   ORBIT_CATEGORIES,
   INSIGHT_CATEGORIES,
+  INSIGHT_TOPICS,
 } from "@/data/content";
 import { getCaseStudies, getInsights, getEcosystem } from "@/lib/api";
 
@@ -31,7 +32,12 @@ const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|
 const STATIC_PAGES = [
   ...NAV_LINKS.map((l) => ({ label: l.label, to: l.to })),
   ...FOOTER_LINKS.map((l) => ({ label: l.label, to: l.to })),
-  { label: "Say Hi", to: "/contact" },
+  // Real destinations that hang off no nav list: the contact page is
+  // labelled "Say Hi" in the footer, and the coming-soon page is reached only
+  // from the footer teasers. Their body text carries the words a visitor
+  // would actually type, so "contact" and "imkaan" resolve to a page.
+  { label: "Say Hi", to: "/contact", body: "contact get in touch email start a conversation send a brief" },
+  { label: "Coming Soon", to: "/coming-soon", body: "hi anzy ai imkaan future brands notify me" },
 ];
 
 /**
@@ -81,7 +87,7 @@ const build = () => {
   };
 
   STATIC_PAGES.forEach((p) =>
-    push({ kind: "page", group: "Pages", label: p.label, to: p.to, hint: p.to })
+    push({ kind: "page", group: "Pages", label: p.label, to: p.to, hint: p.to, body: p.body })
   );
 
   CATEGORIES.forEach((c) => {
@@ -166,6 +172,22 @@ const build = () => {
     });
   });
 
+  // The knowledge taxonomy: each topic is a filtered hub on /insights via the
+  // URL-synced ?topic= param. Labelled "Knowledge topic" so a search for
+  // "Brand" shows this beside the Brand *discipline* page and the Brand &
+  // Experience *service* without the three reading as duplicates — same word,
+  // three genuinely different destinations, each named by its type.
+  INSIGHT_TOPICS.forEach((t) => {
+    push({
+      kind: "insight-topic",
+      group: "Insights",
+      label: `${t.name} — knowledge`,
+      to: `/insights?topic=${encodeURIComponent(t.name)}`,
+      hint: "Knowledge topic",
+      body: `${t.blurb || ""} encyclopedia topic hub`,
+    });
+  });
+
   return items;
 };
 
@@ -188,7 +210,7 @@ let dynamicPromise = null;
 
 /**
  * Fetches case studies, insights and ecosystem entries once and merges them
- * into search. Cheap — three small GETs, ~50 rows combined — and the palette
+ * into search. Cheap — three small GETs, ~80 rows combined — and the palette
  * already shows "Preparing search…" while its own chunk loads, so the first
  * open absorbs this wait rather than adding a new one. Failures are silent
  * per source: a down endpoint means that source is just missing from
@@ -212,16 +234,21 @@ export const loadDynamicIndex = () => {
         );
       }
       if (insights.status === "fulfilled") {
-        insights.value.forEach((post) =>
+        insights.value.forEach((post) => {
+          // An encyclopedia entry is a different kind of destination from a
+          // note: the hint says which, and the definition and topics are
+          // searchable so "what is positioning" finds the entry that
+          // defines it, not only the note that mentions it.
+          const knowledge = post.format === "knowledge";
           items.push({
-            kind: "insight",
+            kind: knowledge ? "knowledge" : "insight",
             group: "Insights",
             label: post.title,
             to: `/insights/${post.slug}`,
-            hint: post.category,
-            body: `${post.category || ""} ${post.excerpt || ""}`,
-          })
-        );
+            hint: knowledge ? `Knowledge · ${post.category}` : post.category,
+            body: `${post.category || ""} ${(post.topics || []).join(" ")} ${post.definition || ""} ${post.excerpt || ""} ${(post.tags || []).join(" ")}`,
+          });
+        });
       }
       if (ecosystem.status === "fulfilled") {
         ecosystem.value.forEach((item) => {
@@ -248,7 +275,10 @@ export const loadDynamicIndex = () => {
  * Ranked substring match. Deliberately not fuzzy: a consultancy's service list
  * is full of near-identical phrases ("Brand audit", "Business audit"), and a
  * fuzzy matcher reorders those unpredictably. Exact-prefix beats word-start
- * beats contains, which is predictable enough to trust.
+ * beats contains beats a hit in the destination path beats body copy, which
+ * is predictable enough to trust. The path tier is what lets a visitor type
+ * the URL word they remember ("contact", "coming soon", "why hi anzy") and
+ * land on a page whose on-screen label is something else ("Say Hi").
  */
 export const searchCommands = (query, limit = 24) => {
   const q = query.trim().toLowerCase();
@@ -259,16 +289,20 @@ export const searchCommands = (query, limit = 24) => {
   const scored = [];
   for (const item of [...COMMAND_INDEX, ...dynamicItems]) {
     const label = item.label.toLowerCase();
+    const path = item.to ? item.to.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() : "";
     let score = 0;
     if (label === q) score = 100;
     else if (label.startsWith(q)) score = 80;
     else if (new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(label)) score = 60;
     else if (label.includes(q)) score = 40;
+    else if (path && path.includes(q)) score = 30;
     else if (item.body && item.body.toLowerCase().includes(q)) score = 20;
     if (!score) continue;
-    // pages and systems outrank the long tail of individual service lines
+    // pages and systems outrank the long tail of individual service lines;
+    // an encyclopedia entry outranks a passing mention in a note.
     if (item.kind === "page") score += 8;
     if (item.kind === "service") score += 6;
+    if (item.kind === "knowledge") score += 4;
     scored.push({ item, score });
   }
 
