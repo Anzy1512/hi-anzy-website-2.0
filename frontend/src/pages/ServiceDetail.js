@@ -12,6 +12,7 @@ import { useRevealObserver } from "@/lib/motion";
 import { getCaseStudies, track } from "@/lib/api";
 import { CATEGORIES, CATEGORY_BY_SLUG } from "@/data/content";
 import { CapabilityBanner } from "@/components/ContextBanner";
+import { RelatedReading } from "@/components/RelatedReading";
 
 /**
  * One figure per service, keyed off position, so the six pages do not all open
@@ -346,6 +347,7 @@ export default function ServiceDetail() {
         </Reveal>
       </section>
 
+      <RelatedReading kind="services" slug={c.slug} />
       <NextSteps from="/what-we-do" />
     </div>
   );

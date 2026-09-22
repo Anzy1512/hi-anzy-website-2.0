@@ -9,6 +9,7 @@ import { getEcosystem, track } from "@/lib/api";
 import { ORBIT_CATEGORIES } from "@/data/content";
 import { ORBIT_GLYPHS } from "@/components/deck/OrbitGlyphs";
 import { abs } from "@/lib/absoluteUrl";
+import { RelatedReading } from "@/components/RelatedReading";
 
 /**
  * One shared index page for all 6 Orbit category routes — the category
@@ -187,6 +188,7 @@ export const EcosystemCategoryPage = ({ category }) => {
           A network relationship is not the same thing as hiAnzy-delivered client work, which is why every card is labelled honestly.
         </p>
       </section>
+      <RelatedReading kind="network" slug={category} title="READING ON THIS PART OF THE NETWORK" />
     </div>
   );
 };

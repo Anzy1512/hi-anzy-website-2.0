@@ -11,6 +11,7 @@ import { getCaseStudy, getCaseStudies, track } from "@/lib/api";
 import { CATEGORY_BY_SLUG } from "@/data/content";
 import { CaseBanner } from "@/components/ContextBanner";
 import { NextSteps } from "@/components/NextSteps";
+import { RelatedReading } from "@/components/RelatedReading";
 
 const SECTIONS = [
   { key: "situation", label: "SITUATION" },
@@ -174,6 +175,7 @@ export default function WorkDetail() {
           </Link>
         )}
       </article>
+      <RelatedReading kind="work" slug={cs.slug} title="THE THINKING BEHIND THIS CASE" />
       <NextSteps from="/work-detail" />
     </div>
   );

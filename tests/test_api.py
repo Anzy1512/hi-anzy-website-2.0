@@ -74,6 +74,24 @@ def test_category_filter(api, route):
     assert items and all(item['category'] == category for item in items)
 
 
+def test_knowledge_articles_shape_and_topic_filter(api):
+    items = api.get('/api/insights').json()
+    knowledge = [i for i in items if i.get('format') == 'knowledge']
+    notes = [i for i in items if i.get('format') == 'note']
+    assert knowledge and notes
+    for item in knowledge:
+        assert item['definition'] and item['topics'] and item['related']
+        assert 'body' not in item
+    topic = knowledge[0]['topics'][0]
+    filtered = api.get('/api/insights', params={'topic': topic}).json()
+    assert filtered and all(topic in item['topics'] for item in filtered)
+    assert api.get('/api/insights', params={'topic': 'Not A Topic'}).json() == []
+    detail = api.get('/api/insights/' + knowledge[0]['slug']).json()
+    assert any(block['type'] == 'steps' for block in detail['body'])
+    for target in detail['related']['insights']:
+        assert api.get('/api/insights/' + target).status_code == 200
+
+
 def test_contact_persists_normalized_fields(api):
     response = api.post('/api/contact', json={**CONTACT, 'name': '  Audit Tester  '})
     assert response.status_code == 200

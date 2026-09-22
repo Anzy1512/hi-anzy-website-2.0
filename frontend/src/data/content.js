@@ -639,7 +639,24 @@ export const INSIGHT_CATEGORIES = [
   { name: "Brand, Decoded", blurb: "Positioning, identity and customer experience." },
   { name: "Tech, Without Theatre", blurb: "Technology, automation and AI." },
   { name: "Growth, With Receipts", blurb: "Marketing, commerce and performance." },
+  { name: "Media & Creators", blurb: "Creators, media, events and live experience." },
   { name: "Things We Noticed", blurb: "Observations, patterns and founder notes." },
+];
+
+/* The knowledge taxonomy. Orthogonal to INSIGHT_CATEGORIES above: a category
+   is the editorial series a piece was written in; a topic is the subject it
+   belongs to, and an article can carry several. Article `topics` values
+   must come from this list (backend/knowledge_articles.py is validated
+   against it), and the /insights index filters on it via ?topic=. */
+export const INSIGHT_TOPICS = [
+  { name: "Strategy", blurb: "Business strategy, positioning, audiences and growth decisions." },
+  { name: "Brand", blurb: "Identity, messaging, tone and brand systems." },
+  { name: "Marketing", blurb: "Campaigns, channels, performance and measurement." },
+  { name: "Digital", blurb: "Websites, conversion, UX, SEO and analytics." },
+  { name: "Technology", blurb: "Automation, AI, CRM, data and business systems." },
+  { name: "Creative", blurb: "Production, visual systems and storytelling." },
+  { name: "Operations", blurb: "Workflows, process design and documentation." },
+  { name: "Experience", blurb: "Events, venues, creators and live experiences." },
 ];
 
 export const PROVENANCE_STYLES = {

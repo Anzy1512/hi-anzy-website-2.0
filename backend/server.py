@@ -444,13 +444,15 @@ async def list_ecosystem(category: Optional[EcosystemCategory] = None):
 
 
 @api_router.get("/insights")
-async def list_insights(category: Optional[str] = None):
-    """Return published insights, optionally filtered by category."""
+async def list_insights(category: Optional[str] = None, topic: Optional[str] = None):
+    """Return published insights, optionally filtered by category and/or topic."""
     query: Dict[str, Any] = {"published": True}
     if category:
         query["category"] = category
+    if topic:
+        query["topics"] = topic
     cursor = db.insights.find(query, {"_id": 0, "body": 0}).sort("_id", -1)
-    return await cursor.to_list(length=50)
+    return await cursor.to_list(length=200)
 
 
 @api_router.get("/insights/{slug}")

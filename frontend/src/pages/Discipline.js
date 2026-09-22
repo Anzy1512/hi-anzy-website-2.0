@@ -7,6 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { MagneticButton } from "@/components/MagneticButton";
 import { ProvenanceTag } from "@/components/ProvenanceTag";
 import { NextSteps } from "@/components/NextSteps";
+import { RelatedReading } from "@/components/RelatedReading";
 import { PopIllustration } from "@/components/PopIllustration";
 import { useRevealObserver } from "@/lib/motion";
 import { getNetwork, track } from "@/lib/api";
@@ -305,6 +306,7 @@ export default function Discipline() {
         </Reveal>
       </section>
 
+      <RelatedReading kind="disciplines" slug={d.slug} />
       <NextSteps from="/network" title="Keep going" />
     </div>
   );

@@ -116,6 +116,186 @@
         "title": "Why hiAnzy Packages Services by Stage | hiAnzy",
         "description": "Services sold as a menu let you buy in the wrong order. Packaging by development stage makes sequence the default rather than an accident."
       }
+    },
+    {
+      "slug": "what-is-a-brand-operating-system",
+      "title": "What Is a Brand Operating System?",
+      "excerpt": "The phrase on our homepage, explained properly: what a brand operating system is, what it replaces, how you know whether you have one, and how it gets built.",
+      "seo": {
+        "title": "What Is a Brand Operating System? | hiAnzy",
+        "description": "What a brand operating system is, what it replaces, how to tell whether you have one, and how it gets built in five stages."
+      }
+    },
+    {
+      "slug": "business-audit-explained",
+      "title": "The Business Audit: What It Is, What It Finds, When to Run One",
+      "excerpt": "Not a compliance exercise and not a slide deck of observations. What a business systems audit examines, what it usually finds, how it runs, and how to tell whether you need one.",
+      "seo": {
+        "title": "The Business Audit, Explained | hiAnzy",
+        "description": "What a business systems audit examines, what it typically finds, how the process runs week by week, and the signals that mean you need one before you commission anything else."
+      }
+    },
+    {
+      "slug": "operating-model-explained",
+      "title": "Operating Model: How Work Actually Gets Done",
+      "excerpt": "Strategy says what the business wants. The operating model decides whether it happens on a Tuesday. What an operating model is, the parts most companies leave undesigned, and how to fix one without a reorganisation.",
+      "seo": {
+        "title": "Operating Model, Explained | hiAnzy",
+        "description": "What an operating model is, why growth breaks the one you have, the five parts most companies leave undesigned, and how to improve it without a reorganisation."
+      }
+    },
+    {
+      "slug": "go-to-market-strategy",
+      "title": "Go-to-Market Strategy",
+      "excerpt": "Who, what, through which door, in which order. What a go-to-market strategy has to decide, the difference between a GTM plan and a launch plan, and the failure modes we see most.",
+      "seo": {
+        "title": "Go-to-Market Strategy, Explained | hiAnzy",
+        "description": "What a go-to-market strategy decides, how it differs from a launch plan, a framework you can run, and the mistakes that turn launches into expensive announcements."
+      }
+    },
+    {
+      "slug": "brand-positioning-explained",
+      "title": "Brand Positioning Explained",
+      "excerpt": "The most-used and least-defined phrase in marketing. What positioning actually is, what it is not, the questions it has to answer, and how to test whether yours exists outside a slide.",
+      "seo": {
+        "title": "Brand Positioning, Explained | hiAnzy",
+        "description": "What brand positioning is, the four questions it must answer, a five-second test for whether yours exists, and the mistakes that make it vague."
+      }
+    },
+    {
+      "slug": "messaging-architecture",
+      "title": "Messaging Architecture",
+      "excerpt": "Positioning is the decision. Messaging architecture is how the whole company says it consistently, from a tagline to a sales deck to a support reply. What it contains, how to build one, and how to know when yours has collapsed.",
+      "seo": {
+        "title": "Messaging Architecture, Explained | hiAnzy",
+        "description": "What a messaging architecture is, the layers it contains, how to build one from a settled position, and the signs that a company's messaging has fragmented across teams."
+      }
+    },
+    {
+      "slug": "rebrand-vs-brand-refresh",
+      "title": "Rebranding vs Brand Refresh: Which One You Actually Need",
+      "excerpt": "The question we are asked most, and the one we most often answer with 'neither yet'. The difference between a rebrand and a refresh, how to diagnose which you need, and when the real problem is pricing, positioning or process.",
+      "seo": {
+        "title": "Rebrand vs Brand Refresh: Which Do You Need? | hiAnzy",
+        "description": "The difference between a rebrand and a brand refresh, a diagnostic for choosing between them, the cost of getting it wrong, and the cases where the answer is neither."
+      }
+    },
+    {
+      "slug": "customer-journey-mapping",
+      "title": "Customer Journey Mapping",
+      "excerpt": "The single most useful diagnostic we run, and the one most often faked with a diagram. What a journey map is for, how to build one from evidence rather than assumption, and what it reliably exposes.",
+      "seo": {
+        "title": "Customer Journey Mapping, Explained | hiAnzy",
+        "description": "How to build a customer journey map from real customers rather than assumptions, what it exposes about handoffs and tools, and what to do with it."
+      }
+    },
+    {
+      "slug": "tone-of-voice",
+      "title": "Tone of Voice",
+      "excerpt": "Voice is what makes a brand recognisable with the logo removed. What tone of voice is, why 'friendly and professional' is not a definition, how to write guidelines people can actually use, and where tone goes wrong.",
+      "seo": {
+        "title": "Tone of Voice, Explained | hiAnzy",
+        "description": "What tone of voice is, why adjectives are not a definition, how to write guidelines people can actually use, and where brand voice goes wrong."
+      }
+    },
+    {
+      "slug": "business-process-automation",
+      "title": "Business Process Automation and Marketing Automation",
+      "excerpt": "The order of operations that decides whether automation saves time or scales waste. What it is, what to automate first, the tools and where they fit, and the failure mode that makes a mess faster.",
+      "seo": {
+        "title": "Business Process and Marketing Automation, Explained | hiAnzy",
+        "description": "What to automate first, where tools like n8n, Zapier and CRM workflows fit, and the mistake that makes a bad process faster."
+      }
+    },
+    {
+      "slug": "crm-strategy",
+      "title": "CRM Strategy",
+      "excerpt": "A CRM cannot define a qualified lead for you. What CRM strategy decides before the tool is chosen, why most CRM projects are definition problems, and how to set one up that people actually use.",
+      "seo": {
+        "title": "CRM Strategy, Explained | hiAnzy",
+        "description": "What CRM strategy decides before software is chosen, why CRM projects fail on definitions, and a sequence for a CRM the team will keep updated."
+      }
+    },
+    {
+      "slug": "ai-readiness",
+      "title": "AI Readiness: How to Tell Whether Your Business Is Ready for AI",
+      "excerpt": "The honest answer is often 'not yet, and here is what to fix first'. What AI readiness means, the four conditions that decide it, a test for any proposed use case, and the ways AI projects fail before they start.",
+      "seo": {
+        "title": "AI Readiness, Explained | hiAnzy",
+        "description": "The four conditions a business needs before an AI project, a one-sentence test for any use case, and why the useful answer is often not yet."
+      }
+    },
+    {
+      "slug": "website-strategy",
+      "title": "Website Strategy: What a Website Is For",
+      "excerpt": "Most websites are commissioned as a look and delivered as a liability. What website strategy decides, the questions to answer before choosing a platform, and why the site is usually the place where a company's internal disagreements become public.",
+      "seo": {
+        "title": "Website Strategy, Explained | hiAnzy",
+        "description": "What website strategy decides before design begins, how to choose a platform after the job is defined, and why beautiful sites fail to convert."
+      }
+    },
+    {
+      "slug": "performance-marketing",
+      "title": "Performance Marketing",
+      "excerpt": "An amplifier, not a strategy. What performance marketing is, what has to be true before the ad account is opened, how to read the numbers honestly, and why rising costs are usually a symptom of something upstream.",
+      "seo": {
+        "title": "Performance Marketing, Explained | hiAnzy",
+        "description": "What must be true before paid spend, how to read acquisition cost and attribution honestly, and why rising costs usually point upstream."
+      }
+    },
+    {
+      "slug": "content-strategy",
+      "title": "Content Strategy",
+      "excerpt": "Not a posting calendar. What content strategy decides, the difference between content that compounds and content that evaporates, how to build a system a small team can sustain, and how to know whether it is working.",
+      "seo": {
+        "title": "Content Strategy, Explained | hiAnzy",
+        "description": "What content strategy decides, why most content is activity rather than asset, a system for publishing that compounds, and the measures that tell you whether it is working."
+      }
+    },
+    {
+      "slug": "conversion-rate-optimisation",
+      "title": "Conversion Rate Optimisation",
+      "excerpt": "Most conversion problems are comprehension problems. What CRO actually is, the order in which to look for leaks, how to test without fooling yourself, and why the first fix is usually a sentence rather than a button.",
+      "seo": {
+        "title": "Conversion Rate Optimisation, Explained | hiAnzy",
+        "description": "What conversion rate optimisation is, the order in which to diagnose a leaking funnel, how to run tests that mean something, and why comprehension usually beats button colour."
+      }
+    },
+    {
+      "slug": "seo-for-businesses",
+      "title": "SEO for Businesses: What Still Matters and What Changed",
+      "excerpt": "Search became an answer with citations. What SEO is for a business rather than a publisher, the parts that still decide it, the part that changed, and how to measure it when the click is no longer the whole point.",
+      "seo": {
+        "title": "SEO for Businesses, Explained | hiAnzy",
+        "description": "What SEO means for a business, the foundations that still decide visibility, how AI answers changed the job, and what to measure now."
+      }
+    },
+    {
+      "slug": "creator-marketing",
+      "title": "Creator Marketing",
+      "excerpt": "Borrowed trust still has to be paid back with something true. What creator marketing is, how it differs from influencer campaigns, how to match and brief creators, and the failure modes that read like a press release with a face.",
+      "seo": {
+        "title": "Creator Marketing, Explained | hiAnzy",
+        "description": "Why fit beats follower count, how to brief a creator so the work survives the comments section, and the mistakes that waste budget and credibility."
+      }
+    },
+    {
+      "slug": "experiential-marketing-and-events",
+      "title": "Experiential Marketing and Event Strategy",
+      "excerpt": "People remember what they did and forget what they were shown. What experiential marketing and event strategy are, how to choose a room, why the follow-up is designed before the doors open, and what to measure instead of footfall.",
+      "seo": {
+        "title": "Experiential Marketing and Event Strategy, Explained | hiAnzy",
+        "description": "How to choose the room for who is in it, why the follow-up is designed before the doors open, and how to measure an event by the week after."
+      }
+    },
+    {
+      "slug": "reputation-management",
+      "title": "Reputation Management",
+      "excerpt": "You cannot control the conversation. You can be early to it, honest in it, and easy to quote. What reputation management covers, why silence causes more damage than the original problem, and how to prepare before you need to.",
+      "seo": {
+        "title": "Reputation Management, Explained | hiAnzy",
+        "description": "What reputation management covers, from reviews to crisis communication, why silence does more damage than the problem, and how to prepare."
+      }
     }
   ]
 }
