@@ -79,6 +79,18 @@ export const subscribeScroll = (cb) => {
   const onNative = () => {
     if (!raf) raf = requestAnimationFrame(emitNative);
   };
+  // Once Lenis is driving, its own "scroll" event is the single source of
+  // truth: it fires every animation frame with the interpolated value. The
+  // native listener is only the fallback for when Lenis is absent (reduced
+  // motion). Left unconditional it re-fed every subscriber a second time per
+  // frame with the one-frame-stale window.scrollY, and that second pass ran
+  // after ScrollTrigger/GSAP had written the frame's styles, so each
+  // subscriber's layout read forced a synchronous reflow. Measured: every
+  // subscriber's calls split exactly in two between the two paths.
+  const onNativeScroll = () => {
+    if (lenisOff && window.__lenis) return;
+    onNative();
+  };
 
   // Lenis is created by a parent effect, which runs *after* child effects on
   // mount — so poll briefly for it instead of assuming it already exists.
@@ -100,7 +112,7 @@ export const subscribeScroll = (cb) => {
   };
   attach();
 
-  window.addEventListener("scroll", onNative, { passive: true });
+  window.addEventListener("scroll", onNativeScroll, { passive: true });
   window.addEventListener("resize", onNative);
   emitNative();
 
@@ -108,7 +120,7 @@ export const subscribeScroll = (cb) => {
     disposed = true;
     clearTimeout(attachTimer);
     if (lenisOff) lenisOff();
-    window.removeEventListener("scroll", onNative);
+    window.removeEventListener("scroll", onNativeScroll);
     window.removeEventListener("resize", onNative);
     if (raf) cancelAnimationFrame(raf);
   };

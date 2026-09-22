@@ -1508,6 +1508,116 @@ evidence-backed finding rather than something silently left unexplained.
 
 ---
 
+# SCROLL FLOW FIX — root cause found and fixed in `subscribeScroll`
+
+User asked for "Apple flow level scroll" with the constraint: change nothing in
+the UI, touch nothing else, fix the scroll animation only. That is what landed:
+one function in `lib/motion.js`, no UI, no choreography, no timing changes.
+
+## ROOT CAUSE
+
+`subscribeScroll` (`lib/motion.js`) is the single scroll subscription every
+scroll-driven component uses. It attaches a Lenis `"scroll"` listener once
+Lenis exists — and *also* registered a native `window` `scroll` listener
+unconditionally, as a fallback for reduced-motion (no Lenis). That fallback was
+never gated off once Lenis attached. Lenis writes the real `scrollTop` every
+animation frame, so the native event fired every frame too, and **every
+subscriber ran twice per frame**: once with Lenis's interpolated value, once
+with the one-frame-stale `window.scrollY` the file's own comment warns about.
+
+The second (native) pass is what hurt: it ran after ScrollTrigger/GSAP had
+already written the frame's styles, so each subscriber's `getBoundingClientRect`
+/ `scrollHeight` read forced a synchronous reflow of a ~15,000px document.
+`WorkPreview.js` carries a prior session's DevTools-trace comment describing
+this exact mechanism for its own read; the double-fire was applying it to
+every subscriber on every frame.
+
+Affected subscribers (all 8 users of `subscribeScroll`): `Nav` (isDarkUnderNav),
+`StickyCta`, `SectionIndex`, `PopIllustration`, `WorkPreview`, `ScrollProgress`,
+`ScrollVelocity`, `CollapseOnScroll`. Plus `emitNative` itself calling
+`nativeLimit()` → `scrollHeight` on every native tick.
+
+## HOW IT WAS FOUND
+
+Previous session's minified stack sampling showed a suspicious exact 348/348
+split of `getBoundingClientRect` callers into two paths. Attributed then,
+wrongly, to ScrollTrigger double-updating (tested, null result, reverted). This
+session ran the same harness against the **Vite dev server** (unminified), and
+the two paths resolved to `Array.handler (motion.js) <- Emitter.emit (lenis)`
+and `emitNative (motion.js)` — same subscriber, two entry points, e.g.
+`SectionIndex.js:122` ~90x via Lenis and ~84x via native; `PopIllustration.js:46`
+24/24; `StickyCta.js:61` scrollHeight 21/18.
+
+## THE FIX (`lib/motion.js`, `subscribeScroll`)
+
+Wrap the native scroll listener: `onNativeScroll` bails when `lenisOff` is set
+and `window.__lenis` is live, otherwise delegates to `onNative`. The `resize`
+listener and the initial `emitNative()` are deliberately untouched — Lenis's
+`resize()` does not emit `scroll`, so subscribers still need the resize-driven
+re-emit for `limit`/height changes. If Lenis is ever destroyed the gate reopens
+(`window.__lenis` null) and native resumes as the fallback. 14 lines added,
+2 changed.
+
+## VERIFICATION
+
+Correctness gate (dev server, HMR-applied, frame-rate independent): rect calls
+via `emitNative` **72 → 0**; `nativeLimit` scrollHeight reads **36 → 0**; all
+subscribers still fed by Lenis (progress bar `scaleX(0.74)`, nav
+`--scrolled --dark`, sticky CTA mounted, `--scroll-dir` set).
+
+Frame-accurate before/after — **same bench, same width (1440×900), same bundle
+type**: a pre-fix production bundle was built from `HEAD`'s `motion.js` into
+the scratchpad and served on :3102; the patched production bundle on :3101.
+Identical harness: 80 synthetic wheel ticks @50ms + 1.5s settle, real
+`PerformanceObserver` longtask entries, instrumented `getBoundingClientRect`.
+
+| | pre-fix (:3102) | patched (:3101) run 1 | patched run 2 |
+|---|---|---|---|
+| `getBoundingClientRect` calls | 3,722 | 2,163 | 2,302 |
+| time inside those calls | **977 ms** | **97 ms** | **62 ms** |
+| long tasks (>50ms) | **65** | **5** | **3** |
+| total main-thread blocked | **4,641 ms** | **391 ms** | **213 ms** |
+| worst single task | 172 ms | 184 ms (scene init) | 99 ms |
+| caller shape | 2 equal paths (1371 / 1320) | 1 path | 1 path |
+
+~10x less forced-layout time, ~12–20x less main-thread blocking, and the rect
+reads themselves drop from ~0.26 ms to ~0.03–0.045 ms each — i.e. layout is no
+longer dirty when they run. `framesOver20ms` stayed high on *both* sides
+(146 vs 154–157 of ~155–200): that is headless Chromium software-rendering the
+two WebGL scenes every frame, a constant floor on this bench that this change
+does not touch and a real GPU does not have.
+
+Post-scroll pin check on the patched bundle: `.pin-spacer` present, all five
+stages (01 AUDIT … 05 SCALE) in the DOM, console shows only the two expected
+`/api` 500s from `vite preview` having no backend — **no new errors, and no
+`removeChild`**. `npm run lint` clean, `npm run build` clean (56 pages).
+
+## BENCH NOTES (why this took three browsers)
+
+- In-app Browser pane: `document.hidden === true`, 0 frames — `get_layout`
+  confirmed this session was not open in any window, so its rAF was paused.
+- chrome-devtools MCP page: `hidden:false`, `hasFocus:true`, yet 2–8 rAF frames
+  per second even after `bringToFront` — an occluded/starved window; unusable
+  for frame work, and its `performance_start_trace` produced no insights for a
+  scroll-only (no-navigation) recording.
+- Playwright (headless Chromium): 62 fps self-check passed → used for all
+  frame-accurate numbers above, with the software-WebGL caveat noted.
+
+## NOT CHANGED, ON PURPOSE
+
+`SectionIndex` still reads ~8 rects per frame (one per section) and
+`PopIllustration` one per instance — now ~0.4 ms/frame total with clean
+layout, not worth a second file under "touch nothing else". Lenis `lerp`
+(0.16) / `wheelMultiplier` (1.2) from the previous session left as is.
+
+## COMMITS
+
+- (this session) perf(scroll): stop subscribeScroll double-firing every subscriber
+
+## SCROLL FLOW FIX STATUS: COMPLETE
+
+---
+
 # PHASE B — AWS ARCHITECTURE PREPARATION
 
 Repo-side only. **No AWS resources created, no DNS touched, nothing deployed.**
