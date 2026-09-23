@@ -174,7 +174,12 @@ const gitDate = (files) => {
   };
   const insights = await loadFamily("insights", "insights");
   const cases = await loadFamily("case-studies", "cases");
-  const familyFingerprint = (family, keys) => (family.records || []).map((r) => fingerprintRecord(r, keys)).join(",");
+  // Hashed in slug order: the API lists insights newest-first while the
+  // checked-in snapshot keeps its own order, and the same thirty records in
+  // two orders hashed differently, so /insights' lastmod moved on every
+  // build that switched source (confirmed: API build, then snapshot build).
+  const familyFingerprint = (family, keys) =>
+    [...(family.records || [])].sort((a, b) => String(a.slug).localeCompare(String(b.slug))).map((r) => fingerprintRecord(r, keys)).join(",");
   const folded = { insights: familyFingerprint(insights, INSIGHT_KEYS), cases: familyFingerprint(cases, CASE_KEYS) };
 
   const urls = STATIC_ROUTES.map(([loc, priority, changefreq, sources, family]) => {
