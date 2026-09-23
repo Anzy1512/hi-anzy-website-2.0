@@ -128,3 +128,80 @@ same `ScrollTrigger.create` options run with the same section markup.
    owner action 5).
 4. Provision per ADR-002 "Owner actions", in order, and run the AWS_PREP.md
    §B3 gate on the temporary Amplify URL before any visitor-facing DNS.
+
+## POST-FABLE DELTA (2026-09-23)
+
+Closeout after the audit above. Four code commits and this record; nothing
+reopened, nothing redesigned. Every number was re-measured on the final tree
+(production build served by `vite preview`, the Docker stack rebuilt from the
+same commit, Playwright headless Chromium with the tab fronted).
+
+| Change | Commit | Result |
+|---|---|---|
+| Orbit deck wrapper clipping the raised card | `20de858` | `overflow-x: hidden` had made the deck wrapper a vertical scroll box (hidden on one axis forces the other to auto); `overflow-x: clip` stops the horizontal bleed without a scroll box. At 320, 375, 768, 1024, 1200, 1440 and 1920 the active card's top, bottom, left, right edges and its Explore label are on screen, the wrapper has no inner scroll box, and `document.scrollWidth` never exceeds the viewport on Home, Work, a case study, Network or an article. Clicking the active card still navigates; ArrowRight still moves the active card; tilt, drag and lift code untouched. |
+| Sitemap manifest for `/work` | `57e275d` | The wrapper file is a source of `/work`, so only that page's fingerprint and date moved; every other entry unchanged. |
+| Proxy-aware client IP (FABLE-5 P1-1) | `9a900bb` | `TRUSTED_PROXY=apprunner` reads the rightmost `x-forwarded-for` hop (the one App Runner's router appends); `vercel` (or `VERCEL=1`) reads the first; unset ignores the header. Non-IP hops fall back to the socket peer. Three regression tests cover the local request, both trusted contexts, a spoofed header outside any trusted context, multi-hop, malformed and empty values, and rate-limit buckets following the derived address. Rate-limit semantics unchanged. |
+| Hash destinations landing short | `52e3b69` | `/work#orbit` (a palette destination) landed about 1000px short because the case-study carousel replaced its skeleton after the target was measured. `ScrollToTop` now re-measures the target while the document is still changing size, for at most three seconds, and stops at the visitor's first wheel, touch or key. Five hash destinations land at the 96px nav offset; a visitor who scrolls during the window is not pulled back; the palette's "The Hi Anzy Orbit" result lands on the section. Scroll dispatch and Lenis settings untouched. |
+
+### Scroll regression gate
+
+Architecture, read from `frontend/src/lib/motion.js` and confirmed live:
+Lenis is the single dispatch while present (`window.__lenis` set; the native
+listener returns early through the `lenisOff && window.__lenis` guard);
+during a Lenis scroll the progress bar received 0.68 style writes per frame
+(a doubled path would show about two); native `scroll` events still fire in
+the browser (396 during the harness) but are not fed to subscribers while
+Lenis drives (409 Lenis events). Native fallback verified by destroying Lenis
+at runtime: scrolling, the progress bar, the section rail and the velocity
+variable all keep working. Reduced motion: no Lenis, the stacked sequence
+(`data-pinned="false"`), progress via the native path, rail disabled by design.
+
+Same harness as the accepted scroll fix (80 wheel ticks at 50 ms, 1.5 s
+settle, 1440×900, longtask observer, instrumented `getBoundingClientRect`):
+
+| Metric | Pre-fix (recorded) | Accepted patched state (recorded) | This tree |
+|---|---|---|---|
+| Long tasks (>50 ms) | 65 | 5 / 3 | 7 |
+| Main-thread blocked | 4,641 ms | 391 / 213 ms | 513 ms |
+| Time inside rect reads | 977 ms | 97 / 62 ms | 77 ms |
+| Worst single task | 172 ms | 184 / 99 ms | 109 ms |
+
+Materially equivalent to the accepted state and an order of magnitude from
+the pre-fix numbers; the page now carries 20 more articles and the harness
+scrolled 8,000px. Not optimised further. Also confirmed: SectionIndex updates
+its current label; StickyCta gains `is-in` mid-page; ScrollVelocity writes
+`--scroll-v` (0.618 under Lenis, 0.530 under the native fallback); the pinned
+sequence pins at 84px, advances from step 0 to step 3 across its range and
+unpins; PopIllustration drifts through the same `subscribeScroll` path (not
+separately measured).
+
+### Validation on the final tree
+
+| Check | Result |
+|---|---|
+| `pytest tests/test_api.py tests/test_frontend_lock.py` | 68 passed (3 new client-IP tests) |
+| `npm test` (vitest) | 10 passed, 4 files |
+| `npm run test:build` | 7 passed |
+| `npm run lint` | clean |
+| `npm run build` | 76 prerendered pages; `sitemap: … lastmod moved for 0`; index chunk 685.18 kB (gzip 232.21 kB), +0.35 kB over the FABLE-5 tree |
+| `python scripts/check_raw_metadata.py` | 76 routes and the share image verified |
+| `python scripts/check_frontend_lock.py` | Verified 236 unchanged frontend files (regenerated twice for the two traced frontend changes) |
+| `node scripts/link-graph.cjs` | 76 pages, 178 links, 0 broken, 0 orphans |
+| Knowledge system (live API) | 30 insights: 20 knowledge, 10 notes; 8 topics; 6 categories; `?topic=Brand` 10, `?category=Brand, Decoded` 6; body projected out of the list; 91 inline links, 0 unresolved |
+| Hard refresh on the rebuilt Docker stack | 20 representative routes (home, what-we-do, service, how-we-work, work, case study, network, discipline, two rosters, insights, article, why, contact, coming-soon, who-we-work-with, collaborate, careers, resources, `/lab/`) all 200 with their own title and h1, no horizontal scroll, no page errors; an unknown path answers 404 with the not-found page |
+| Backend | `/api/health` ok, db connected; startup seeds and serves; CORS preflight from the site origin answers with the origin; no PATCH used; no blocking work added; secrets scan of tracked files clean (only the illustrative `user:pass@cluster0` shape in AWS_PREP.md §B15) |
+| Sitemap | a rebuild with no content change moves zero dates |
+
+### Readiness
+
+- **CODE READY: YES.** All gates green on `launch/step-1`.
+- **LIVE AWS VERIFIED: NO.** No infrastructure exists. P1-2 (the Amplify
+  404-200 routing and monorepo header shape) can only be proven on a live
+  Amplify app; P1-1 is closed in code and needs `TRUSTED_PROXY=apprunner` set
+  on the service.
+- Open owner items unchanged: sign-in decision (P2-1), line-ending policy
+  (P2-2), announced loading states (P2-3), Vercel disconnect at cutover
+  (P2-4), the ECR image workflow.
+- INFO: the anonymous 401 from `/api/auth/me` carries no `Cache-Control`
+  header (the authenticated 200 carries `no-store`, covered by tests); a 401
+  is not cacheable by browsers.

@@ -672,3 +672,24 @@ Playwright headless Chromium.
 | Docker stack | web rebuilt from HEAD, healthy; sitemap 76 URLs with the local build's lastmod set; prerendered titles; `/lab/` 200; unknown path 404 |
 
 ## FABLE-5 TEST STATUS: COMPLETE
+
+---
+
+# POST-FABLE DELTA TEST LOG
+
+| Check | Result |
+|---|---|
+| Orbit deck, 7 widths × 5 pages | PASS: no horizontal overflow anywhere; active card edges and Explore label visible at 320–1920; no inner scroll box |
+| Scroll architecture | PASS: Lenis single dispatch (0.68 progress-bar writes per frame), native fallback after `destroy()`, reduced motion path |
+| Scroll regression harness | PASS: long tasks 7, blocked 513 ms, rect reads 77 ms (accepted 5/3, 391/213 ms, 97/62 ms; pre-fix 65, 4,641 ms, 977 ms) |
+| Section rail, sticky CTA, scroll velocity, pinned sequence, anchors | PASS |
+| `pytest tests/test_api.py tests/test_frontend_lock.py` | 68 passed |
+| `npm test` / `npm run test:build` / `npm run lint` | 10 passed / 7 passed / clean |
+| `npm run build` | 76 pages, lastmod moved for 0, 685.18 kB (gzip 232.21 kB) |
+| `check_raw_metadata.py` / `check_frontend_lock.py` | 76 routes verified / 236 files verified |
+| Link graph | 76 pages, 178 links, 0 broken, 0 orphans |
+| Knowledge system | 30 insights (20 knowledge, 10 notes), filters, 91 inline links resolve |
+| Hard refresh, rebuilt Docker stack | 20 routes 200 with title and h1, `/lab/` 200, unknown 404 |
+| Backend | health ok, CORS preflight from site origin ok, secrets scan clean |
+
+## POST-FABLE DELTA TEST STATUS: COMPLETE

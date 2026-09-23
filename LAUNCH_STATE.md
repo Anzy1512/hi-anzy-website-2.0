@@ -1890,3 +1890,32 @@ the tree. Next exact action is the owner's: review and `git push origin
 launch/step-1`.
 
 ## FABLE-5 STATUS: COMPLETE — STOP GATE REACHED
+
+---
+
+# POST-FABLE DELTA CLOSEOUT
+
+2026-09-23, after the FABLE-5 record above. Not a development phase: four
+code commits reconciled and validated, the remaining AWS P1 closed in code,
+and the branch prepared for GitHub. Full detail in
+`docs/FINAL_PRODUCT_AUDIT.md`, "POST-FABLE DELTA".
+
+- `20de858` fix(ui): Orbit deck wrapper no longer clips the raised card
+  (`overflow-x: clip`); verified at seven widths on five pages.
+- `57e275d` chore(seo): the `/work` sitemap fingerprint moved with that file;
+  nothing else moved.
+- `9a900bb` fix(api): `client_ip()` trusts `x-forwarded-for` only behind the
+  proxy `TRUSTED_PROXY` names (rightmost hop for App Runner, first for
+  Vercel), with regression tests. Closes FABLE-5 P1-1.
+- `52e3b69` fix(ui): hash destinations stay in view while content above them
+  loads; `/work#orbit` no longer lands 1000px short.
+
+Scroll regression gate: PASS (single dispatch confirmed, native fallback and
+reduced motion verified, long tasks 7 and 513 ms blocked on the accepted
+harness versus 65 and 4,641 ms pre-fix). Source lock: 236 files verified.
+Sitemap: zero churn on rebuild. Link graph: 76 pages, 178 links, 0 broken,
+0 orphans. Routes: 20 hard refreshes green on the rebuilt Docker stack.
+
+CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
+
+## POST-FABLE DELTA STATUS: COMPLETE — READY FOR GIT PUSH
