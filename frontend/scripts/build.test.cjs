@@ -145,3 +145,34 @@ test('the nine consolidated routes redirect at every layer and are pages nowhere
     for (const { from } of LEGACY_ROUTES) assert.ok(!src.includes(`"${from}"`) && !src.includes(`'${from}'`), `${path.relative(srcRoot, file)} still links to retired ${from}`);
   }
 });
+
+test('the agency deployment carries no experiment lab step', () => {
+  // The Experiment Lab is a separate product (root CLAUDE.md, "Product
+  // boundary"). Nothing in the Agency's serving or deploy path may copy,
+  // mount or cache a /lab/ tree, and the bundled artifact must stay absent.
+  const read = (rel) => fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  const files = {
+    'nginx.conf.template': read('../nginx.conf.template'),
+    'Dockerfile': read('../Dockerfile'),
+    'amplify.yml': read('../../amplify.yml'),
+    'vercel.json': read('../../vercel.json'),
+    'customHttp.yml': read('../../customHttp.yml'),
+  };
+  for (const [name, text] of Object.entries(files)) {
+    assert.ok(!/(^|[^a-z_-])lab\//i.test(text) && !/\/lab(\/|\b)/i.test(text), `${name} still references a lab path`);
+    assert.ok(!/experi(ence|ment) lab/i.test(text), `${name} still describes the lab`);
+  }
+  assert.ok(!fs.existsSync(path.join(__dirname, '../lab')), 'frontend/lab must not exist in the Agency tree');
+  assert.ok(!/["']\/lab/.test(read('../src/App.js')), 'App.js must not route /lab');
+});
+
+test('nginx sends a trailing-slash request to its canonical URL', () => {
+  const nginx = fs.readFileSync(path.join(__dirname, '../nginx.conf.template'), 'utf8');
+  const rule = nginx.indexOf('location ~ ^/(?!api/)(.+)/$');
+  const spa = nginx.indexOf('location / {');
+  const legacy = nginx.lastIndexOf('location ~ ^/who-we-work-with/?$');
+  assert.ok(rule !== -1, 'trailing-slash location present');
+  assert.ok(nginx.slice(rule, rule + 200).includes('return 301 /$1$is_args$args;'), 'trailing slash answers 301 to the same path without the slash, query kept');
+  assert.ok(legacy !== -1 && legacy < rule, 'legacy 301s are matched before the trailing-slash rule');
+  assert.ok(spa !== -1 && rule < spa, 'trailing-slash rule sits before the SPA fallback');
+});
