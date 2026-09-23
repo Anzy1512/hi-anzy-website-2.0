@@ -221,11 +221,12 @@ Conditions:
    / max 1) at launch, so the per-process rate limiter and the notification
    loop have exactly one worker. Scaling out later requires moving the limiter
    to a shared store first.
-4. **Client IP.** Before launch, `server.py`'s `client_ip()` is extended to
-   trust the rightmost `x-forwarded-for` hop when an explicit environment
-   variable says the service is behind App Runner (see Security notes). This
-   is a small, tested code change of the same shape as the Vercel fix
-   (`LAUNCH_STATE.md`, A3); without it the limiter is one global bucket.
+4. **Client IP.** Landed in the post-FABLE delta: `client_ip()` reads the
+   rightmost `x-forwarded-for` hop only when `TRUSTED_PROXY=apprunner` is
+   set (the first hop for `vercel`; the socket peer everywhere else), with
+   `tests/test_client_ip.py` covering both directions, spoofing outside the
+   trusted context, multi-hop and malformed values, and the rate-limit
+   buckets. Without it the limiter would be one global bucket.
 5. **Image path.** App Runner deploys from ECR (`hianzy-api`), built from
    `backend/Dockerfile`. App Runner's "source code repository" mode is not a
    Dockerfile deploy — it uses a managed runtime and `apprunner.yaml` — and
@@ -374,7 +375,7 @@ Backend (App Runner service `hianzy-api-prod`):
 | `SITE_URL` | No (default `https://hianzy.com`) | `server.py:315` | App Runner env var (plain) |
 | `PUBLIC_API_URL` | No (default `SITE_URL`) — on AWS it must be the API origin, because confirm/unsubscribe links are `/api/newsletter/...` on the API | `server.py:319, 334`; `manage.py:81` | App Runner env var (plain): the API origin |
 | `AUTH_SESSION_DATA_URL` | No (default: third-party scaffold host) | `server.py:714` | App Runner env var (plain) — P2 decision |
-| *(proposed)* proxy-trust flag for `client_ip()` | Required once the code change lands | `server.py:340-354` (to be extended) | App Runner env var (plain) |
+| `TRUSTED_PROXY` | Yes on App Runner (`apprunner`); unset elsewhere; `VERCEL=1` implies `vercel` | `server.py` `client_ip()` | App Runner env var (plain), `apprunner` |
 | `TEST_MONGO_URL` | Tests only | `tests/test_api.py:12` | CI only |
 
 Not variables but part of the contract: `server.py:35` loads `backend/.env`
@@ -481,11 +482,12 @@ logic to Vercel's header semantics.
   is the same value for every visitor: five contact submissions by anyone in
   ten minutes would return 429 to everyone, and analytics would drop
   everything after the first 60 events per minute site-wide (`:703-704`). The
-  same failure applies behind an ALB (D) and API Gateway (C). Required change
-  before launch: when an explicit environment flag says the service is behind
-  App Runner, use the **rightmost** `x-forwarded-for` entry — the hop appended
-  by the platform — never the leftmost, which a client can supply. Cover it
-  with a test in both directions, as A3 did. Do not "fix" it with uvicorn's
+  same failure applies behind an ALB (D) and API Gateway (C). Landed in the
+  post-FABLE delta: with `TRUSTED_PROXY=apprunner` the service uses the
+  **rightmost** `x-forwarded-for` entry, the hop appended by the platform,
+  never the leftmost, which a client can supply; a hop that is not an IP
+  address falls back to the socket peer. Covered by `tests/test_client_ip.py`
+  in both directions, as A3 was. It is not "fixed" with uvicorn's
   `--forwarded-allow-ips='*'`: with a wildcard uvicorn trusts the leftmost
   entry, which reintroduces spoofing.
 - **Secrets never in the repo.** Only `.example` files are tracked
@@ -571,7 +573,8 @@ Repository prerequisites (before any AWS work):
 3. Adopt the aligned `amplify.yml`, `customHttp.yml`, `backend/.env.aws.example`
    and `AWS_PREP.md`; update the "56 pages" references in `CLAUDE.md:47` and
    `docs/operations.md:79` to 76.
-4. Land the `client_ip()` proxy-trust change with tests (Security notes).
+4. Done in the post-FABLE delta: `client_ip()` proxy trust behind
+   `TRUSTED_PROXY=apprunner`, with `tests/test_client_ip.py`.
 5. Add `.github/workflows/deploy-api.yml`: build `backend/Dockerfile`, push
    to ECR `hianzy-api` as `:<git-sha>` and `:prod` via an OIDC role
    `hianzy-github-deploy`, on push to `main` after `check.yml` is green.

@@ -46,7 +46,7 @@ None.
 
 ### P1 — must be done before the AWS launch, cannot be done in this repo alone
 
-**P1-1 Client IP behind App Runner.** `client_ip()` trusts `x-forwarded-for`
+**P1-1 Client IP behind App Runner** (resolved in the post-FABLE delta below). `client_ip()` trusts `x-forwarded-for`
 only when `IS_SERVERLESS` is true (Vercel). On App Runner the socket peer is
 the request router, so every visitor would share one rate-limit bucket.
 ADR-002 condition 4: extend `client_ip()` to trust the rightmost hop behind an

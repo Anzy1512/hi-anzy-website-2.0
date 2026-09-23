@@ -466,3 +466,45 @@ def test_client_ip_trusts_the_forwarded_header_only_on_vercel(monkeypatch):
     assert server.client_ip(_request({})) == '10.0.0.1'
     assert server.client_ip(_request({'x-forwarded-for': '  '})) == '10.0.0.1'
     assert server.client_ip(_request({}, peer=None)) == 'unknown'
+
+
+def test_client_ip_behind_app_runner_uses_the_hop_the_platform_wrote(monkeypatch):
+    """App Runner's request router is the socket peer for every request and appends the
+    visitor's address as the LAST x-forwarded-for hop, after anything the caller sent.
+    TRUSTED_PROXY=apprunner reads that hop; nothing else in the header is believed."""
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'apprunner')
+    assert server.client_ip(_request({})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.7'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 198.51.100.4, 203.0.113.7'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': ' 203.0.113.7 , ,'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': '2001:db8::1'})) == '2001:db8::1'
+    for malformed in ('', '   ', ',', 'not-an-ip', '203.0.113.7:443', '<script>', '1.1.1.1, garbage'):
+        assert server.client_ip(_request({'x-forwarded-for': malformed})) == '10.0.0.1', malformed
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.7'}, peer=None)) == '203.0.113.7'
+    assert server.client_ip(_request({}, peer=None)) == 'unknown'
+
+
+def test_client_ip_ignores_a_spoofed_header_outside_any_trusted_proxy(monkeypatch):
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', '')
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1'})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 2.2.2.2'})) == '10.0.0.1'
+    # an explicit setting wins over the Vercel implication, and vercel still reads the first hop
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'vercel')
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 2.2.2.2'})) == '1.1.1.1'
+
+
+def test_rate_limit_buckets_follow_the_derived_address(monkeypatch):
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'apprunner')
+    bucket = 'client-ip-' + uuid.uuid4().hex
+    visitor_a = server.client_ip(_request({'x-forwarded-for': '203.0.113.7'}))
+    visitor_b = server.client_ip(_request({'x-forwarded-for': '203.0.113.8'}))
+    assert visitor_a != visitor_b  # two visitors behind the same proxy peer are two buckets
+    assert [server.rate_limited(bucket, visitor_a, max_hits=3, window_seconds=60) for _ in range(3)] == [False] * 3
+    assert server.rate_limited(bucket, visitor_a, max_hits=3, window_seconds=60) is True
+    assert server.rate_limited(bucket, visitor_b, max_hits=3, window_seconds=60) is False
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', '')
+    # outside a trusted context the header cannot open a fresh bucket
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.9'})) == '10.0.0.1'

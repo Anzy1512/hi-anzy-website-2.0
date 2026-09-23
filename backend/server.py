@@ -9,6 +9,7 @@ import smtplib
 import secrets
 import hashlib
 import html
+import ipaddress
 import time
 import uuid
 from contextlib import asynccontextmanager, suppress
@@ -50,6 +51,18 @@ database_name = required_setting("DB_NAME")
 # to continue between requests. Anything that assumes one long-lived process
 # has to be gated on this.
 IS_SERVERLESS = bool(os.environ.get("VERCEL"))
+
+# Which proxy in front of this process may tell us the visitor's address
+# through x-forwarded-for. Unset (Docker, local, tests): none, the socket
+# peer is the visitor. "vercel": Vercel Functions overwrite the header, so
+# its first hop is the visitor. "apprunner": the App Runner request router
+# appends the visitor after any caller-supplied hops, so the rightmost hop is
+# the one it wrote. VERCEL=1 implies "vercel" (resolved per request in
+# client_ip), so the existing deployment keeps its behaviour with no new
+# variable.
+TRUSTED_PROXY = os.environ.get("TRUSTED_PROXY", "").strip().lower()
+if TRUSTED_PROXY not in {"", "vercel", "apprunner"}:
+    raise RuntimeError("TRUSTED_PROXY must be unset, 'vercel' or 'apprunner'")
 
 # One client per instance, created at import and reused by every warm
 # invocation — never per request. The smaller serverless pool is deliberate:
@@ -337,21 +350,39 @@ async def send_subscription_confirmation(record):
         "This link expires in seven days. If you did not request this, ignore the message.", record["email"])
 
 
+def _forwarded_hops(request: Request) -> List[str]:
+    return [hop.strip() for hop in request.headers.get("x-forwarded-for", "").split(",") if hop.strip()]
+
+
+def _is_ip(value: str) -> bool:
+    try:
+        ipaddress.ip_address(value)
+        return True
+    except ValueError:
+        return False
+
+
 def client_ip(request: Request) -> str:
     """The visitor's address, not the proxy sitting in front of us.
 
-    On Vercel the socket peer is Vercel's own infrastructure, so
-    `request.client.host` is the same value for every visitor — a rate limit
-    keyed on it would be one shared global bucket that real users lock each
-    other out of. Vercel overwrites `x-forwarded-for` on the way in and refuses
-    to forward a caller-supplied value, so it is trustworthy *there*. It is not
-    trustworthy anywhere else, which is why nothing reads it off-platform.
+    Behind a proxy the socket peer is the proxy's own infrastructure, the same
+    value for every visitor, so a rate limit keyed on it is one shared global
+    bucket that real users lock each other out of. x-forwarded-for is read
+    only behind the proxy TRUSTED_PROXY names, and only the hop that proxy is
+    known to write: Vercel overwrites the header, so its first hop is the
+    visitor; App Runner appends the visitor after anything the caller sent,
+    so its last hop is. Anywhere else the header is caller-controlled and is
+    ignored. A hop that is not an IP address falls back to the socket peer.
     """
-    if IS_SERVERLESS:
-        forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
-        if forwarded:
-            return forwarded
-    return request.client.host if request.client else "unknown"
+    peer = request.client.host if request.client else "unknown"
+    proxy = TRUSTED_PROXY or ("vercel" if IS_SERVERLESS else "")
+    if not proxy:
+        return peer
+    hops = _forwarded_hops(request)
+    if not hops:
+        return peer
+    candidate = hops[0] if proxy == "vercel" else hops[-1]
+    return candidate if _is_ip(candidate) else peer
 
 
 # Best-effort, per-instance. See the multi-instance note in LAUNCH_STATE.md.
