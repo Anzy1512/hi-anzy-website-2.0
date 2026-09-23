@@ -1,0 +1,214 @@
+name: Deploy API image
+
+# GitHub Actions -> GitHub OIDC -> AWS IAM role -> Amazon ECR -> AWS App Runner.
+#
+# No long-lived AWS key exists anywhere in this repository or its settings: the
+# job requests a short-lived OIDC token and assumes the role named in the
+# AWS_DEPLOY_ROLE_ARN repository variable (docs/AWS_STAGING_EXECUTION_PLAN.md,
+# "IAM"). Until that variable exists the build and deploy jobs skip themselves
+# and only the test gate runs, so this workflow is safe on any branch before
+# the AWS account is prepared.
+#
+# Images are tagged with the full commit SHA and nothing else: the ECR
+# repository is created with tag immutability, so a tag can never point at a
+# different image later, and App Runner is pointed at the exact SHA on every
+# deploy. Rolling back is a workflow_dispatch with the previous SHA as
+# image_tag (docs/AWS_STAGING_EXECUTION_PLAN.md, "Rollback").
+#
+# Variables (Settings -> Secrets and variables -> Actions -> Variables):
+#   repository level : AWS_DEPLOY_ROLE_ARN, AWS_REGION, ECR_REPOSITORY (default hianzy-api)
+#   environment level: APP_RUNNER_SERVICE_ARN (one per GitHub environment: staging, production)
+# The GitHub environments "staging" and "production" must exist; give
+# "production" required reviewers so a push to main never deploys unattended.
+
+on:
+  push:
+    branches: [main, deploy/aws-staging]
+    paths:
+      - 'backend/**'
+      - 'tests/**'
+      - 'requirements-dev.txt'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [staging, production]
+        default: staging
+      image_tag:
+        description: Existing image tag (a commit SHA already in ECR) to deploy without rebuilding, for a rollback or a redeploy. Leave empty to build this commit.
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+# One deployment per target environment at a time, queued in push order. An
+# overlapping push waits for the previous run instead of racing it, so the
+# newest commit always deploys last and never underneath an older one.
+concurrency:
+  group: deploy-api-${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Backend test gate
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.image_tag == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mongo:
+        image: mongo:7
+        ports: ['27117:27017']
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1}).ok'"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Backend and deployment-configuration tests
+        run: python -m pytest tests/test_api.py tests/test_deploy_config.py -q
+
+  build-push:
+    name: Build and push image
+    needs: test
+    if: ${{ (github.event_name != 'workflow_dispatch' || inputs.image_tag == '') && vars.AWS_DEPLOY_ROLE_ARN != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assume the deployment role with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: github-deploy-api-${{ github.run_id }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Name the image by commit
+        id: meta
+        run: |
+          repo="${{ vars.ECR_REPOSITORY }}"
+          repo="${repo:-hianzy-api}"
+          echo "image=${{ steps.ecr.outputs.registry }}/${repo}:${{ github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build backend image
+        run: docker build --pull -t "${{ steps.meta.outputs.image }}" backend
+
+      # Reports CRITICAL and HIGH findings with a fix available. It never blocks
+      # a deploy on its own: the base image is python:3.12-slim and its patch
+      # cadence is outside this repository, so the report is read, not obeyed.
+      - name: Vulnerability report (informational)
+        uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ steps.meta.outputs.image }}
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '0'
+
+      - name: Push image
+        run: docker push "${{ steps.meta.outputs.image }}"
+
+  deploy:
+    name: Update App Runner
+    needs: [test, build-push]
+    # Runs after a successful build, or straight away for a workflow_dispatch
+    # that names an existing image_tag (rollback / redeploy). Never runs when
+    # the test gate failed.
+    if: ${{ always() && vars.AWS_DEPLOY_ROLE_ARN != '' && needs.test.result != 'failure' && (needs.build-push.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.image_tag != '' && needs.build-push.result == 'skipped')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+    steps:
+      - name: Assume the deployment role with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: github-deploy-api-${{ github.run_id }}
+
+      - name: Resolve the image to deploy
+        id: image
+        env:
+          BUILT_IMAGE: ${{ needs.build-push.outputs.image }}
+          REQUESTED_TAG: ${{ inputs.image_tag }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          set -euo pipefail
+          repo="${ECR_REPOSITORY:-hianzy-api}"
+          if [ -n "${REQUESTED_TAG}" ]; then
+            account="$(aws sts get-caller-identity --query Account --output text)"
+            image="${account}.dkr.ecr.${AWS_REGION}.amazonaws.com/${repo}:${REQUESTED_TAG}"
+            tag="${REQUESTED_TAG}"
+          else
+            image="${BUILT_IMAGE}"
+            tag="${image##*:}"
+          fi
+          # The tag must already be in the repository; a typo must not reach App Runner.
+          aws ecr describe-images --repository-name "${repo}" --image-ids "imageTag=${tag}" --query 'imageDetails[0].imagePushedAt' --output text
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+
+      - name: Point the service at the image and wait for it
+        env:
+          SERVICE_ARN: ${{ vars.APP_RUNNER_SERVICE_ARN }}
+          IMAGE: ${{ steps.image.outputs.image }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SERVICE_ARN}" ]; then
+            echo "::notice::APP_RUNNER_SERVICE_ARN is not set for this environment; the image ${IMAGE} is pushed but no service was updated."
+            exit 0
+          fi
+          status() { aws apprunner describe-service --service-arn "${SERVICE_ARN}" --query Service.Status --output text; }
+          wait_running() {
+            for i in $(seq 1 80); do
+              s="$(status)"
+              case "${s}" in
+                RUNNING) return 0 ;;
+                OPERATION_IN_PROGRESS) sleep 15 ;;
+                *) echo "::error::service is ${s}"; return 1 ;;
+              esac
+            done
+            echo "::error::timed out waiting for the service to reach RUNNING"; return 1
+          }
+          echo "waiting for any in-flight operation to finish"
+          wait_running
+          # Keep every other setting (port, environment variables, secrets, the
+          # ECR access role) exactly as the service has it; change only the image.
+          aws apprunner describe-service --service-arn "${SERVICE_ARN}" --query Service.SourceConfiguration --output json \
+            | jq --arg img "${IMAGE}" '.ImageRepository.ImageIdentifier = $img' > source-configuration.json
+          aws apprunner update-service --service-arn "${SERVICE_ARN}" --source-configuration file://source-configuration.json --query 'OperationId' --output text
+          sleep 20
+          wait_running
+          op="$(aws apprunner list-operations --service-arn "${SERVICE_ARN}" --max-results 1 --query 'OperationSummaryList[0].[Type,Status]' --output text)"
+          echo "last operation: ${op}"
+          case "${op}" in
+            *SUCCEEDED) ;;
+            *) echo "::error::App Runner did not complete the update (${op}); if it reports ROLLBACK_SUCCEEDED the previous image is still serving."; exit 1 ;;
+          esac
+          url="$(aws apprunner describe-service --service-arn "${SERVICE_ARN}" --query Service.ServiceUrl --output text)"
+          for i in $(seq 1 12); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' "https://${url}/api/health" || true)"
+            if [ "${code}" = "200" ]; then echo "healthy: https://${url}/api/health -> 200 with ${IMAGE}"; exit 0; fi
+            sleep 10
+          done
+          echo "::error::https://${url}/api/health did not answer 200 after the update"; exit 1
+
+      - name: What to do on failure
+        if: failure()
+        run: |
+          echo "::error::Deployment failed. App Runner keeps serving the previous image when an update fails health checks (ROLLBACK_SUCCEEDED). To redeploy a known-good image, run this workflow with image_tag set to a previous commit SHA that exists in ECR (docs/AWS_STAGING_EXECUTION_PLAN.md, Rollback)."
