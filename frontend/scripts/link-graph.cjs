@@ -53,7 +53,6 @@ const ROUTES = [
 // The nine former standalone routes are permanent redirects now (LEGACY_ROUTES
 // in src/data/content.js). A link to one of them is reported as BROKEN on
 // purpose: every internal link should point at the canonical section.
-const LAB = '/lab/';
 
 /* ------------------------------------------------------------ extraction */
 const walk = (dir, out = []) => {
@@ -129,7 +128,6 @@ const classify = (raw) => {
   if (/^mailto:/.test(raw)) return 'mailto';
   if (/^tel:/.test(raw)) return 'tel';
   if (/^https?:\/\//.test(raw)) return 'external';
-  if (raw === LAB || raw.startsWith(LAB)) return 'lab';
   if (raw.startsWith('#')) return 'same-page-hash';
   if (raw.startsWith('/')) return 'internal';
   return 'other';

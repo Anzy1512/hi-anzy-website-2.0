@@ -32,10 +32,9 @@
 # protection here with a green build.
 #
 # CSP audit (2026-09-23, docs/ADR-002): every directive was checked against
-# the built site. Fonts are self-hosted under /fonts/ and /lab/fonts/
-# (font-src 'self'); the 3D scenes are procedural — no textures, models or
-# HDRIs are fetched; the Lab bundle makes no cross-origin requests and uses no
-# workers or WebAssembly; theme-boot.js is an external script (script-src
+# the built site. Fonts are self-hosted under /fonts/ (font-src 'self'); the
+# 3D scenes are procedural — no textures, models or HDRIs are fetched;
+# theme-boot.js is an external script (script-src
 # 'self', no 'unsafe-inline'); GSAP and React need style-src 'unsafe-inline'.
 # Known gap, pre-existing on every platform and left as-is: a signed-in user's
 # avatar (Nav.js renders user.picture from the auth provider) is blocked by
@@ -64,13 +63,6 @@ applications:
 
       # Immutable cache for content-hashed assets (Vite emits [hash] in filenames)
       - pattern: 'assets/**'
-        headers:
-          - key: Cache-Control
-            value: public, max-age=31536000, immutable
-
-      # The Experience Lab's own content-hashed bundle (ADR-001) gets the same
-      # immutable policy nginx.conf.template gives /lab/assets/.
-      - pattern: 'lab/assets/**'
         headers:
           - key: Cache-Control
             value: public, max-age=31536000, immutable

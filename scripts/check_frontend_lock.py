@@ -10,8 +10,6 @@ Usage
 
 Exclusions
     node_modules, build, .cache, .vite, coverage, .git   build products and caches
-    lab/            the Experience Lab's pre-built output: a separate product with
-                    its own repository and boundary (docs/ADR-001-experience-lab-separation.md)
     .env, .env.*    secrets (the .example files stay in)
     *.log           local logs
 
@@ -36,7 +34,7 @@ import os
 import sys
 from pathlib import Path
 
-EXCLUDED_DIRS = {"node_modules", "build", ".cache", ".vite", "coverage", ".git", "lab"}
+EXCLUDED_DIRS = {"node_modules", "build", ".cache", ".vite", "coverage", ".git"}
 LOCK = "docs/frontend-source-lock.json"
 
 

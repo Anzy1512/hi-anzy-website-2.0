@@ -13,10 +13,6 @@ RUN npm run build
 FROM nginx:1.27-alpine AS serve
 ARG REACT_APP_BACKEND_URL=http://localhost:8010
 COPY --from=build /app/build /usr/share/nginx/html
-# The Experience Lab: a separate static build mounted at /lab/ (ADR-001).
-# Nothing in the commercial bundle imports it and nothing in it imports the
-# commercial bundle; it is copied in, not linked.
-COPY lab/ /usr/share/nginx/html/lab/
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 ENV CSP_CONNECT_SRC=$REACT_APP_BACKEND_URL
 EXPOSE 80

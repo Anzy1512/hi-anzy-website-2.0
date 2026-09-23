@@ -5,7 +5,7 @@
       "root": "frontend/",
       "framework": "vite",
       "outputDirectory": "build",
-      "buildCommand": "npm run build && node -e \"require('fs').cpSync('lab','build/lab',{recursive:true})\"",
+      "buildCommand": "npm run build",
       "cleanUrls": true,
       "headers": [
         {
