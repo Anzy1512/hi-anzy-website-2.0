@@ -253,7 +253,7 @@ function fileToPage(file) {
   if (!m) return null;
   return { Home: '/', WhatWeDo: '/what-we-do', ServiceDetail: '/what-we-do/:slug', HowWeWork: '/how-we-work', Work: '/work', WorkDetail: '/work/:slug',
     Network: '/network', Discipline: '/network/:slug', WhyHiAnzy: '/why-hi-anzy', Insights: '/insights', InsightDetail: '/insights/:slug', Contact: '/contact',
-    WhoWeWorkWith: '/who-we-work-with', Collaborate: '/collaborate', Careers: '/careers', Resources: '/resources', ComingSoon: '/coming-soon' }[m[1]] || null;
+    Resources: '/resources', ComingSoon: '/coming-soon' }[m[1]] || null;
 }
 
 const countBy = (arr, key) => arr.reduce((acc, x) => { acc[x[key]] = (acc[x[key]] || 0) + 1; return acc; }, {});
