@@ -1978,3 +1978,52 @@ CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
 - AWS: **AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION**
   (AWS_PREP.md §B3). Verdict: READY WITH LIVE AWS VERIFICATION. Owner review
   of the audit gates any push or merge.
+
+## POST-MERGE STATUS: AGENCY / EXPERIMENT LAB SEPARATION + RELEASE HARDENING (2026-09-24)
+
+- **Product boundary locked.** This repository is the hiAnzy Agency Website
+  only. The Experiment Lab (the "Experience Lab" of ADR-001) is a separate
+  project: `frontend/lab/` (72 files) and every Agency-side coupling were
+  removed in `82228fb` (nginx `/lab/` locations, Docker copy, Amplify and
+  Vercel copy steps, the `customHttp.yml` cache entry, the source-lock
+  exclusion and the link-graph link class). Recovery pointer: `ad03114` is the
+  last commit that contains the bundled artifact. `/lab/` now answers the
+  Agency 404 page. ADR-001 is marked superseded; the root `CLAUDE.md` carries
+  the boundary.
+- **Agency IA re-derived from source:** 7 hub pages and 3 utility pages,
+  6 services, 16 disciplines, 5 case studies, 30 insights = 67 canonical
+  routes; 9 legacy redirects; one 404 route. Unchanged by the separation.
+- **Content ledger, independent string-level re-check** of the four retired
+  components (157 strings): 28 exact duplicates, 2 boilerplate, 36 migrated
+  verbatim, 2 migrated semantically, 0 unique missing, 89 technical strings.
+  Three sentences that had lived only in the retired pages' meta descriptions
+  were restored verbatim into the Careers standfirst, the Collaborate credit
+  panel and the Who We Work With lede (`c07e11b`).
+- **Verified defect fixed:** nginx answered 403 or 404 to trailing-slash
+  requests (`/work/`, `/contact/`, every detail page); a regex location placed
+  after the legacy 301s now answers 301 to the canonical URL with the query
+  string kept (`cb715e6`). Release gates extended in `build.test.cjs`
+  (`4f3d812`): no Lab step in any deployment file; trailing-slash rule
+  ordered after the legacy 301s and before the SPA fallback.
+- **Verified on the branch head:** lock 235 files; pytest 68; lint clean;
+  vitest 16; build tests 10; build 67 pages with `lastmod moved for 0` from
+  both content sources; raw metadata 67 on the preview and on Docker; link
+  graph 67 / 175 / 0 / 0; nine legacy 301s with query and fragment landing at
+  96 px under the 85 px nav, hard refresh and Back included; trailing slashes
+  301; `/lab/` 404; 70 responsive loads (10 pages × 7 widths) with no
+  overflow, nested scroll, clipping, text cut or fixed-element collision;
+  scroll harness equivalent to the accepted baseline; pin and unpin, resize,
+  route transitions, reduced motion, API outage and recovery all pass.
+- **AWS:** repository-side readiness re-verified with no Lab step anywhere
+  (`amplify.yml`, `customHttp.yml`, backend Dockerfile, `/api/health`,
+  `backend/.env.aws.example`, `REACT_APP_BACKEND_URL`, `PUBLIC_API_URL`,
+  CORS, `TRUSTED_PROXY=apprunner`, cookie flags, App Runner port 8000, CSP
+  `connect-src`, sitemap host). Live gates unchanged: AMPLIFY HASH REDIRECT —
+  REQUIRES LIVE AWS VERIFICATION; Amplify `404-200` routing and monorepo
+  headers; App Runner environment, secrets and forwarded client IP; Atlas
+  connectivity. The ECR deploy workflow remains an open owner action
+  (ADR-002, item 5).
+- Branch pushed and PR #3 updated. Not merged, not deployed, no DNS change,
+  no AWS resource.
+
+## POST-MERGE STATUS: SEPARATED AND HARDENED — READY FOR OWNER MERGE

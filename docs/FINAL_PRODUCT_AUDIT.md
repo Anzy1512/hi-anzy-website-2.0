@@ -256,3 +256,26 @@ left as written.
   REDIRECT — REQUIRES LIVE AWS VERIFICATION.** LIVE AWS VERIFIED remains NO.
 - Verdict for the consolidation: READY WITH LIVE AWS VERIFICATION. Nothing
   is merged, pushed or deployed until the owner authorises it.
+
+## POST-MERGE NOTE: AGENCY / EXPERIMENT LAB SEPARATION (2026-09-24)
+
+- The Experiment Lab is a separate product and is no longer bundled or
+  served from this repository: `frontend/lab/` and every deployment, lock and
+  tooling coupling were removed (`82228fb`); `ad03114` is the recovery
+  pointer. Statements above that describe `/lab/` as part of the Agency
+  deployment are historical. The Lab boundary line under INFO ("compiled
+  artifact, excluded from the lock and untouched") is superseded: the artifact
+  is gone and the lock needs no exclusion.
+- P3-1 (no related reading under the two Work rosters) is unchanged. A new
+  P3 is recorded: the retired pages' own `<title>` strings went with their
+  URLs by design; every other retired string is present, restored or an
+  exact duplicate (ledger in `LAUNCH_STATE.md`, 2026-09-24 note).
+- A verified nginx defect was fixed: trailing-slash requests answered 403 or
+  404 on the Docker path; they now redirect to the canonical URL.
+- Re-measured on the branch head: lock 235; pytest 68; lint clean; vitest
+  16; build tests 10; build 67 pages, `lastmod moved for 0`; raw metadata 67
+  on the preview and on Docker; link graph 67 / 175 / 0 / 0; nine legacy
+  301s; `/lab/` 404; 70 responsive loads clean; scroll harness equivalent to
+  the accepted baseline.
+- LIVE AWS VERIFIED remains NO. Verdict: READY FOR OWNER MERGE; AWS staging
+  follows the owner's merge and the live gates in ADR-002 / AWS_PREP §B3.

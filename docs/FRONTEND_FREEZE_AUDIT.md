@@ -655,3 +655,19 @@ the deck wrapper's `overflow-x: clip`) and `52e3b69` (`src/lib/motion.js`,
 the hash-target re-measure). The lock stayed at 236 entries and was
 verified at the PR #2 merge (`0208378`) and again during the post-merge
 reconciliation. No NEEDS REVIEW entry exists.
+
+
+## Lock regenerations on `ia/page-consolidation` (2026-09-23/24)
+
+Each regeneration was traced to the commit that changed the locked files
+before `--write` ran (written twice; the second write changed nothing):
+
+| Commit | Locked files that changed | Why |
+|---|---|---|
+| `3f51ec2` | `src/components/LegacyRedirect.js`, hub pages, data, generators, two test files, four removed pages | the information-architecture consolidation (docs/IA_CONSOLIDATION_AUDIT.md) |
+| `82228fb` | `Dockerfile`, `nginx.conf.template`, `scripts/link-graph.cjs` | Experiment Lab detached; the checker's `lab/` exclusion was removed at the same time because nothing is left to exclude |
+| `4f3d812` | `src/pages/Network.js`, `src/pages/WhyHiAnzy.js`, `nginx.conf.template`, `scripts/build.test.cjs` | restored retired-page sentences, trailing-slash rule, two new release gates |
+| `eeedd25` | `public/sitemap.xml`, `scripts/sitemap-lastmod.json` | the restored copy moved the fingerprints of `/network` and `/why-hi-anzy` |
+
+The lock holds 235 files (236 on `main` before the consolidation: four page
+components removed, `LegacyRedirect.js` and two test files added).

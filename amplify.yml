@@ -22,7 +22,7 @@ applications:
             # npm run build triggers the npm lifecycle hooks automatically:
             #   prebuild  → check:opacity, check:seo, sitemap
             #   build     → vite build --configLoader native
-            #   postbuild → prerender-metadata.cjs (writes 76 prerendered HTML pages + 404.html)
+            #   postbuild → prerender-metadata.cjs (writes one prerendered HTML page per public route + 404.html)
             - npm run build
             # Build-time content dependency (docs/ADR-002): prerender and sitemap
             # fetch /api/case-studies and /api/insights from REACT_APP_BACKEND_URL
@@ -30,7 +30,7 @@ applications:
             # succeeds — silently — on the checked-in scripts/content-snapshot.json
             # and the previous public/sitemap.xml. Deploy the API before building
             # the site, and read this build's log: it must contain
-            #   "metadata: generated 76 public HTML pages"
+            #   "metadata: generated <N> public HTML pages" (67 at the time of writing; the number follows the content)
             # and must NOT contain "using the checked-in public content snapshot"
             # or "[API unreachable — database-backed pages omitted]".
       artifacts:

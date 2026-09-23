@@ -429,3 +429,26 @@ scroll and sitemap fixes found during validation, as the brief allowed.
 This branch is not merged into `main`, not pushed, not deployed; no DNS
 change and no AWS resource. Nothing moves until the owner has reviewed this
 audit and authorises it explicitly.
+
+
+## POST-AUDIT NOTE (2026-09-24): separation, ledger re-check and one restored line
+
+- The Experiment Lab was detached from the Agency repository after this audit
+  (`82228fb`; root `CLAUDE.md`, "Product boundary"). The 67 canonical routes,
+  the nine redirects and the link graph above are unchanged by it; `/lab/`,
+  which this audit listed as "outside the count", is now an unknown path.
+- Independent string-level re-check of the four retired components (157
+  strings extracted from `main`): 28 exact duplicates already elsewhere at
+  `main`, 2 boilerplate strings whose job ended with the standalone pages
+  ("Back to the Orbit", "This index could not be loaded."), 36 migrated
+  verbatim, 2 migrated semantically, 0 unique strings missing, 89 technical
+  strings (code fragments, class names, the retired pages' `<title>` strings).
+  Three sentences that existed only as the retired pages' meta descriptions
+  were restored verbatim into the Careers standfirst, the Collaborate credit
+  panel and the Who We Work With lede (`c07e11b`); the sitemap dates of
+  `/network` and `/why-hi-anzy` moved once for that copy (`eeedd25`).
+- Trailing-slash requests now answer 301 to the canonical URL on nginx
+  (`cb715e6`), so `/work/` and `/network/venues/` land on their page instead
+  of 403 or 404; the legacy 301s are matched first.
+- The KNOWN RISKS list stands; the P3 about nginx absolute redirects carrying
+  the container's port is unchanged.

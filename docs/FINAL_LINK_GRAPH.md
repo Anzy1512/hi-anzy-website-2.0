@@ -1,6 +1,6 @@
 # FINAL LINK GRAPH
 
-Generated 2026-09-23T16:56:29.527Z by `frontend/scripts/link-graph.cjs`. Content sources: cases=api, insights=api, ecosystem=api.
+Generated 2026-09-23T21:14:09.193Z by `frontend/scripts/link-graph.cjs`. Content sources: cases=api, insights=api, ecosystem=api.
 
 ## Summary
 
@@ -241,9 +241,9 @@ None.
 | pages/Insights.js | 225 | Link | Read it | `/insights/${p.slug}` | internal | ok |
 | pages/Network.js | 159 | Link | say hi | `/contact` | internal | ok |
 | pages/Network.js | 588 | Link | track("discipline_opened", )} data-testid={`discipline-card-$ `} className="cap- | `/network/${d.slug}` | internal | ok |
-| pages/Network.js | 790 | Link | above the specialist directory | `/network#network-specialists` | internal | ok |
-| pages/Network.js | 796 | MagneticButton | Introduce Yourself | `/contact` | internal | ok |
-| pages/Network.js | 832 | MagneticButton | Introduce Yourself | `/contact` | internal | ok |
+| pages/Network.js | 793 | Link | above the specialist directory | `/network#network-specialists` | internal | ok |
+| pages/Network.js | 799 | MagneticButton | Introduce Yourself | `/contact` | internal | ok |
+| pages/Network.js | 838 | MagneticButton | Introduce Yourself | `/contact` | internal | ok |
 | pages/NotFound.js | 20 | MagneticButton | Take me somewhere useful | `/` | internal | ok |
 | pages/Resources.js | 43 | Link | track("resource_discussed", )} className="link-draw mt-5 inline-flex w-fit items | `/contact` | internal | ok |
 | pages/Resources.js | 71 | Link | contact form | `/contact` | internal | ok |
@@ -263,8 +263,8 @@ None.
 | pages/WhatWeDo.js | 80 | data |  | `service_detail` | other | ok |
 | pages/WhatWeDo.js | 101 | data |  | `work` | other | ok |
 | pages/WhatWeDo.js | 111 | data |  | `service_detail` | other | ok |
-| pages/WhyHiAnzy.js | 147 | MagneticButton | Start a Conversation | `/contact` | internal | ok |
-| pages/WhyHiAnzy.js | 157 | MagneticButton | track("cta_primary_click", )}> Say Hi | `mailto:${SITE_CONTACT.email}` | mailto | ok |
+| pages/WhyHiAnzy.js | 150 | MagneticButton | Start a Conversation | `/contact` | internal | ok |
+| pages/WhyHiAnzy.js | 160 | MagneticButton | track("cta_primary_click", )}> Say Hi | `mailto:${SITE_CONTACT.email}` | mailto | ok |
 | pages/Work.js | 117 | Link | track("ecosystem_profile_opened", )} data-testid={`ecosystem-card-$ `} className | `/work/${cs.slug}` | internal | ok |
 | pages/Work.js | 270 | Link | contact us | `/contact` | internal | ok |
 | pages/Work.js | 275 | Link | Talk to us | `/contact` | internal | ok |
