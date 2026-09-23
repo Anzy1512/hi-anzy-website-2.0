@@ -31,7 +31,10 @@ const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|
 
 const STATIC_PAGES = [
   ...NAV_LINKS.map((l) => ({ label: l.label, to: l.to })),
-  ...FOOTER_LINKS.map((l) => ({ label: l.label, to: l.to })),
+  // Footer links that now point into a hub section (Who We Work With,
+  // Collaborate, Careers) are indexed as sections below, with wording that
+  // says what the section holds, rather than a second time as pages.
+  ...FOOTER_LINKS.filter((l) => !l.section).map((l) => ({ label: l.label, to: l.to })),
   // Real destinations that hang off no nav list: the contact page is
   // labelled "Say Hi" in the footer, and the coming-soon page is reached only
   // from the footer teasers. Their body text carries the words a visitor
@@ -74,6 +77,13 @@ const SECTION_ANCHORS = [
 
   { label: "Choose a Package", page: "What We Do", to: "/what-we-do#packages", hint: "What We Do", body: "packages engagement models buy the stage you are in" },
   { label: "Build Your Brief", page: "What We Do", to: "/what-we-do#build", hint: "What We Do", body: "package builder shape your engagement modules" },
+
+  // Sections absorbed from former standalone pages (docs/IA_CONSOLIDATION_AUDIT.md).
+  // Each carries the words its old URL and page title answered to, so a visitor
+  // searching by the name they remember still lands exactly there.
+  { label: "Who We Work With", page: "Why hiAnzy", to: "/why-hi-anzy#who-we-work-with", hint: "Why hiAnzy · the audiences and the fit checklist", body: "who we work with founders founder-led companies entrepreneurs idea builders d2c commerce hospitality service companies next stage of growth good working partnership fit audiences" },
+  { label: "Collaborate", page: "Network", to: "/network#collaborate", hint: "Network · join the network as an independent", body: "collaborate join the network specialists creators media venues partners independent introduce yourself bring your expertise how credit works" },
+  { label: "Careers", page: "Network", to: "/network#careers", hint: "Network · a permanent seat, how we hire", body: "careers jobs hiring open roles work with us permanent seat curious minds practical builders values introduce yourself" },
 ];
 
 const build = () => {
@@ -127,13 +137,13 @@ const build = () => {
     push({ kind: "section", group: s.page, label: s.label, to: s.to, hint: s.hint, body: s.body });
   });
 
-  // The six ecosystem category pages (real routes, distinct from the ecosystem
-  // *items* indexed dynamically below) — generated from ORBIT_CATEGORIES, the
-  // same data EcosystemCategoryPage.js itself renders from, not a second copy
-  // of these names. label is the common term a visitor would actually type
-  // ("Collaborators"); hint carries the page's own on-screen flavour name
-  // (e.g. "MINDS IN THE MIX") so the result previews what landing there
-  // actually looks like, rather than surprising with a mismatched heading.
+  // The six Orbit rosters, each a section of its hub since the consolidation
+  // (docs/IA_CONSOLIDATION_AUDIT.md), generated from ORBIT_CATEGORIES, the
+  // same data the hubs render from. label is the common term a visitor would
+  // actually type ("Collaborators"); hint carries the roster's own on-screen
+  // name so the result previews what landing there looks like; body carries
+  // the words of the retired standalone URL, so legacy terminology still
+  // finds the roster.
   // "Venue Partners", not "Venues": NETWORK_SUBCATS already has a real
   // discipline literally named "Venues" (the Events & Venue Production
   // capability, /network/venues) — an identical label here tied that exact
@@ -153,8 +163,8 @@ const build = () => {
       group: c.key === "built_here" || c.key === "built_together" ? "Work" : "Network",
       label: ORBIT_LABELS[c.key] || c.name,
       to: c.route,
-      hint: c.name,
-      body: `${c.descriptor || ""} ${c.copy || ""} ${c.seoDescription || ""}`,
+      hint: `${c.name} · roster section`,
+      body: `${c.descriptor || ""} ${c.copy || ""} ${c.seoDescription || ""} ${c.name} roster orbit ${String(c.legacyRoute || "").replace(/[/-]+/g, " ").trim()}`,
     });
   });
 
@@ -198,12 +208,11 @@ export const COMMAND_INDEX = build();
 // /work/:slug page. Indexing them again here would just repeat each title
 // pointing at the shared /work/built-here or /work/built-together category
 // listing instead of its actual detail page — noise, not a new destination.
-const ECOSYSTEM_ROUTES = {
-  collaborator: "/network/collaborators",
-  creator: "/network/artists-creators",
-  venue: "/network/venue-partners",
-  partner: "/network/partners",
-};
+// Read from ORBIT_CATEGORIES so a roster's destination is written once: each
+// person lands on the roster section of the Network hub that lists them.
+const ECOSYSTEM_ROUTES = Object.fromEntries(
+  ORBIT_CATEGORIES.filter((c) => !["built_here", "built_together"].includes(c.key)).map((c) => [c.key, c.route])
+);
 
 let dynamicItems = [];
 let dynamicPromise = null;
