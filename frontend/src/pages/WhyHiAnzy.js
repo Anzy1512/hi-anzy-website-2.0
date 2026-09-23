@@ -7,17 +7,18 @@ import { MagneticButton } from "@/components/MagneticButton";
 import { RouteLine } from "@/components/RouteLine";
 import { useRevealObserver } from "@/lib/motion";
 import { track } from "@/lib/api";
-import { CHARACTERS, TEAM_QUOTE } from "@/data/content";
+import { AUDIENCES, CHARACTERS, FILTER_LIST, TEAM_QUOTE } from "@/data/content";
 import { SITE_CONTACT } from "@/data/site";
 import { NextSteps } from "@/components/NextSteps";
 import { DissolveImage } from "@/components/DissolveImage";
 import { Picture } from "@/components/Picture";
+import { OrderingGrid } from "@/components/motion/OrderingGrid";
 
 export default function WhyHiAnzy() {
   const ref = useRevealObserver();
   return (
     <div ref={ref} className="pt-[84px]" data-testid="why-hi-anzy-page">
-      <Seo title="Why hiAnzy | The Name, The Instinct, The Work" description="Anzy began as a signature under poems. It grew into a way of seeing businesses: see differently, make thoughtfully." />
+      <Seo title="Why hiAnzy | The Name, The Instinct, Who We Work With" description="Anzy began as a signature under poems and grew into a way of seeing businesses. Who we work with, and what makes a good working partnership." />
       <section className="container-page section-pad">
         <div className="grid items-start gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
@@ -100,6 +101,54 @@ export default function WhyHiAnzy() {
             </Reveal>
           </div>
 
+          {/* ── Who we work with ─────────────────────────────────────────────
+              Absorbed from the former /who-we-work-with page
+              (docs/IA_CONSOLIDATION_AUDIT.md): the audiences, the fit
+              checklist and the invitation now sit where the "why" turns into
+              "who": after the instinct, before the closing line. */}
+          <section id="who-we-work-with" className="pt-6" data-index-label="WHO WE WORK WITH" data-testid="why-who-we-work-with">
+            <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
+              <span className="inline-block h-[3px] w-8 rounded-full bg-[#F19020]" /> WHO WE WORK WITH
+            </Reveal>
+            <Reveal delay={80}>
+              <h2 className="font-display mt-4 leading-[0.95] text-[clamp(2.2rem,4.5vw,4.2rem)] text-[#232A2A]" data-testid="wwww-h2">
+                For teams ready for their next stage<span className="accent-signal-text">.</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={140} as="p" className="font-editorial mt-5 max-w-[52ch] text-[clamp(1.1rem,1.4vw,1.35rem)] italic leading-[1.5] text-[#232A2A]/78">
+              You may be launching an idea, clarifying your position or improving systems the business has outgrown. We help connect the next step to the wider business goal.
+            </Reveal>
+            {/* Chaos → order, rather than the sitewide fade-up: this section is
+                about sorting — who fits, and who does not — so the tiles
+                arriving slightly out of alignment and settling into an exact
+                grid says what the section says. Reduced motion renders a
+                plain grid. */}
+            <OrderingGrid className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" testId="wwww-audiences">
+              {AUDIENCES.map((a) => (
+                <div key={a} className="cap-tile flex h-full items-center gap-4 rounded-[14px] border border-[#232A2A]/14 bg-[#F7F5EE] p-5">
+                  <span className="text-[15px] font-semibold text-[#232A2A]/85">{a}</span>
+                </div>
+              ))}
+            </OrderingGrid>
+            <Reveal delay={200}>
+              <div className="panel-dark mt-8 p-7 sm:p-9">
+                <p className="accent-signal-on-dark sys-chip flex items-center gap-2 font-bold"><span className="red-bar" /> A GOOD WORKING PARTNERSHIP</p>
+                <p className="mt-3 font-semibold text-[#F7F5EE]">Here is what helps us do useful work together:</p>
+                <ul className="mt-4 space-y-2.5">
+                  {FILTER_LIST.map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-[16.5px] leading-[1.58] text-[#F7F5EE]/78">
+                      <span className="font-mono-sys mt-0.5 text-[12.5px] accent-orange-text" aria-hidden="true">✓</span> {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+            <Reveal delay={240} className="mt-8">
+              <MagneticButton to="/contact" className="btn-ink" hoverText="Good start." testId="wwww-cta">
+                Start a Conversation <ArrowRight size={15} />
+              </MagneticButton>
+            </Reveal>
+          </section>
           <Reveal>
             <div className="flex flex-wrap items-center justify-between gap-6 rounded-[18px] bg-[#D8CFB4]/60 p-8">
               <p className="font-display max-w-xl text-3xl leading-tight text-[#232A2A] sm:text-4xl">
