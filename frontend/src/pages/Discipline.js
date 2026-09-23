@@ -147,7 +147,7 @@ export default function Discipline() {
                   <div className="flex items-baseline justify-between gap-4 border-b border-[#232A2A]/10 pb-3">
                     <dt className="font-mono-sys text-[12.5px] text-[#232A2A]/55">Specialists listed</dt>
                     <dd className="font-display text-[20px] leading-none accent-orange-text tabular-nums">
-                      {members === null ? "…" : members.length}
+                      {members === null ? (membersError ? "—" : "…") : members.length}
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">

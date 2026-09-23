@@ -21,6 +21,8 @@ export const CommandPalette = () => {
   const inputRef = useRef(null);
   const listRef = useRef(null);
   const returnFocusRef = useRef(null);
+  const moduleRef = useRef(null);
+  const dynamicRef = useRef(null);
 
   useEffect(() => {
     if (!open || searchCommandsFn || indexFailed) return undefined;
@@ -28,22 +30,36 @@ export const CommandPalette = () => {
     import("@/lib/commandIndex")
       .then((mod) => {
         if (!current) return;
+        moduleRef.current = mod;
         setSearchCommandsFn(() => mod.searchCommands);
-        // Case studies, insights and ecosystem entries are fetched, not
-        // static, so they land after the module itself resolves. Setting
-        // searchCommandsFn again with a fresh closure (same underlying
-        // function, new reference) is what makes the results memo below
-        // recompute once they arrive — a real dependency change, not a
-        // synthetic counter just to force a re-render.
-        mod.loadDynamicIndex().then(() => {
-          if (current) setSearchCommandsFn(() => mod.searchCommands);
-        });
       })
       .catch(() => {
         if (current) setIndexFailed(true);
       });
     return () => { current = false; };
   }, [open, searchCommandsFn, indexFailed]);
+
+  // Case studies, insights and ecosystem entries are fetched, not static, so
+  // they land after the module itself resolves. This effect asks for them
+  // once the module is present and again on every opening: loadDynamicIndex
+  // keeps a successful load, so that costs nothing, and after a load in
+  // which every source failed it fetches again, so a palette first opened
+  // during an API outage recovers on its next opening. When a new item set
+  // arrives, searchCommandsFn gets a fresh closure over the same function,
+  // which is what makes the results memo below recompute for the query
+  // already typed; a cached load resolves to the same set and sets nothing,
+  // so re-running on the state change it caused ends there.
+  useEffect(() => {
+    const mod = moduleRef.current;
+    if (!open || !mod) return undefined;
+    let current = true;
+    mod.loadDynamicIndex().then((items) => {
+      if (!current || items === dynamicRef.current) return;
+      dynamicRef.current = items;
+      setSearchCommandsFn(() => (q) => mod.searchCommands(q));
+    });
+    return () => { current = false; };
+  }, [open, searchCommandsFn]);
 
   const results = useMemo(
     () => (searchCommandsFn ? searchCommandsFn(query) : []),

@@ -265,6 +265,10 @@ export const loadDynamicIndex = () => {
         });
       }
       dynamicItems = items;
+      // When every source failed, forget the attempt so the next opening of
+      // the palette tries again, instead of caching an empty index for the
+      // rest of the visit.
+      if ([cases, insights, ecosystem].every((r) => r.status === "rejected")) dynamicPromise = null;
       return dynamicItems;
     }
   );

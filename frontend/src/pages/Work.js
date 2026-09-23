@@ -57,6 +57,7 @@ export default function Work() {
   const [portfolioError, setPortfolioError] = useState(false);
   const [expanded, setExpanded] = useState(null);
   const [details, setDetails] = useState({});
+  const [detailErrors, setDetailErrors] = useState({});
   useEffect(() => {
     getCaseStudies().then(setCases).catch(() => setError(true));
     // A genuine failure here used to render identically to "no portfolio
@@ -70,6 +71,18 @@ export default function Work() {
   // the reader scrolls away changes the page length under them.
   useEffect(() => onCollapse(() => setExpanded(null)), []);
 
+  /**
+   * The full story arrives separately from the list. A failed fetch used to
+   * be swallowed, leaving the expanded card pulsing for ever; now it is shown
+   * and can be retried in place.
+   */
+  const loadDetail = (slug) => {
+    setDetailErrors((prev) => (prev[slug] ? { ...prev, [slug]: false } : prev));
+    getCaseStudy(slug)
+      .then((d) => setDetails((prev) => ({ ...prev, [slug]: d })))
+      .catch(() => setDetailErrors((prev) => ({ ...prev, [slug]: true })));
+  };
+
   /** Expand a case in place — the card unfolds into the full story without leaving the page. */
   const toggleCase = (cs) => {
     if (expanded === cs.slug) {
@@ -78,9 +91,7 @@ export default function Work() {
     }
     setExpanded(cs.slug);
     track("case_expanded", { slug: cs.slug, from: "work_index" });
-    if (!details[cs.slug]) {
-      getCaseStudy(cs.slug).then((d) => setDetails((prev) => ({ ...prev, [cs.slug]: d }))).catch(() => {});
-    }
+    if (!details[cs.slug]) loadDetail(cs.slug);
     setTimeout(() => {
       const el = document.getElementById("work-expand-panel");
       if (!el) return;
@@ -160,7 +171,10 @@ export default function Work() {
         {!cases && !error && (
           <div className="grid gap-6 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="panel-paper h-[260px] animate-pulse" />)}</div>
         )}
-        {cases && (
+        {cases && cases.length === 0 && (
+          <p className="panel-paper p-6 text-[15px] text-[#232A2A]/80" data-testid="work-empty">No case studies are published yet. <Link to="/contact" className="link-draw font-semibold">Talk to us</Link> about relevant work.</p>
+        )}
+        {cases && cases.length > 0 && (
           <div data-testid="work-case-grid">
             <CardCarousel label={`DRAG OR SCROLL · ${cases.length} CASE STUDIES`} testId="work-carousel">
               {cases.map((cs) => (
@@ -232,8 +246,15 @@ export default function Work() {
                     </div>
                     <h3 className="font-display mt-4 leading-[0.95] text-[#232A2A] text-[clamp(2rem,3.4vw,3.1rem)]">{expandedCase.title}</h3>
 
-                    {!details[expandedCase.slug] && (
-                      <div className="mt-8 space-y-4">{Array.from({ length: 3 }).map((_, k) => <div key={k} className="panel-paper h-20 animate-pulse rounded-[14px]" />)}</div>
+                    {!details[expandedCase.slug] && !detailErrors[expandedCase.slug] && (
+                      <div className="mt-8 space-y-4" role="status" aria-label="Loading the full story">{Array.from({ length: 3 }).map((_, k) => <div key={k} className="panel-paper h-20 animate-pulse rounded-[14px]" />)}</div>
+                    )}
+                    {!details[expandedCase.slug] && detailErrors[expandedCase.slug] && (
+                      <div role="alert" className="mt-8 rounded-[14px] bg-[#F7F5EE] p-5 text-[15px] text-[#232A2A]/80" data-testid={`work-expand-error-${expandedCase.slug}`}>
+                        The full story could not be loaded.{" "}
+                        <button type="button" className="link-draw font-semibold" onClick={() => loadDetail(expandedCase.slug)}>Try again</button>
+                        {" "}or open <Link to={`/work/${expandedCase.slug}`} className="link-draw font-semibold">the case page</Link>.
+                      </div>
                     )}
                     {details[expandedCase.slug] && (
                       <>
@@ -323,6 +344,7 @@ export default function Work() {
           )}
 
           {portfolioError && <p role="alert" className="mt-10 panel-paper p-6 text-[15px] text-[#232A2A]/80" data-testid="work-portfolio-error">The portfolio archive could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">contact us</Link> about relevant work.</p>}
+          {portfolio && portfolio.length === 0 && !portfolioError && <p className="mt-10 panel-paper p-6 text-[15px] text-[#232A2A]/80" data-testid="work-portfolio-empty">The archive has nothing public listed yet.</p>}
           {!portfolio && !portfolioError && <div className="mt-10 grid gap-5 lg:grid-cols-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="panel-paper h-[150px] animate-pulse" />)}</div>}
 
           {/* One orbital deck per category, stacked vertically. Replaces the

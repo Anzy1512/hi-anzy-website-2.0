@@ -26,6 +26,7 @@ export const EcosystemCategoryPage = ({ category }) => {
   const ref = useRevealObserver();
   const [items, setItems] = useState(null);
   const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const meta = ORBIT_CATEGORIES.find((c) => c.key === category);
   const Glyph = meta && ORBIT_GLYPHS[meta.key];
   const isCaseStudy = category === "built_here" || category === "built_together";
@@ -36,6 +37,9 @@ export const EcosystemCategoryPage = ({ category }) => {
     getEcosystem(category)
       .then(setItems)
       .catch(() => setError(true));
+  }, [category, retry]);
+
+  useEffect(() => {
     track("ecosystem_index_viewed", { category });
   }, [category]);
 
@@ -104,9 +108,11 @@ export const EcosystemCategoryPage = ({ category }) => {
 
       <section className="container-page section-pad-b" data-index-label={meta.name}>
         {error && (
-          <p className="panel-paper p-6 text-[14px] text-[#232A2A]/75" data-testid="ecosystem-error">
-            This index is being stubborn. Refresh, or say hi and we will walk you through it.
-          </p>
+          <div role="alert" className="panel-paper p-6 text-[14px] text-[#232A2A]/75" data-testid="ecosystem-error">
+            This index could not be loaded.{" "}
+            <button type="button" className="link-draw font-semibold" onClick={() => setRetry((value) => value + 1)}>Try again</button>
+            {" "}or <Link to="/contact" className="link-draw font-semibold">say hi</Link> and we will walk you through it.
+          </div>
         )}
         {!items && !error && (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="panel-paper h-[220px] animate-pulse" />)}</div>
