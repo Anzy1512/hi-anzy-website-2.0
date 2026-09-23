@@ -44,24 +44,17 @@ const MANIFEST = path.join(__dirname, "sitemap-lastmod.json");
 // [route, priority, changefreq, page sources, database family folded into the fingerprint]
 // Sources are the page module(s); the data modules they import are found
 // automatically. A directory means every file under it.
-const ECOSYSTEM = ["src/pages/ecosystem/EcosystemCategoryPage.js"];
+// The nine routes absorbed into their hubs (docs/IA_CONSOLIDATION_AUDIT.md) are
+// permanent redirects (LEGACY_ROUTES in src/data/content.js), so they are not
+// listed; the hubs' own entries carry their meaning and move their lastmod.
 const STATIC_ROUTES = [
   ["/", 1.0, "weekly", ["src/pages/Home.js", "src/pages/home"]],
   ["/what-we-do", 0.9, "monthly", ["src/pages/WhatWeDo.js"]],
   ["/how-we-work", 0.8, "monthly", ["src/pages/HowWeWork.js"]],
   ["/work", 0.9, "weekly", ["src/pages/Work.js", "src/components/OrbitSection.js"], "cases"],
-  ["/work/built-here", 0.6, "monthly", ECOSYSTEM],
-  ["/work/built-together", 0.6, "monthly", ECOSYSTEM],
   ["/network", 0.8, "monthly", ["src/pages/Network.js"]],
-  ["/network/collaborators", 0.6, "monthly", ECOSYSTEM],
-  ["/network/artists-creators", 0.6, "monthly", ECOSYSTEM],
-  ["/network/venue-partners", 0.6, "monthly", ECOSYSTEM],
-  ["/network/partners", 0.6, "monthly", ECOSYSTEM],
   ["/why-hi-anzy", 0.6, "yearly", ["src/pages/WhyHiAnzy.js"]],
   ["/insights", 0.9, "weekly", ["src/pages/Insights.js"], "insights"],
-  ["/who-we-work-with", 0.6, "monthly", ["src/pages/WhoWeWorkWith.js"]],
-  ["/collaborate", 0.6, "monthly", ["src/pages/Collaborate.js"]],
-  ["/careers", 0.5, "monthly", ["src/pages/Careers.js"]],
   ["/resources", 0.6, "monthly", ["src/pages/Resources.js"]],
   ["/contact", 0.7, "yearly", ["src/pages/Contact.js"]],
   ["/coming-soon", 0.5, "monthly", ["src/pages/ComingSoon.js"]],
@@ -181,7 +174,12 @@ const gitDate = (files) => {
   };
   const insights = await loadFamily("insights", "insights");
   const cases = await loadFamily("case-studies", "cases");
-  const familyFingerprint = (family, keys) => (family.records || []).map((r) => fingerprintRecord(r, keys)).join(",");
+  // Hashed in slug order: the API lists insights newest-first while the
+  // checked-in snapshot keeps its own order, and the same thirty records in
+  // two orders hashed differently, so /insights' lastmod moved on every
+  // build that switched source (confirmed: API build, then snapshot build).
+  const familyFingerprint = (family, keys) =>
+    [...(family.records || [])].sort((a, b) => String(a.slug).localeCompare(String(b.slug))).map((r) => fingerprintRecord(r, keys)).join(",");
   const folded = { insights: familyFingerprint(insights, INSIGHT_KEYS), cases: familyFingerprint(cases, CASE_KEYS) };
 
   const urls = STATIC_ROUTES.map(([loc, priority, changefreq, sources, family]) => {

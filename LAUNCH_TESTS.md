@@ -693,3 +693,86 @@ Playwright headless Chromium.
 | Backend | health ok, CORS preflight from site origin ok, secrets scan clean |
 
 ## POST-FABLE DELTA TEST STATUS: COMPLETE
+
+---
+
+# POST-MERGE RECONCILIATION TEST LOG (2026-09-23)
+
+Run on `main` at `0208378` (the PR #2 merge; tree identical to `bca84da`).
+
+| Check | Result |
+|---|---|
+| `python scripts/check_frontend_lock.py` | Verified 236 unchanged frontend files |
+| `pytest tests/test_api.py tests/test_frontend_lock.py` (disposable Mongo on 27117) | 68 passed |
+| `npm run lint` / `npm test` / `npm run test:build` | clean / 10 passed / 7 passed |
+| `npm run build` | 76 pages; `sitemap: 76 urls … lastmod moved for 0`; 685.18 kB (gzip 232.21 kB); tree clean afterwards |
+| `python scripts/check_raw_metadata.py` (vite preview, canonical `https://hianzy.com`) | 76 routes + share image verified |
+| `node scripts/link-graph.cjs --md` | 76 pages, 178 links, 0 broken, 0 orphans; only the timestamp changed, so the regenerated report was reverted |
+| Docker stack (`main` tree) | `check_raw_metadata.py --base http://localhost:8080 --canonical-origin http://localhost:8080`: 76 routes verified; `/lab/` 200 with immutable hashed assets; unknown path 404 with the not-found title and `noindex,follow` |
+| Insights (live API) | 30 total, 20 knowledge, 10 notes, 8 topics, 6 categories; `?topic=` and `?category=` filter; article bodies carry h2/p/quote/list/steps/faq/takeaway; related graph keys intact |
+| PR #1 reconciliation | `44d032a` and `3f531b3` are ancestors of `main`; empty diff on `Home.js` and `CommandPalette.js` |
+| PR #2 reconciliation | 61 release commits present; `TREE(main) == TREE(bca84da)` |
+
+## POST-MERGE RECONCILIATION STATUS: CLEAN
+
+---
+
+# IA CONSOLIDATION TEST LOG (2026-09-23)
+
+Run on `ia/page-consolidation` at its final commit (docs/IA_CONSOLIDATION_AUDIT.md
+holds the full audit and the commit list).
+
+| Check | Result |
+|---|---|
+| `python scripts/check_frontend_lock.py` | Verified 235 unchanged frontend files (written twice; second write identical) |
+| `pytest tests` (disposable Mongo on 27117) | 68 passed |
+| `npm run lint` / `npm test` / `npm run test:build` | clean / 16 passed (6 files) / 8 passed |
+| `npm run build` | 67 pages; `sitemap: 67 urls … lastmod moved for 0`; main chunk 685.48 kB (gzip 232.35 kB), stylesheet hash unchanged; tree clean afterwards |
+| `python scripts/check_raw_metadata.py` (vite preview, canonical `https://hianzy.com`) | 67 routes + 1 share image |
+| `python scripts/check_raw_metadata.py --base http://localhost:8080 --canonical-origin http://localhost:8080` (Docker) | 67 routes + 1 share image |
+| `node scripts/link-graph.cjs --md` (API sources) | 67 pages, 175 links, 0 broken, 0 orphans, 54 static anchor ids |
+| Legacy URLs, in-app (preview, `?utm=keep`) | 9 of 9 land on their section at 96 px (Work rosters 89 to 94 px), query kept, roster opened where the hash names one |
+| Legacy URLs, nginx (Docker) | 9 of 9 answer 301 with `?utm=keep` and the `#section` fragment in `Location`; `/careers/` 301; `/careers/x` 404 |
+| Direct hash loads at 320/375/768/1024/1200/1440/1920 | three hubs land within 87 to 96 px, no horizontal overflow, no nested scroll box |
+| Back / Forward | external `/careers` link → `/network#careers`; Back → `/` (replace semantics); Forward → section again; in-app chip → `/network#creators`, Back → `/work` |
+| Reduced motion | `/network/venue-partners` → `/network#venues` at 96 px through the native scroll path, roster open |
+| API outage / recovery | ecosystem and case-studies aborted: roster and built sections show their error copy at the landing offset, no page error; restored: creators 10, built-here 3, built-together 2 |
+| Command palette (Docker) | "who we work with" → "Who We Work With · Why hiAnzy · the audiences and the fit checklist" → `/why-hi-anzy#who-we-work-with` |
+| Docker walkthrough | 14 public pages 200 with title, h1, `index,follow` and canonical, no page error, no failed request; `/lab/` 200; `/no-such-page` 404 `noindex,follow`; sitemap 67 URLs with no legacy path |
+| Secret and artefact scan | `git diff main...HEAD`: no key, token or password pattern; no build output tracked |
+
+## IA CONSOLIDATION TEST STATUS: COMPLETE — NOT MERGED, NOT PUSHED
+
+---
+
+# AGENCY SEPARATION + RELEASE HARDENING TEST LOG (2026-09-24)
+
+Run on `ia/page-consolidation` after the Experiment Lab detachment. Production
+build served by `vite preview` (3100, `/api` proxied to the Docker API on 8010)
+and by the rebuilt Docker `web` image (nginx on 8080); Playwright headless
+Chromium with the tab fronted.
+
+| Check | Result |
+|---|---|
+| `python scripts/check_frontend_lock.py` | Verified 235 unchanged frontend files (the Lab exclusion is gone from the checker) |
+| `pytest tests` (disposable Mongo on 27117) | 68 passed |
+| `npm run lint` / `npm test` / `npm run test:build` | clean / 16 passed (6 files) / 10 passed (2 new: no Lab step in any deployment file; trailing-slash rule ordering) |
+| `npm run build` | 67 pages; `build/lab` absent; index chunk 685.48 kB (gzip 232.35 kB); sitemap moved for 2 (`/network`, `/why-hi-anzy`, the restored copy), then `lastmod moved for 0` from the snapshot and from the API |
+| `python scripts/check_raw_metadata.py` (preview, canonical `https://hianzy.com`) | 67 routes + 1 share image |
+| `python scripts/check_raw_metadata.py --base http://localhost:8080 --canonical-origin http://localhost:8080` (Docker) | 67 routes + 1 share image |
+| `node scripts/link-graph.cjs --md` (API sources) | 67 pages, 175 links, 0 broken, 0 orphans, 54 static anchor ids |
+| Lab boundary (Docker) | `/lab/` 301 → `/lab` → 404 with the Agency not-found page (status 404, title "404: Not in the Roadmap"); `/lab/index.html` and `/lab/assets/*.js` 404; sitemap carries no `/lab` entry; `nginx -t` passes on the trimmed template |
+| Trailing slashes (Docker) | `/work/`, `/network/`, `/insights/`, `/what-we-do/`, `/why-hi-anzy/`, `/contact/`, `/network/venues/`, a case study: 301 to the canonical URL, query string kept (`/work/?utm=keep` → `/work?utm=keep`); `/careers/` still takes the legacy 301 first; `/api/` still 404 |
+| Nine legacy URLs (Docker, in-browser, `?utm=keep`) | 9 of 9: one 301 each, land on the hub section at 96 px under the 85 px nav, hard refresh 96 px, Back returns to the referrer, hubs answer 200 |
+| Direct hash loads (Docker) | 9 sections at 96 px; `/work#built-together`, `/network#careers`, `/why-hi-anzy#who-we-work-with` at 320/375/768/1024/1200/1440/1920 all below the nav (86 to 96 px) |
+| Restored copy (Docker) | Careers standfirst, Collaborate credit line and the Who We Work With audience summary render; 12 audiences |
+| Responsive sweep (Docker) | Home, Work, Network, Why hiAnzy, Insights, a service, a discipline, a case study, an article, Contact × 320/375/768/1024/1200/1440/1920 = 70 loads: all 200, 0 page errors, 0 horizontal overflow, 0 nested scroll boxes, 0 clipped headings or CTAs, 0 text cut inside cards, 0 fixed-element collisions; section rail present from 1200 on every multi-section page; sticky CTA in view when shown and hidden only by its own Orbit-deck avoidance on `/work` |
+| Scroll harness (1440×900, 80 wheel ticks of 100 px at 50 ms, long-task observer, rAF frame intervals) | Home 8 long tasks, 545 ms blocked, worst 84 ms, 26.4 ms average frame; Work 9, 475 ms, 64 ms, 23.1 ms; article 0, 0 ms, 16.7 ms average, 0 frames over 33 ms; fast wheel (30 × 600 px) Home 5 long tasks, 282 ms; trackpad-like (120 × 12 px) Network 1 long task, 53 ms, 17.4 ms average. Equivalent to the accepted baseline (7 long tasks, 513 ms; article 16.7 ms); the Home and Work frame floor is the software-WebGL harness, as recorded before |
+| Pin / unpin, resize | Home pinned sequence pins at 84 px through its 3741 px spacer and unpins after; 1440 → 600: spacer 0, `data-pinned="false"`; back to 1440: spacer 1, pinned; no errors |
+| Route transitions | Home (scrolled) → Work (top, h1) → Network → Back → Back (Home, spacer 1) → Forward: paths and top-of-page landings correct, same Lenis instance throughout |
+| Reduced motion | Home, `/network#venues`, `/why-hi-anzy#who-we-work-with`: no Lenis, stacked sequence, nothing hidden in view, sections at 96 px |
+| API outage / recovery (Docker) | Work, Network, Insights, an article, a case study with every `/api/` request aborted: h1, alert and retry where designed, no page error, root never empty; restored: creators 10, disciplines 16 |
+| Backend | `/api/health` ok, db connected; anonymous `/api/auth/me` 401; CORS preflight from the site origin allowed with credentials, foreign origin refused (400); contact: invalid email 422, missing message 422, honeypot 200 with `id:null`, valid 200 with an id (local probe record deleted afterwards); reserved test domains are refused by the validator |
+| Hygiene | tracked files: no key, token, password or connection string (only the documented placeholder in AWS_PREP §B15); only `.example` env files tracked; no logs, dumps, screenshots or patch scripts tracked; two workstation paths in `docs/audits/Audit-report.md` redacted |
+
+## AGENCY SEPARATION TEST STATUS: COMPLETE — NOT MERGED

@@ -10,6 +10,19 @@ state and `AWS_PREP.md` is to be aligned to it in a follow-up commit. Aligned
 versions of `amplify.yml`, `customHttp.yml`, `backend/.env.aws.example` and
 `AWS_PREP.md` were drafted alongside this ADR but have not been applied.
 
+Post-merge status (2026-09-23): the aligned files were applied in `35d619f`,
+the client-IP change landed in `9a900bb`, and both merged into `main` with
+PR #2 (`0208378`). The decision itself is still Proposed: nothing is
+provisioned, deployed or attached to DNS.
+
+Product boundary (2026-09-23): the Experiment Lab is no longer bundled or
+served from this repository (root `CLAUDE.md`, "Product boundary"). Every
+mention below of `frontend/lab/`, `/lab/`, the `cp -r lab build/lab` step and
+the Lab's fonts or CSP audit is historical; the Agency deployment paths carry
+no Lab step. The public page count in this document (76) predates the
+information-architecture consolidation, which took it to 67
+(`docs/IA_CONSOLIDATION_AUDIT.md`); the number follows the content.
+
 ## Date
 
 2026-09-23
@@ -224,7 +237,7 @@ Conditions:
 4. **Client IP.** Landed in the post-FABLE delta: `client_ip()` reads the
    rightmost `x-forwarded-for` hop only when `TRUSTED_PROXY=apprunner` is
    set (the first hop for `vercel`; the socket peer everywhere else), with
-   `tests/test_client_ip.py` covering both directions, spoofing outside the
+   the client-IP tests in `tests/test_api.py` covering both directions, spoofing outside the
    trusted context, multi-hop and malformed values, and the rate-limit
    buckets. Without it the limiter would be one global bucket.
 5. **Image path.** App Runner deploys from ECR (`hianzy-api`), built from
@@ -486,7 +499,7 @@ logic to Vercel's header semantics.
   post-FABLE delta: with `TRUSTED_PROXY=apprunner` the service uses the
   **rightmost** `x-forwarded-for` entry, the hop appended by the platform,
   never the leftmost, which a client can supply; a hop that is not an IP
-  address falls back to the socket peer. Covered by `tests/test_client_ip.py`
+  address falls back to the socket peer. Covered by the client-IP tests in `tests/test_api.py`
   in both directions, as A3 was. It is not "fixed" with uvicorn's
   `--forwarded-allow-ips='*'`: with a wildcard uvicorn trusts the leftmost
   entry, which reintroduces spoofing.
@@ -564,6 +577,9 @@ done.
 
 Repository prerequisites (before any AWS work):
 
+Post-merge status (2026-09-23): items 1 to 4 are done and merged (`14a6392`,
+`98a7c8b`, `35d619f` with `70d0e1a`, `9a900bb`); item 5 remains.
+
 1. Done in this phase: the frontend lock drift was traced
    (`FRONTEND_FREEZE_AUDIT.md`), the sitemap generator was made deterministic
    so a build cannot dirty the lock, and the lock was regenerated from the
@@ -574,7 +590,7 @@ Repository prerequisites (before any AWS work):
    and `AWS_PREP.md`; update the "56 pages" references in `CLAUDE.md:47` and
    `docs/operations.md:79` to 76.
 4. Done in the post-FABLE delta: `client_ip()` proxy trust behind
-   `TRUSTED_PROXY=apprunner`, with `tests/test_client_ip.py`.
+   `TRUSTED_PROXY=apprunner`, with tests in `tests/test_api.py`.
 5. Add `.github/workflows/deploy-api.yml`: build `backend/Dockerfile`, push
    to ECR `hianzy-api` as `:<git-sha>` and `:prod` via an OIDC role
    `hianzy-github-deploy`, on push to `main` after `check.yml` is green.

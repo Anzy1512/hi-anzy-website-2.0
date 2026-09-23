@@ -5,7 +5,7 @@ const path = require('node:path');
 const os = require('node:os');
 const http = require('node:http');
 const { spawn } = require('node:child_process');
-const { render } = require('./prerender-metadata.cjs');
+const { render, sourceData } = require('./prerender-metadata.cjs');
 
 test('raw HTML contains escaped title, description, canonical and sharing image', () => {
   const html = render('<html><head><title>Default</title><meta name="description" content="Default"></head><body><div id="root"></div></body></html>',
@@ -111,4 +111,68 @@ test('sitemap lastmod is stable across builds and moves only for changed content
     if (!target.startsWith(path.resolve(os.tmpdir()) + path.sep) || !path.basename(target).startsWith('hianzy-sitemap-')) throw new Error('Unsafe fixture path');
     fs.rmSync(target, { recursive:true });
   }
+});
+
+test('the nine consolidated routes redirect at every layer and are pages nowhere', () => {
+  const { LEGACY_ROUTES, ORBIT_CATEGORIES } = sourceData('src/data/content.js');
+  assert.equal(LEGACY_ROUTES.length, 9);
+  const read = (rel) => fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  const nginx = read('../nginx.conf.template');
+  const vercel = JSON.parse(read('../../vercel.json'));
+  const app = read('../src/App.js');
+  const generators = [['generate-sitemap.js', read('generate-sitemap.js')], ['prerender-metadata.cjs', read('prerender-metadata.cjs')], ['link-graph.cjs', read('link-graph.cjs')]];
+  assert.ok(app.includes('LEGACY_ROUTES.map('), 'App.js renders a LegacyRedirect per legacy route');
+  const retired = new Set(LEGACY_ROUTES.map((r) => r.from));
+  for (const { from, to } of LEGACY_ROUTES) {
+    const [pathname, hash] = to.split('#');
+    assert.ok(hash, `${to} names a section`);
+    assert.ok(!retired.has(pathname), `${to} does not redirect into another legacy route`);
+    assert.ok(nginx.includes(`^${from}/?$`), `nginx matches ${from}`);
+    assert.ok(nginx.includes(`"${pathname}$is_args$args#${hash}"`), `nginx sends ${from} to ${to} with the query string kept`);
+    assert.ok(vercel.redirects.some((r) => r.source === from && r.destination === to && r.permanent === true), `vercel redirects ${from} permanently`);
+    for (const [name, src] of generators) assert.ok(!src.includes(`'${from}'`) && !src.includes(`"${from}"`), `${name} no longer treats ${from} as a page`);
+  }
+  for (const c of ORBIT_CATEGORIES) {
+    assert.ok(c.route.includes('#') && c.anchor && c.legacyRoute, `${c.key} is a hub section with a legacy route`);
+    assert.ok(LEGACY_ROUTES.some((r) => r.from === c.legacyRoute && r.to === c.route), `${c.key} legacy route is redirected`);
+  }
+  // No source file links to a retired path any more; content.js holds the redirect list itself.
+  const srcRoot = path.join(__dirname, '../src');
+  const walk = (dir, out = []) => { for (const name of fs.readdirSync(dir)) { const p = path.join(dir, name); if (fs.statSync(p).isDirectory()) walk(p, out); else if (/\.jsx?$/.test(name) && !/\.test\.jsx?$/.test(name)) out.push(p); } return out; };
+  for (const file of walk(srcRoot)) {
+    if (file.endsWith('content.js')) continue;
+    const src = fs.readFileSync(file, 'utf8');
+    for (const { from } of LEGACY_ROUTES) assert.ok(!src.includes(`"${from}"`) && !src.includes(`'${from}'`), `${path.relative(srcRoot, file)} still links to retired ${from}`);
+  }
+});
+
+test('the agency deployment carries no experiment lab step', () => {
+  // The Experiment Lab is a separate product (root CLAUDE.md, "Product
+  // boundary"). Nothing in the Agency's serving or deploy path may copy,
+  // mount or cache a /lab/ tree, and the bundled artifact must stay absent.
+  const read = (rel) => fs.readFileSync(path.join(__dirname, rel), 'utf8');
+  const files = {
+    'nginx.conf.template': read('../nginx.conf.template'),
+    'Dockerfile': read('../Dockerfile'),
+    'amplify.yml': read('../../amplify.yml'),
+    'vercel.json': read('../../vercel.json'),
+    'customHttp.yml': read('../../customHttp.yml'),
+  };
+  for (const [name, text] of Object.entries(files)) {
+    assert.ok(!/(^|[^a-z_-])lab\//i.test(text) && !/\/lab(\/|\b)/i.test(text), `${name} still references a lab path`);
+    assert.ok(!/experi(ence|ment) lab/i.test(text), `${name} still describes the lab`);
+  }
+  assert.ok(!fs.existsSync(path.join(__dirname, '../lab')), 'frontend/lab must not exist in the Agency tree');
+  assert.ok(!/["']\/lab/.test(read('../src/App.js')), 'App.js must not route /lab');
+});
+
+test('nginx sends a trailing-slash request to its canonical URL', () => {
+  const nginx = fs.readFileSync(path.join(__dirname, '../nginx.conf.template'), 'utf8');
+  const rule = nginx.indexOf('location ~ ^/(?!api/)(.+)/$');
+  const spa = nginx.indexOf('location / {');
+  const legacy = nginx.lastIndexOf('location ~ ^/who-we-work-with/?$');
+  assert.ok(rule !== -1, 'trailing-slash location present');
+  assert.ok(nginx.slice(rule, rule + 200).includes('return 301 /$1$is_args$args;'), 'trailing slash answers 301 to the same path without the slash, query kept');
+  assert.ok(legacy !== -1 && legacy < rule, 'legacy 301s are matched before the trailing-slash rule');
+  assert.ok(spa !== -1 && rule < spa, 'trailing-slash rule sits before the SPA fallback');
 });

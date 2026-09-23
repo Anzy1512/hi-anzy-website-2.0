@@ -22,7 +22,7 @@ applications:
             # npm run build triggers the npm lifecycle hooks automatically:
             #   prebuild  → check:opacity, check:seo, sitemap
             #   build     → vite build --configLoader native
-            #   postbuild → prerender-metadata.cjs (writes 76 prerendered HTML pages + 404.html)
+            #   postbuild → prerender-metadata.cjs (writes one prerendered HTML page per public route + 404.html)
             - npm run build
             # Build-time content dependency (docs/ADR-002): prerender and sitemap
             # fetch /api/case-studies and /api/insights from REACT_APP_BACKEND_URL
@@ -30,12 +30,9 @@ applications:
             # succeeds — silently — on the checked-in scripts/content-snapshot.json
             # and the previous public/sitemap.xml. Deploy the API before building
             # the site, and read this build's log: it must contain
-            #   "metadata: generated 76 public HTML pages"
+            #   "metadata: generated <N> public HTML pages" (67 at the time of writing; the number follows the content)
             # and must NOT contain "using the checked-in public content snapshot"
             # or "[API unreachable — database-backed pages omitted]".
-            # Copy the Experience Lab static bundle into the artifact root.
-            # Vercel does this inside vercel.json's buildCommand; here it is explicit.
-            - cp -r lab build/lab
       artifacts:
         baseDirectory: build
         files:
@@ -75,8 +72,26 @@ applications:
 #
 # Rewrites and redirects (Console → App settings → Rewrites and redirects):
 # exactly one rule, source `/<*>`, target `/index.html`, type `404-200`. It
-# rewrites only when no real file exists, so the 76 prerendered pages, /lab/
-# and sitemap.xml are served first. Do NOT add Amplify's generic SPA regex rule
+# rewrites only when no real file exists, so the prerendered pages and
+# sitemap.xml are served first. Do NOT add Amplify's generic SPA regex rule
 # (type 200): it matches every extensionless path and would shadow every
 # prerendered page while the site still looks correct. See docs/ADR-002 and
 # AWS_PREP.md §B3 for the view-source launch gate.
+#
+# Legacy URLs (docs/IA_CONSOLIDATION_AUDIT.md): the nine standalone pages
+# absorbed into their hubs must answer 301 to the section that took them in.
+# Add these nine rules ABOVE the 404-200 rule, in this order:
+#   /work/built-here            -> /work#built-here                    301
+#   /work/built-together        -> /work#built-together                301
+#   /network/collaborators      -> /network#collaborators              301
+#   /network/artists-creators   -> /network#creators                   301
+#   /network/venue-partners     -> /network#venues                     301
+#   /network/partners           -> /network#partners                   301
+#   /collaborate                -> /network#collaborate                301
+#   /careers                    -> /network#careers                    301
+#   /who-we-work-with           -> /why-hi-anzy#who-we-work-with       301
+# AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION: whether Amplify
+# keeps the "#section" part of a redirect target is not proven in this
+# repository. Test all nine on the temporary Amplify hostname before any DNS
+# change (AWS_PREP.md §B3). nginx in the Docker image and the in-app router
+# are verified to keep the fragment; Amplify is not.

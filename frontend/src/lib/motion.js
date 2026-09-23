@@ -195,8 +195,18 @@ export const ScrollToTop = () => {
       }
       const scrollToEl = () => {
         const top = el.getBoundingClientRect().top + window.scrollY - 96;
-        if (window.__lenis) window.__lenis.scrollTo(top, { immediate: true });
-        else window.scrollTo(0, top);
+        if (window.__lenis) {
+          // Lenis learns the document's height through a ResizeObserver it
+          // debounces by 250ms, and scrollTo() clamps to that height. Right
+          // after a route change the height it knows is the previous
+          // layout's: a legacy URL redirecting into a hub renders a bare
+          // shell first, so the roster 3800px down landed at 430px, the
+          // shell's own height, and only recovered if something above it
+          // happened to resize later (confirmed on /work/built-together).
+          // Re-measure first so the clamp uses the height that is there now.
+          window.__lenis.resize();
+          window.__lenis.scrollTo(top, { immediate: true });
+        } else window.scrollTo(0, top);
       };
       scrollToEl();
       // Self-hosted fonts render in a fallback face until they load, then

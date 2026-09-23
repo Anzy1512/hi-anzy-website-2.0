@@ -4,9 +4,9 @@ Completed 9 September 2026. The frontend is available at **http://127.0.0.1:3100
 
 ## Copies
 
-- Original source is unchanged: `D:\claude project\hi anzy website`.
-- Full imported backup: `C:\Users\anish\Documents\Codex\2026-09-09\up\work\hi anzy website`.
-- Edited audit copy: `C:\Users\anish\Documents\Codex\2026-09-09\up\work\hi-anzy-audit`.
+- Original source is unchanged: `<local source directory, workstation path omitted>`.
+- Full imported backup: `<local backup directory, workstation path omitted>\2026-09-09\up\work\hi anzy website`.
+- Edited audit copy: `<local backup directory, workstation path omitted>\2026-09-09\up\work\hi-anzy-audit`.
 
 The starting copy contained 54,497 files, including Git history, dependencies, and configuration. Changes were made only in the audit copy. The original design and content were retained. Local configuration uses a separate database, and email delivery is disabled so test submissions remain local.
 

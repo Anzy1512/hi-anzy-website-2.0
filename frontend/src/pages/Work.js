@@ -20,6 +20,9 @@ import { glyphForGroup } from "@/components/deck/InfographicGlyphs";
 import { PortfolioWallInfographic } from "@/components/PortfolioWallInfographic";
 import { CaseGraphic, CASE_VISUALS } from "@/pages/home/caseVisuals";
 import { NextSteps } from "@/components/NextSteps";
+import { RelatedReading } from "@/components/RelatedReading";
+import { ORBIT_CATEGORIES } from "@/data/content";
+import { ORBIT_GLYPHS } from "@/components/deck/OrbitGlyphs";
 import axios from "axios";
 
 /**
@@ -48,6 +51,103 @@ const CASE_SECTIONS = [
   { key: "result", label: "RESULT" },
   { key: "next", label: "WHAT HAPPENED NEXT" },
 ];
+
+/**
+ * The Orbit's two Work rosters, absorbed into this page from their former
+ * standalone routes (/work/built-here, /work/built-together; see
+ * docs/IA_CONSOLIDATION_AUDIT.md). They list the same five case studies the
+ * carousel above shows, grouped by who did the work, so each card is the
+ * roster's own compact card and the section's job is the grouping and the
+ * credit model rather than a second carousel. The grouping rule is the one
+ * backend/seed_data.py uses to derive the roster: the HI ANZY provenance is
+ * "built here", every other provenance is "built together".
+ */
+const builtGroup = (cs) => (cs.provenance === "HI ANZY" ? "built_here" : "built_together");
+
+const BUILT_CREDIT = {
+  built_here: "Every entry here carries the HI ANZY tag: hiAnzy owned the problem, the decisions and the delivery.",
+  built_together: "These carry the HI ANZY + PARTNER or COLLABORATOR WORK tag: shared projects, and the independent credentials of network members, credited as such rather than claimed as solo work.",
+};
+
+const BuiltRoster = ({ id, category, cases, error }) => {
+  const meta = ORBIT_CATEGORIES.find((c) => c.key === category);
+  const Glyph = ORBIT_GLYPHS[category];
+  const members = cases ? cases.filter((cs) => builtGroup(cs) === category) : null;
+  return (
+    <section id={id} className="container-page section-pad" data-index-label={meta.name} data-testid={`work-${id}`}>
+      <div className="grid items-start gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
+            <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> THE HI ANZY ORBIT · {meta.num}
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="font-display mt-4 leading-[1.0] text-[#232A2A] text-[clamp(2rem,3.6vw,3.2rem)]" data-testid={`work-${id}-h2`}>{meta.name}</h2>
+          </Reveal>
+          <Reveal delay={140} as="p" className="sys-chip mt-3 text-[#232A2A]/55">{meta.descriptor}</Reveal>
+          <Reveal delay={180} as="p" className="font-editorial mt-4 max-w-[48ch] text-[clamp(1.05rem,1.3vw,1.3rem)] italic leading-[1.5] text-[#232A2A]/80">
+            {meta.copy}
+          </Reveal>
+          <Reveal delay={220} as="p" className="mt-4 max-w-[62ch] text-[16.5px] leading-[1.6] text-[#232A2A]/80">
+            {meta.seoDescription} {BUILT_CREDIT[category]}
+          </Reveal>
+        </div>
+        <Reveal delay={240} className="hidden lg:col-span-4 lg:block">
+          <div className="ml-auto h-24 w-24 text-[#232A2A]" aria-hidden="true"><Glyph /></div>
+        </Reveal>
+      </div>
+      {!members && !error && (
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-label={`Loading ${meta.descriptor.toLowerCase()}`}>
+          {Array.from({ length: category === "built_here" ? 3 : 2 }).map((_, i) => <div key={i} className="panel-paper h-[220px] animate-pulse" />)}
+        </div>
+      )}
+      {error && (
+        <p role="status" className="panel-paper mt-8 p-6 text-[14px] text-[#232A2A]/75" data-testid={`work-${id}-error`}>
+          The project list could not be loaded. Refresh the page to try again.
+        </p>
+      )}
+      {members && members.length === 0 && (
+        <p className="panel-paper mt-8 p-6 text-[14px] text-[#232A2A]/70" data-testid={`work-${id}-empty`}>
+          Nothing public in this group yet. The relationships exist. The write-ups are being verified.
+        </p>
+      )}
+      {members && members.length > 0 && (
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid={`work-${id}-grid`}>
+          {members.map((cs, i) => (
+            <Reveal key={cs.slug} delay={(i % 3) * 70}>
+              <Link
+                to={`/work/${cs.slug}`}
+                onClick={() => track("ecosystem_profile_opened", { slug: cs.slug, category })}
+                data-testid={`ecosystem-card-${cs.slug}`}
+                className="cap-tile group flex h-full flex-col rounded-[16px] border border-[#232A2A]/15 bg-[#F7F5EE] p-6 transition-colors hover:border-[#F19020]"
+              >
+                <h3 className="font-display text-2xl leading-none text-[#232A2A]">{cs.title}</h3>
+                <div className="mt-3"><ProvenanceTag value={cs.provenance} /></div>
+                {cs.services?.length > 0 && (
+                  <ul className="mt-3 flex flex-wrap gap-1.5">
+                    {cs.services.slice(0, 6).map((cap) => (
+                      <li key={cap} className="sys-chip rounded-full border border-[#232A2A]/20 px-2.5 py-0.5 text-[#232A2A]/78">{cap}</li>
+                    ))}
+                  </ul>
+                )}
+                {cs.summary && <p className="mt-3 text-[14.5px] leading-[1.55] text-[#232A2A]/75">{cs.summary}</p>}
+                <p className="sys-chip mt-4 text-[#232A2A]/35">LAST VERIFIED {cs.year}</p>
+                <span className="link-draw mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#232A2A]">
+                  Read the full case <ArrowRight size={13} />
+                </span>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      )}
+      {category === "built_together" && (
+        <p className="font-mono-sys mt-8 max-w-2xl text-[12.5px] leading-relaxed text-[#232A2A]/55">
+          A network relationship is not the same thing as hiAnzy-delivered client work, which is why every card is labelled honestly.
+        </p>
+      )}
+      <RelatedReading kind="network" slug={category} title="READING ON THIS PART OF THE ORBIT" limit={4} className="mt-10" />
+    </section>
+  );
+};
 
 export default function Work() {
   const ref = useRevealObserver();
@@ -303,6 +403,11 @@ export default function Work() {
       </section>
 
       <OrbitSection />
+
+      {/* The Orbit's two Work rosters, as sections of this page. The deck's
+          first two cards and the chips under it land here. */}
+      <BuiltRoster id="built-here" category="built_here" cases={cases} error={error} />
+      <BuiltRoster id="built-together" category="built_together" cases={cases} error={error} />
 
       <section id="portfolio-wall" className="container-page section-pad-b" data-index-label="PORTFOLIO ARCHIVE">
         {/* ============ THE PORTFOLIO WALL — migrated from the deck ============ */}

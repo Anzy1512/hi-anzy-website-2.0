@@ -11,6 +11,11 @@
 treated only as a source of verified components/fixes, never merged wholesale.
 See PORTING RESULTS below for what was actually brought in and why.
 
+> Post-merge note (2026-09-23): each section below records the figures at the
+> time it was written (for example "56 pages" before the knowledge articles;
+> "not merged, not pushed" before PR #2). The current state is in
+> "POST-MERGE STATUS" at the end of this file.
+
 ## ARCHITECTURE
 - Frontend: Vite 7 + React 18, vitest, eslint 9. `build` → `build/`. `prebuild`
   = check:opacity + check:seo + sitemap. `postbuild` = `prerender-metadata.cjs`
@@ -1919,3 +1924,106 @@ Sitemap: zero churn on rebuild. Link graph: 76 pages, 178 links, 0 broken,
 CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
 
 ## POST-FABLE DELTA STATUS: COMPLETE — READY FOR GIT PUSH
+
+---
+
+# POST-MERGE STATUS (2026-09-23)
+
+- `launch/step-1` (`bca84da`) was pushed, PR #2 opened, CI green, and merged
+  into `main` as `0208378` (`020837893c0af5e7f2e5cda72734b430c955cd37`). The FABLE-5 "STOP GATE" and the delta closeout's
+  "READY FOR GIT PUSH" statements above are historical.
+- PR #1 (`perf/launch-loading-pass-1`) is contained in `main`; GitHub marked
+  it merged when its commits arrived through PR #2.
+- Current public routes: 76 (13 static, 6 services, 16 disciplines, 6 Orbit
+  rosters, 5 case studies, 30 insights), plus `/lab/`, `/404.html` and the
+  auth callback (a `#session_id=` fragment intercepted before routing; not a
+  route). The "56 pages" figures in earlier sections predate the knowledge
+  articles.
+- Re-verified on `main`: lock 236 files, pytest 68, lint clean, vitest 10,
+  build tests 7, build 76 pages with zero lastmod churn, raw metadata 76,
+  link graph 76/178/0/0, unknown path 404, `/lab/` 200. Scroll dispatch
+  guard, hash re-measure, Orbit `overflow-x: clip`, `useSceneVisibility` and
+  the Lenis settings (`lerp 0.16`, `wheelMultiplier 1.2`) are as committed.
+- AWS: still preparation only. `TRUSTED_PROXY=apprunner` is required on the
+  App Runner service; the Amplify hash redirects the consolidation will need
+  are an unproven live gate (AWS LIVE VERIFICATION REQUIRED).
+- Information-architecture consolidation: dry run complete (76 to 67 URLs,
+  nine routes absorbed, unmapped content 0); `ia/page-consolidation` exists
+  locally from `0208378` with no consolidation edit; awaiting owner approval.
+
+## POST-MERGE STATUS: RECONCILED — CONSOLIDATION NOT STARTED
+
+## POST-MERGE STATUS: CONSOLIDATION IMPLEMENTED ON `ia/page-consolidation` (2026-09-23)
+
+- The information-architecture consolidation is implemented and verified on
+  `ia/page-consolidation` (fourteen commits after `main` `0208378`, listed in
+  docs/IA_CONSOLIDATION_AUDIT.md). The branch is local only: not merged, not
+  pushed, not deployed; no AWS resource, no DNS change.
+- Public routes on the branch: 67 (10 static, 6 services, 16 disciplines,
+  5 case studies, 30 insights). The six Orbit rosters, Collaborate, Careers
+  and Who We Work With are hub sections now; their nine URLs redirect
+  (in-app `LegacyRedirect`, nginx 301, Vercel entries, Amplify rules
+  documented). The "76 routes" figures above describe `main` and remain true
+  of `main`.
+- Content ledger: 121 items on the nine retired pages, 88 migrated, 33 exact
+  duplicates kept once at the destination, 0 unmapped.
+- Verified on the branch: lock 235 files, pytest 68, lint clean, vitest 16,
+  build tests 8, build 67 pages with `lastmod moved for 0`, raw metadata 67
+  on preview and Docker, link graph 67/175/0/0, nine nginx 301s with query
+  and fragment, `/lab/` 200, unknown path 404.
+- Two defects found and fixed during validation: Lenis clamped hash landings
+  to a stale page height after a redirect (`fix(scroll)`), and the sitemap
+  fingerprint of `/insights` and `/work` depended on whether the build read
+  the API or the snapshot (`fix(sitemap)`).
+- AWS: **AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION**
+  (AWS_PREP.md §B3). Verdict: READY WITH LIVE AWS VERIFICATION. Owner review
+  of the audit gates any push or merge.
+
+## POST-MERGE STATUS: AGENCY / EXPERIMENT LAB SEPARATION + RELEASE HARDENING (2026-09-24)
+
+- **Product boundary locked.** This repository is the hiAnzy Agency Website
+  only. The Experiment Lab (the "Experience Lab" of ADR-001) is a separate
+  project: `frontend/lab/` (72 files) and every Agency-side coupling were
+  removed in `82228fb` (nginx `/lab/` locations, Docker copy, Amplify and
+  Vercel copy steps, the `customHttp.yml` cache entry, the source-lock
+  exclusion and the link-graph link class). Recovery pointer: `ad03114` is the
+  last commit that contains the bundled artifact. `/lab/` now answers the
+  Agency 404 page. ADR-001 is marked superseded; the root `CLAUDE.md` carries
+  the boundary.
+- **Agency IA re-derived from source:** 7 hub pages and 3 utility pages,
+  6 services, 16 disciplines, 5 case studies, 30 insights = 67 canonical
+  routes; 9 legacy redirects; one 404 route. Unchanged by the separation.
+- **Content ledger, independent string-level re-check** of the four retired
+  components (157 strings): 28 exact duplicates, 2 boilerplate, 36 migrated
+  verbatim, 2 migrated semantically, 0 unique missing, 89 technical strings.
+  Three sentences that had lived only in the retired pages' meta descriptions
+  were restored verbatim into the Careers standfirst, the Collaborate credit
+  panel and the Who We Work With lede (`c07e11b`).
+- **Verified defect fixed:** nginx answered 403 or 404 to trailing-slash
+  requests (`/work/`, `/contact/`, every detail page); a regex location placed
+  after the legacy 301s now answers 301 to the canonical URL with the query
+  string kept (`cb715e6`). Release gates extended in `build.test.cjs`
+  (`4f3d812`): no Lab step in any deployment file; trailing-slash rule
+  ordered after the legacy 301s and before the SPA fallback.
+- **Verified on the branch head:** lock 235 files; pytest 68; lint clean;
+  vitest 16; build tests 10; build 67 pages with `lastmod moved for 0` from
+  both content sources; raw metadata 67 on the preview and on Docker; link
+  graph 67 / 175 / 0 / 0; nine legacy 301s with query and fragment landing at
+  96 px under the 85 px nav, hard refresh and Back included; trailing slashes
+  301; `/lab/` 404; 70 responsive loads (10 pages × 7 widths) with no
+  overflow, nested scroll, clipping, text cut or fixed-element collision;
+  scroll harness equivalent to the accepted baseline; pin and unpin, resize,
+  route transitions, reduced motion, API outage and recovery all pass.
+- **AWS:** repository-side readiness re-verified with no Lab step anywhere
+  (`amplify.yml`, `customHttp.yml`, backend Dockerfile, `/api/health`,
+  `backend/.env.aws.example`, `REACT_APP_BACKEND_URL`, `PUBLIC_API_URL`,
+  CORS, `TRUSTED_PROXY=apprunner`, cookie flags, App Runner port 8000, CSP
+  `connect-src`, sitemap host). Live gates unchanged: AMPLIFY HASH REDIRECT —
+  REQUIRES LIVE AWS VERIFICATION; Amplify `404-200` routing and monorepo
+  headers; App Runner environment, secrets and forwarded client IP; Atlas
+  connectivity. The ECR deploy workflow remains an open owner action
+  (ADR-002, item 5).
+- Branch pushed and PR #3 updated. Not merged, not deployed, no DNS change,
+  no AWS resource.
+
+## POST-MERGE STATUS: SEPARATED AND HARDENED — READY FOR OWNER MERGE

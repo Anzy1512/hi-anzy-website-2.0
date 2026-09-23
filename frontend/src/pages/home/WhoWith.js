@@ -37,7 +37,7 @@ export const WhoWith = () => (
     <div className="flex flex-wrap items-end justify-between gap-6">
       <SectionHeading kicker="WHO WE WORK WITH" title="People building things that have to work." testId="who-heading" className="max-w-3xl" />
       <Reveal delay={150}>
-        <MagneticButton to="/who-we-work-with" className="btn-paper" hoverText="Good filter." testId="who-cta">
+        <MagneticButton to="/why-hi-anzy#who-we-work-with" className="btn-paper" hoverText="Good filter." testId="who-cta">
           See Who We Work With <ArrowRight size={15} />
         </MagneticButton>
       </Reveal>
@@ -56,7 +56,7 @@ export const WhoWith = () => (
       <Reveal delay={180} className="lg:col-span-5">
         <p className="text-[17px] leading-[1.6] text-[#232A2A]/80">
           Not every business is the right fit, and we would rather say so early than three months in.{" "}
-          <Link to="/who-we-work-with" className="link-draw font-semibold text-[#232A2A]" data-testid="who-filter-link">
+          <Link to="/why-hi-anzy#who-we-work-with" className="link-draw font-semibold text-[#232A2A]" data-testid="who-filter-link">
             The full filter, and where we tend to earn our fee
           </Link>.
         </p>

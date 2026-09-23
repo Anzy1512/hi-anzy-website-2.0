@@ -26,7 +26,7 @@ const JOURNEY = {
   "/network": [
     { to: "/work", label: "See the capabilities in context", note: "Explore business problems and the work they call for." },
     { to: "/how-we-work", label: "How the work fits together", note: "Follow the stages, responsibilities and deliverables." },
-    { to: "/collaborate", label: "Join the network", note: "Bring your specialist skills to a shared project." },
+    { to: "/why-hi-anzy#who-we-work-with", label: "Who this suits", note: "The businesses this way of working fits." },
   ],
   "/contact": [
     { to: "/how-we-work", label: "What happens next", note: "See how we define a problem and agree the work." },
@@ -44,24 +44,9 @@ const JOURNEY = {
     { to: "/why-hi-anzy", label: "Why we work this way", note: "The principles behind a connected approach." },
   ],
   "/why-hi-anzy": [
-    { to: "/who-we-work-with", label: "Who this suits", note: "The businesses this way of working fits." },
-    { to: "/insights", label: "How we think, in writing", note: "Notes from the work, published openly." },
-    { to: "/careers", label: "Work with us", note: "We hire the way we work." },
-  ],
-  "/who-we-work-with": [
     { to: "/work", label: "Explore business challenges", note: "See how the problem determines the approach." },
-    { to: "/what-we-do#packages", label: "Where to start", note: "Compare the scope of each engagement model." },
-    { to: "/contact", label: "Start a conversation", note: "Tell us what you are building and where you need clarity." },
-  ],
-  "/collaborate": [
-    { to: "/network", label: "Explore the specialist network", note: "See the disciplines that support an engagement." },
-    { to: "/careers", label: "Prefer a permanent seat?", note: "Open roles and how we hire." },
-    { to: "/how-we-work", label: "How engagements run", note: "What you would be joining." },
-  ],
-  "/careers": [
-    { to: "/why-hi-anzy", label: "What you would be joining", note: "The instinct behind the company." },
-    { to: "/collaborate", label: "Rather stay independent?", note: "Join the specialist network instead." },
-    { to: "/insights", label: "How we think", note: "Read before you apply." },
+    { to: "/insights", label: "How we think, in writing", note: "Notes from the work, published openly." },
+    { to: "/network#careers", label: "Work with us", note: "We hire the way we work." },
   ],
   "/resources": [
     { to: "/insights", label: "Notes from the work", note: "Longer thinking, published openly." },

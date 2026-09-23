@@ -1,8 +1,8 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import "@/pages/networkPage.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { Maximize2, Minimize2, ArrowRight, ChevronDown } from "lucide-react";
+import { Maximize2, Minimize2, ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { DISCIPLINES } from "@/data/disciplines";
 import { PopIllustration } from "@/components/PopIllustration";
 import { Seo } from "@/components/Seo";
@@ -18,6 +18,10 @@ import { CircularCarousel } from "@/components/ui/circular-carousel";
 
 import { NextSteps } from "@/components/NextSteps";
 import { CardCarousel } from "@/components/CardCarousel";
+import { RelatedReading } from "@/components/RelatedReading";
+import { MagneticButton } from "@/components/MagneticButton";
+import { HandsSpark } from "@/components/deck/HandsSpark";
+import { QuestionOrbit } from "@/components/deck/QuestionOrbit";
 import { abs } from "@/lib/absoluteUrl";
 
 const Constellation = lazy(() => import("@/components/three/Constellation"));
@@ -91,6 +95,114 @@ const SPECIALIST_SECTION_COPY = {
   Operations: "Fulfilment, logistics and the practical layer that keeps promises moving.",
 };
 
+/* Copy for the two participation tracks, carried over from the former
+   /collaborate and /careers pages (docs/IA_CONSOLIDATION_AUDIT.md). Kept
+   apart on purpose: one is for independents joining the network, the other
+   for a permanent seat. */
+const COLLABORATE_ASKS = [
+  { title: "Specialists", body: "Strategists, designers, engineers, automators and analysts who bring focused expertise and work well across disciplines." },
+  { title: "Creators & Media", body: "Creators, journalists, producers and channels with a clear audience and a point of view." },
+  { title: "Venues & Partners", body: "Spaces, institutions and operators who help ideas become well-run physical experiences." },
+];
+const CAREERS_VALUES = [
+  { t: "Curiosity over credentials", b: "Show us how you approach a problem, ask questions and learn." },
+  { t: "Writing is thinking", b: "Clear writing helps the whole team understand a decision and act on it." },
+  { t: "Ownership over activity", b: "Take responsibility for the outcome, communicate progress and raise blockers early." },
+  { t: "Kind and direct", b: "Give useful feedback, listen carefully and credit the people who contribute." },
+];
+
+/**
+ * One of the four network rosters, absorbed from its former standalone page.
+ * The header is always in the DOM: it carries the id that the URL, the deck,
+ * the chips and search point at. The body opens like a directory section, so
+ * thirty profiles do not sit expanded on the page at once, and the one named
+ * in the URL opens itself (see the hash effect in Network).
+ */
+const RosterPanel = ({ id, category, items, error, open, onToggle }) => {
+  const meta = ORBIT_CATEGORIES.find((c) => c.key === category);
+  const Glyph = ORBIT_GLYPHS[category];
+  const members = items ? items.filter((item) => item.category === category) : null;
+  const count = members ? members.length : null;
+  const panelId = `${id}-roster-panel`;
+  return (
+    <article id={id} className={`network-resource-section ${open ? "is-open" : ""}`} data-testid={`network-roster-${id}`}>
+      <h3 className="m-0">
+        <button type="button" className="network-resource-section__trigger" aria-expanded={open} aria-controls={panelId} onClick={onToggle} data-testid={`network-roster-${id}-toggle`}>
+          <span className="network-resource-section__index font-mono-sys">{meta.num}</span>
+          <span className="network-resource-section__heading">
+            <span className="network-resource-section__title font-display">{meta.name}</span>
+            <span className="network-resource-section__summary">{meta.descriptor} · {meta.copy}</span>
+          </span>
+          <span className="network-resource-section__count sys-chip">{count == null ? ROSTER_TAG[category] : `${count} ${count === 1 ? "PROFILE" : "PROFILES"}`}</span>
+          <ChevronDown aria-hidden="true" className="network-resource-section__icon" size={19} strokeWidth={1.7} />
+        </button>
+      </h3>
+      {open && (
+        <div id={panelId} className="network-resource-section__body">
+          <div className="grid items-start gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-9">
+              <p className="sys-chip text-[#232A2A]/55">THE HI ANZY ORBIT · {meta.num} · {meta.descriptor.toUpperCase()}</p>
+              <p className="font-editorial mt-3 max-w-[48ch] text-[clamp(1.05rem,1.3vw,1.3rem)] italic leading-[1.5] text-[#232A2A]/80">{meta.copy}</p>
+              <p className="mt-3 max-w-[62ch] text-[16px] leading-[1.6] text-[#232A2A]/78">{meta.seoDescription}</p>
+            </div>
+            <div className="hidden lg:col-span-3 lg:block">
+              <div className="ml-auto h-20 w-20 text-[#232A2A]" aria-hidden="true"><Glyph /></div>
+            </div>
+          </div>
+          {!members && !error && (
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-label={`Loading ${meta.descriptor.toLowerCase()}`}>
+              {Array.from({ length: 3 }).map((_, i) => <div key={i} className="panel-paper h-[220px] animate-pulse" />)}
+            </div>
+          )}
+          {error && (
+            <p role="alert" className="panel-paper mt-6 p-6 text-[14px] text-[#232A2A]/75" data-testid={`network-roster-${id}-error`}>
+              This roster could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">say hi</Link> and we will walk you through it.
+            </p>
+          )}
+          {members && members.length === 0 && (
+            <p className="panel-paper mt-6 p-6 text-[14px] text-[#232A2A]/70" data-testid={`network-roster-${id}-empty`}>
+              Nothing public in this roster yet. The relationships exist. The write-ups are being verified.
+            </p>
+          )}
+          {members && members.length > 0 && (
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid={`network-roster-${id}-grid`}>
+              {members.map((item, i) => (
+                <Reveal key={item.slug} delay={(i % 3) * 70}>
+                  <article tabIndex={0} onClick={() => track("ecosystem_profile_opened", { slug: item.slug, category })} data-testid={`ecosystem-card-${item.slug}`} className="cap-tile h-full cursor-default rounded-[16px] border border-[#232A2A]/15 bg-[#F7F5EE] p-6">
+                    <h4 className="font-display text-2xl leading-none text-[#232A2A]">{item.name}</h4>
+                    <div className="mt-3"><ProvenanceTag value={item.provenance.replace(/_/g, " ")} /></div>
+                    {item.geography?.length > 0 && <p className="sys-chip mt-3 text-[#232A2A]/50">{item.geography.join(" · ")}</p>}
+                    {item.capabilities?.length > 0 && (
+                      <ul className="mt-3 flex flex-wrap gap-1.5">
+                        {item.capabilities.slice(0, 6).map((cap) => (
+                          <li key={cap} className="sys-chip rounded-full border border-[#232A2A]/20 px-2.5 py-0.5 text-[#232A2A]/78">{cap}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {item.shortDescription && <p className="mt-3 text-[14.5px] leading-[1.55] text-[#232A2A]/75">{item.shortDescription}</p>}
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <p className="sys-chip text-[#232A2A]/35">LAST VERIFIED {item.lastVerified}</p>
+                      {item.links?.[0] && (
+                        <a href={item.links[0]} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-[#232A2A]/70 hover:text-[#F19020]">
+                          VISIT <ArrowUpRight size={12} />
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          )}
+          <p className="font-mono-sys mt-6 max-w-2xl text-[12.5px] leading-relaxed text-[#232A2A]/55">
+            A network relationship is not the same thing as hiAnzy-delivered client work, which is why every card is labelled honestly.
+          </p>
+          <RelatedReading kind="network" slug={category} title="READING ON THIS PART OF THE NETWORK" limit={4} className="mt-8" />
+        </div>
+      )}
+    </article>
+  );
+};
+
 const resourceSectionId = (category) => `network-resource-section-${String(category).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 export default function Network() {
@@ -105,6 +217,10 @@ export default function Network() {
   const [retry, setRetry] = useState(0);
   const [rosterCounts, setRosterCounts] = useState(null);
   const [openResourceCategory, setOpenResourceCategory] = useState(null);
+  const [ecosystemItems, setEcosystemItems] = useState(null);
+  const [ecosystemError, setEcosystemError] = useState(false);
+  const [openRoster, setOpenRoster] = useState(null);
+  const { hash } = useLocation();
   const lastTouchCategory = useRef(null);
 
   useEffect(() => {
@@ -112,14 +228,33 @@ export default function Network() {
   }, [reduced]);
 
   useEffect(() => {
+    // One request serves both the roster counts on the deck and the roster
+    // sections below it: the same payload, never fetched twice.
     getEcosystem()
       .then((items) => {
         const counts = {};
         items.forEach((it) => { counts[it.category] = (counts[it.category] || 0) + 1; });
         setRosterCounts(counts);
+        setEcosystemItems(items);
       })
-      .catch(() => {});
+      .catch(() => setEcosystemError(true));
   }, []);
+
+  // A roster named in the URL opens itself: /network#creators, whether typed,
+  // reached through a legacy redirect, chosen in search or clicked on the
+  // deck. ScrollToTop does the scrolling; this does the disclosure.
+  useEffect(() => {
+    const roster = ORBIT_CATEGORIES.find((c) => NETWORK_ROSTER_KEYS.includes(c.key) && `#${c.anchor}` === hash);
+    if (!roster) return;
+    setOpenRoster(roster.key);
+    track("ecosystem_index_viewed", { category: roster.key, from: "network_hash" });
+  }, [hash]);
+
+  const toggleRoster = (key) => {
+    const next = openRoster === key ? null : key;
+    setOpenRoster(next);
+    if (next) track("ecosystem_index_viewed", { category: next, from: "network_rosters" });
+  };
 
   const networkRosters = useMemo(() => buildNetworkRosters(rosterCounts), [rosterCounts]);
 
@@ -256,29 +391,39 @@ export default function Network() {
     };
   }, [fullscreen]);
 
-  // Built from a static import, so it never needs rebuilding — without the
-  // memo, selecting a category or toggling fullscreen would rewrite the whole
-  // document head via Seo's effect.
-  const jsonLd = useMemo(
-    () => ({
+  // The discipline list is static; the roster lists arrive with the ecosystem
+  // payload, so the head is rewritten once more when they land: the same
+  // ItemList each former roster page carried, now on the hub. Memoised so
+  // selecting a category or toggling fullscreen does not rewrite the head.
+  const jsonLd = useMemo(() => {
+    const page = {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: "The hiAnzy Network",
-      hasPart: DISCIPLINES.map((d) => ({
-        "@type": "Service",
-        name: d.name,
-        serviceType: d.name,
-        url: abs(`/network/${d.slug}`),
-      })),
-    }),
-    []
-  );
+      hasPart: DISCIPLINES.map((d) => ({ "@type": "Service", name: d.name, serviceType: d.name, url: abs(`/network/${d.slug}`) })),
+    };
+    if (!ecosystemItems) return page;
+    const rosters = NETWORK_ROSTER_KEYS.map((key) => {
+      const meta = ORBIT_CATEGORIES.find((c) => c.key === key);
+      const members = ecosystemItems.filter((item) => item.category === key);
+      return members.length
+        ? {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: meta.name,
+            url: abs(meta.route),
+            itemListElement: members.map((item, i) => ({ "@type": "ListItem", position: i + 1, name: item.name })),
+          }
+        : null;
+    }).filter(Boolean);
+    return [page, ...rosters];
+  }, [ecosystemItems]);
 
   return (
     <div ref={ref} className="pt-[84px]" data-testid="network-page">
       <Seo
         title="The hiAnzy Network | Strategists, Creators, Technologists, Operators"
-        description="Explore the specialists, creators, venues and partners in the hiAnzy network. See each discipline and the relationship behind every profile."
+        description="Specialists, creators, venues and partners in the hiAnzy network: every discipline, the relationship behind each profile, and how to join or work with us."
         jsonLd={jsonLd}
       />
       <section className="bg-[#1D2424] pb-14 pt-16 lg:pt-24">
@@ -478,7 +623,7 @@ export default function Network() {
           </h2>
         </Reveal>
         <Reveal delay={140} as="p" className="mt-4 max-w-[52ch] text-[16.5px] leading-[1.58] text-[#232A2A]/78">
-          Browse specialists, creators, venues and partners. Each directory explains the relationship and the role it can play in a project.
+          Browse specialists, creators, venues and partners. Each roster below explains the relationship and the role it can play in a project. Open one, or pick its card on the deck.
         </Reveal>
         <Reveal delay={200} className="mt-10">
           {/* Capped width, centred: at the section's full ~1200px content
@@ -506,6 +651,18 @@ export default function Network() {
             </li>
           ))}
         </ul>
+
+        {/* The four rosters themselves, absorbed from their former standalone
+            pages (docs/IA_CONSOLIDATION_AUDIT.md). Same disclosure pattern as
+            the specialist directory below: one open at a time, and the one
+            named in the URL opens itself. Literal ids so the link graph can
+            see them; the deck and the chips above navigate to these hashes. */}
+        <div className="mt-10 grid gap-2.5" data-testid="network-rosters-index">
+          <RosterPanel id="collaborators" category="collaborator" items={ecosystemItems} error={ecosystemError} open={openRoster === "collaborator"} onToggle={() => toggleRoster("collaborator")} />
+          <RosterPanel id="creators" category="creator" items={ecosystemItems} error={ecosystemError} open={openRoster === "creator"} onToggle={() => toggleRoster("creator")} />
+          <RosterPanel id="venues" category="venue" items={ecosystemItems} error={ecosystemError} open={openRoster === "venue"} onToggle={() => toggleRoster("venue")} />
+          <RosterPanel id="partners" category="partner" items={ecosystemItems} error={ecosystemError} open={openRoster === "partner"} onToggle={() => toggleRoster("partner")} />
+        </div>
       </section>
 
       <section id="network-specialists" className="container-page section-pad" data-index-label="THE SPECIALISTS">
@@ -589,6 +746,100 @@ export default function Network() {
         <p className="font-mono-sys mt-8 max-w-2xl text-[12.5px] leading-relaxed text-[#232A2A]/55">
           A network relationship is not the same thing as hiAnzy-delivered client work, which is why every card says which one it is.
         </p>
+      </section>
+      {/* ── Join the network ────────────────────────────────────────────────
+          Two participation tracks absorbed from their former standalone
+          pages (/collaborate, /careers; docs/IA_CONSOLIDATION_AUDIT.md), kept
+          distinct: independents who join the network, and a permanent seat. */}
+      <section id="collaborate" className="container-page section-pad" data-index-label="COLLABORATE" data-testid="network-collaborate">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
+              <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> COLLABORATE
+            </Reveal>
+            <Reveal delay={80}>
+              <h2 className="font-display mt-4 max-w-3xl leading-[1.0] text-[#232A2A] text-[clamp(2rem,3.6vw,3.2rem)]" data-testid="collaborate-h2">
+                Bring your expertise to the next project<span className="accent-signal-text">.</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={160} as="p" className="mt-5 max-w-[48ch] font-editorial text-[clamp(1.1rem,1.4vw,1.35rem)] leading-[1.45] text-[#232A2A]/85">
+              We bring specialists together around a shared brief. Tell us what you do, show us work you can share and describe the kind of projects you want to contribute to.
+            </Reveal>
+          </div>
+          <div className="hidden lg:col-span-5 lg:block">
+            <HandsSpark />
+          </div>
+        </div>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {COLLABORATE_ASKS.map((a, i) => (
+            <Reveal key={a.title} delay={i * 100}>
+              <div className="cap-tile panel-paper h-full p-7">
+                <h3 className="font-display mt-2 text-3xl text-[#232A2A]">{a.title}</h3>
+                <p className="mt-3 text-[16.5px] leading-[1.58] text-[#232A2A]/78">{a.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal delay={150}>
+          <div className="panel-dark mt-8 p-7 sm:p-9">
+            <p className="sys-chip accent-orange-text">HOW CREDIT WORKS HERE</p>
+            <p className="mt-3 text-[17px] leading-[1.6] text-[#F7F5EE]/85">
+              Specialists, creators, media and venues: the hiAnzy network runs on honest classification and real credit.
+            </p>
+            <p className="mt-3 text-[17px] leading-[1.6] text-[#F7F5EE]/85">
+              Our work and network pages distinguish direct delivery, shared projects, independent credentials and access to partners. We identify each contribution so visitors can understand who did the work.
+            </p>
+            <p className="mt-4 text-[14px] text-[#F7F5EE]/75">
+              The four relationship tags are explained <Link to="/network#network-specialists" className="link-draw font-semibold text-[#F7F5EE]">above the specialist directory</Link>.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={200} className="mt-8">
+          <p className="mb-5 max-w-3xl text-[16px] leading-relaxed text-[#232A2A]/80">Include your discipline, portfolio link, location and availability. A short introduction is enough to begin.</p>
+          <MagneticButton to="/contact" className="btn-ink" hoverText="Meet the minds." testId="collaborate-cta">
+            Introduce Yourself <ArrowRight size={15} />
+          </MagneticButton>
+        </Reveal>
+      </section>
+
+      <section id="careers" className="container-page section-pad" data-index-label="CAREERS" data-testid="network-careers">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
+              <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> CAREERS
+            </Reveal>
+            <Reveal delay={80}>
+              <h2 className="font-display mt-4 max-w-3xl leading-[1.0] text-[#232A2A] text-[clamp(2rem,3.6vw,3.2rem)]" data-testid="careers-h2">
+                Curious minds. Practical builders<span className="accent-signal-text">.</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={160} as="p" className="mt-5 max-w-[48ch] font-editorial text-[clamp(1.1rem,1.4vw,1.35rem)] leading-[1.45] text-[#232A2A]/85">
+              We hire slowly and deliberately. If you notice things other people miss, introduce yourself anyway.
+            </Reveal>
+            <Reveal delay={220} as="p" className="mt-4 max-w-[52ch] text-[17px] leading-[1.6] text-[#232A2A]/78">
+              There are no open roles listed here at the moment. You can still introduce yourself with your area of interest, a portfolio or example of your work, and what you would like to do next.
+            </Reveal>
+          </div>
+          <div className="hidden lg:col-span-5 lg:block">
+            <QuestionOrbit />
+          </div>
+        </div>
+        <div className="mt-10 grid gap-5 sm:grid-cols-2">
+          {CAREERS_VALUES.map((v, i) => (
+            <Reveal key={v.t} delay={(i % 2) * 90}>
+              <div className="cap-tile panel-paper h-full p-7">
+                <h3 className="font-display mt-2 text-2xl text-[#232A2A]">{v.t}</h3>
+                <p className="mt-2 text-[16.5px] leading-[1.58] text-[#232A2A]/75">{v.b}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal delay={180} className="mt-10 flex flex-wrap items-center gap-5">
+          <MagneticButton to="/contact" className="btn-ink" hoverText="Good start." testId="careers-cta">
+            Introduce Yourself <ArrowRight size={15} />
+          </MagneticButton>
+          <p className="text-[14px] leading-relaxed text-[#232A2A]/75">Mention “careers” and include a portfolio link. Use the contact form to send your introduction.</p>
+        </Reveal>
       </section>
       <div className="container-page mb-8">
         <div className="mt-8 flex justify-end pr-[8%]">

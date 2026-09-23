@@ -5,7 +5,7 @@
       "root": "frontend/",
       "framework": "vite",
       "outputDirectory": "build",
-      "buildCommand": "npm run build && node -e \"require('fs').cpSync('lab','build/lab',{recursive:true})\"",
+      "buildCommand": "npm run build",
       "cleanUrls": true,
       "headers": [
         {
@@ -32,6 +32,17 @@
       "entrypoint": "server:app"
     }
   },
+  "redirects": [
+    { "source": "/work/built-here", "destination": "/work#built-here", "permanent": true },
+    { "source": "/work/built-together", "destination": "/work#built-together", "permanent": true },
+    { "source": "/network/collaborators", "destination": "/network#collaborators", "permanent": true },
+    { "source": "/network/artists-creators", "destination": "/network#creators", "permanent": true },
+    { "source": "/network/venue-partners", "destination": "/network#venues", "permanent": true },
+    { "source": "/network/partners", "destination": "/network#partners", "permanent": true },
+    { "source": "/collaborate", "destination": "/network#collaborate", "permanent": true },
+    { "source": "/careers", "destination": "/network#careers", "permanent": true },
+    { "source": "/who-we-work-with", "destination": "/why-hi-anzy#who-we-work-with", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": { "service": "backend" } },
     { "source": "/(.*)", "destination": { "service": "frontend" } }

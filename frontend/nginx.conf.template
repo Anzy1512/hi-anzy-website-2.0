@@ -65,34 +65,34 @@ server {
         return 404;
     }
 
-    # The Experience Lab: a separate static build mounted at /lab/ (ADR-001).
-    # ^~ on the assets block, not a plain prefix: the extension regex above
-    # would otherwise win for the Lab's own hashed .js/.css and cache them for
-    # an hour instead of forever. try_files ... =404 so a missing /lab/ answers
-    # 404 rather than the 500 a fallback to an absent index.html produces.
-    location ^~ /lab/assets/ {
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Frame-Options        "SAMEORIGIN" always;
-        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
-        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
-        add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
-        add_header Cache-Control          "public, immutable, max-age=31536000" always;
-        try_files  $uri =404;
-    }
-
-    location ^~ /lab/ {
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Frame-Options        "SAMEORIGIN" always;
-        add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
-        add_header Permissions-Policy     "camera=(), microphone=(), geolocation=()" always;
-        add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob: https://images.unsplash.com; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' ${CSP_CONNECT_SRC}" always;
-        add_header Cache-Control          "no-cache, must-revalidate" always;
-        try_files $uri $uri/ /lab/index.html =404;
-    }
-
     # Client-side routing: everything else is a React route, served the shell.
     # index.html carries the asset hashes, so it must not be cached.
     error_page 404 /404.html;
+
+    # The nine standalone pages absorbed into their hubs
+    # (docs/IA_CONSOLIDATION_AUDIT.md) keep their URLs as permanent redirects
+    # to the section that took them in. $is_args$args keeps a query string
+    # ahead of the fragment; the fragment travels verbatim in Location. Regex
+    # locations are matched before the prefix catch-all below, and none of
+    # these paths carries an extension, so the asset rules never apply.
+    location ~ ^/work/built-here/?$          { return 301 "/work$is_args$args#built-here"; }
+    location ~ ^/work/built-together/?$      { return 301 "/work$is_args$args#built-together"; }
+    location ~ ^/network/collaborators/?$    { return 301 "/network$is_args$args#collaborators"; }
+    location ~ ^/network/artists-creators/?$ { return 301 "/network$is_args$args#creators"; }
+    location ~ ^/network/venue-partners/?$   { return 301 "/network$is_args$args#venues"; }
+    location ~ ^/network/partners/?$         { return 301 "/network$is_args$args#partners"; }
+    location ~ ^/collaborate/?$              { return 301 "/network$is_args$args#collaborate"; }
+    location ~ ^/careers/?$                  { return 301 "/network$is_args$args#careers"; }
+    location ~ ^/who-we-work-with/?$         { return 301 "/why-hi-anzy$is_args$args#who-we-work-with"; }
+
+    # A trailing slash is not a different page. Before this rule /work/
+    # answered 403 (a real directory of prerendered case pages, listing
+    # forbidden) and /contact/ 404. Send it to the canonical URL with the
+    # query string kept. /api/ keeps its own 404 above, and the legacy 301s
+    # above are matched first because regex locations are tried in order.
+    location ~ ^/(?!api/)(.+)/$ {
+        return 301 /$1$is_args$args;
+    }
 
     location / {
         add_header X-Content-Type-Options "nosniff" always;

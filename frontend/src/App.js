@@ -16,6 +16,8 @@ import { SectionIndex } from "@/components/SectionIndex";
 import { StickyCta } from "@/components/StickyCta";
 import { CommandPalette } from "@/components/CommandPalette";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { LegacyRedirect } from "@/components/LegacyRedirect";
+import { LEGACY_ROUTES } from "@/data/content";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteBackdrop } from "@/components/SiteBackdrop";
 // Phase 2 optional motion layers. Both render null, own no layout, and are
@@ -32,14 +34,10 @@ const Work = lazy(() => import("@/pages/Work"));
 const WorkDetail = lazy(() => import("@/pages/WorkDetail"));
 const Network = lazy(() => import("@/pages/Network"));
 const Discipline = lazy(() => import("@/pages/Discipline"));
-const EcosystemCategoryPage = lazy(() => import("@/pages/ecosystem/EcosystemCategoryPage"));
 const WhyHiAnzy = lazy(() => import("@/pages/WhyHiAnzy"));
 const Insights = lazy(() => import("@/pages/Insights"));
 const InsightDetail = lazy(() => import("@/pages/InsightDetail"));
 const Contact = lazy(() => import("@/pages/Contact"));
-const WhoWeWorkWith = lazy(() => import("@/pages/WhoWeWorkWith"));
-const Collaborate = lazy(() => import("@/pages/Collaborate"));
-const Careers = lazy(() => import("@/pages/Careers"));
 const Resources = lazy(() => import("@/pages/Resources"));
 const ComingSoon = lazy(() => import("@/pages/ComingSoon"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -75,28 +73,23 @@ const Shell = () => {
               <Route path="/what-we-do/:slug" element={<ServiceDetail />} />
               <Route path="/how-we-work" element={<HowWeWork />} />
               <Route path="/work" element={<Work />} />
-              {/* Literal segments outrank :slug in react-router v6's own route
-                  ranking regardless of declaration order, so these two do not
-                  get shadowed by /work/:slug below — verified live, not just
-                  assumed, during Milestone 3 testing. */}
-              <Route path="/work/built-here" element={<EcosystemCategoryPage category="built_here" />} />
-              <Route path="/work/built-together" element={<EcosystemCategoryPage category="built_together" />} />
+              {/* The nine standalone pages absorbed into their hubs
+                  (docs/IA_CONSOLIDATION_AUDIT.md) keep their URLs: the edge
+                  answers 301, and these routes cover in-app navigation and any
+                  host that serves the shell first. Literal segments outrank
+                  :slug in react-router v6's own ranking regardless of
+                  declaration order, so none is shadowed by /work/:slug or
+                  /network/:slug below. */}
+              {LEGACY_ROUTES.map((r) => (
+                <Route key={r.from} path={r.from} element={<LegacyRedirect to={r.to} />} />
+              ))}
               <Route path="/work/:slug" element={<WorkDetail />} />
               <Route path="/network" element={<Network />} />
-              <Route path="/network/collaborators" element={<EcosystemCategoryPage category="collaborator" />} />
-              <Route path="/network/artists-creators" element={<EcosystemCategoryPage category="creator" />} />
-              {/* Not /network/venues — that slug is already the Events & Venue
-                  Production discipline page below (see data/disciplines.js). */}
-              <Route path="/network/venue-partners" element={<EcosystemCategoryPage category="venue" />} />
-              <Route path="/network/partners" element={<EcosystemCategoryPage category="partner" />} />
               <Route path="/network/:slug" element={<Discipline />} />
               <Route path="/why-hi-anzy" element={<WhyHiAnzy />} />
               <Route path="/insights" element={<Insights />} />
               <Route path="/insights/:slug" element={<InsightDetail />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/who-we-work-with" element={<WhoWeWorkWith />} />
-              <Route path="/collaborate" element={<Collaborate />} />
-              <Route path="/careers" element={<Careers />} />
               <Route path="/resources" element={<Resources />} />
               <Route path="/coming-soon" element={<ComingSoon />} />
               <Route path="*" element={<NotFound />} />

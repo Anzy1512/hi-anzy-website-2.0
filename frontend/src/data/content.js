@@ -9,9 +9,11 @@ export const NAV_LINKS = [
 ];
 
 export const FOOTER_LINKS = [
-  { label: "Who We Work With", to: "/who-we-work-with" },
-  { label: "Collaborate", to: "/collaborate" },
-  { label: "Careers", to: "/careers" },
+  // Sections of their hubs since the consolidation (docs/IA_CONSOLIDATION_AUDIT.md);
+  // `section` keeps search from indexing them a second time as pages.
+  { label: "Who We Work With", to: "/why-hi-anzy#who-we-work-with", section: true },
+  { label: "Collaborate", to: "/network#collaborate", section: true },
+  { label: "Careers", to: "/network#careers", section: true },
   { label: "Resources", to: "/resources" },
   { label: "Privacy", to: "/resources#privacy" },
   { label: "Terms", to: "/resources#terms" },
@@ -688,7 +690,12 @@ export const ORBIT_CATEGORIES = [
     // what the <Seo> description actually needs to tell a search result or
     // link preview about what the category page contains.
     seoDescription: "Projects hiAnzy built and delivered directly, each written up as a full case study.",
-    route: "/work/built-here",
+    // Absorbed into the Work hub (docs/IA_CONSOLIDATION_AUDIT.md): the roster
+    // is a section of /work now. legacyRoute is the retired standalone URL,
+    // kept for the permanent redirects and the tests that check them.
+    route: "/work#built-here",
+    anchor: "built-here",
+    legacyRoute: "/work/built-here",
   },
   {
     num: "02",
@@ -697,7 +704,9 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Collaborations & joint work",
     copy: "Good work rarely asks who deserves all the credit.",
     seoDescription: "Case studies built alongside collaborators and partners, credited honestly rather than claimed as solo work.",
-    route: "/work/built-together",
+    route: "/work#built-together",
+    anchor: "built-together",
+    legacyRoute: "/work/built-together",
   },
   {
     num: "03",
@@ -706,7 +715,11 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Collaborators & specialists",
     copy: "Specialist expertise shaped around the project.",
     seoDescription: "Independent specialists in the hiAnzy network — real capabilities and relationships, labelled honestly, not staff.",
-    route: "/network/collaborators",
+    // Absorbed into the Network hub (docs/IA_CONSOLIDATION_AUDIT.md), like
+    // the three rosters after it; legacyRoute is the retired standalone URL.
+    route: "/network#collaborators",
+    anchor: "collaborators",
+    legacyRoute: "/network/collaborators",
   },
   {
     num: "04",
@@ -715,7 +728,9 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Artists & creators",
     copy: "Sometimes the right message needs the right messenger.",
     seoDescription: "Artists and creators the network can bring in when a project needs a real voice, not just reach.",
-    route: "/network/artists-creators",
+    route: "/network#creators",
+    anchor: "creators",
+    legacyRoute: "/network/artists-creators",
   },
   {
     num: "05",
@@ -727,7 +742,9 @@ export const ORBIT_CATEGORIES = [
     // Not /network/venues — that slug is already the Events & Venue
     // Production discipline page (see disciplines.js). This is a roster of
     // partner venues, a different thing from that capability page.
-    route: "/network/venue-partners",
+    route: "/network#venues",
+    anchor: "venues",
+    legacyRoute: "/network/venue-partners",
   },
   {
     num: "06",
@@ -736,8 +753,22 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Media, production & strategic partners",
     copy: "When the work needs to travel, scale or get specialised.",
     seoDescription: "Media, production and strategic partners the network can activate when a project needs to scale or travel.",
-    route: "/network/partners",
+    route: "/network#partners",
+    anchor: "partners",
+    legacyRoute: "/network/partners",
   },
+];
+
+/* The nine standalone pages absorbed into their hubs
+   (docs/IA_CONSOLIDATION_AUDIT.md). One list feeds the in-app redirects in
+   App.js; the build test checks that nginx, Vercel, the prerender and the
+   sitemap agree with it. The six rosters come from ORBIT_CATEGORIES above, so
+   each destination is written once. */
+export const LEGACY_ROUTES = [
+  ...ORBIT_CATEGORIES.map((c) => ({ from: c.legacyRoute, to: c.route })),
+  { from: "/who-we-work-with", to: "/why-hi-anzy#who-we-work-with" },
+  { from: "/collaborate", to: "/network#collaborate" },
+  { from: "/careers", to: "/network#careers" },
 ];
 
 

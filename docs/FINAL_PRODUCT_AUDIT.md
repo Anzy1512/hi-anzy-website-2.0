@@ -5,6 +5,10 @@ Nothing is merged to `main`, pushed, deployed or provisioned; the STOP GATE
 holds. This audit is independent of the phase's own commit messages: every
 number below was re-measured on the final tree.
 
+> Post-merge note (2026-09-23): the sentence above describes the state when
+> this audit was written. `launch/step-1` was pushed, PR #2 was opened with
+> green CI and merged into `main`. See "POST-MERGE STATUS" at the end.
+
 ## What the phase delivered
 
 | Area | Commit | Result |
@@ -205,3 +209,73 @@ separately measured).
 - INFO: the anonymous 401 from `/api/auth/me` carries no `Cache-Control`
   header (the authenticated 200 carries `no-store`, covered by tests); a 401
   is not cacheable by browsers.
+
+## POST-MERGE STATUS (2026-09-23)
+
+Recorded during the repository reconciliation that preceded the information
+architecture consolidation. Everything above this heading is historical and is
+left as written.
+
+- **Merged.** PR #2 (`Release candidate: hiAnzy Agency 2.0 + AWS production
+  preparation`) merged into `main` at 12:32 UTC as merge commit `0208378` (`020837893c0af5e7f2e5cda72734b430c955cd37`).
+  Its tree is byte-identical to the release head `bca84da`; all 61 release
+  commits are ancestors of `main`; no conflict resolution changed anything.
+- **PR #1** (`perf/launch-loading-pass-1`, head `44d032a`) is contained in
+  `main` through the release lineage: both of its commits (`3f531b3` lazy
+  ConnectedStory, `44d032a` lazy command index) are ancestors, the diff
+  against `main` for `Home.js` and `CommandPalette.js` is empty, and the
+  later palette work (`7436f5c`) builds on that lazy import rather than
+  replacing it. Nothing to reapply.
+- **Superseded statements above:** "Nothing is merged to `main`, pushed";
+  Owner action 1 ("push the branch; open the pull request"); "CODE READY on
+  `launch/step-1`". The code is on `main` now. **LIVE AWS VERIFIED remains
+  NO**: no infrastructure exists, and P1-2 is still a live-app gate.
+- **Stale reference corrected:** five lines in `AWS_PREP.md` and ADR-002
+  named `tests/test_client_ip.py`; the four client-IP tests live in
+  `tests/test_api.py` (68 backend tests pass). Corrected in this note's commit.
+- **Re-measured on `main` today:** lock 236 files verified; pytest 68 passed;
+  lint clean; vitest 10 passed; build tests 7 passed; build 76 pages with
+  `lastmod moved for 0`; raw metadata 76 routes verified; link graph 76 pages,
+  178 links, 0 broken, 0 orphans; unknown path 404; `/lab/` 200.
+- **Next phase:** the information-architecture consolidation (nine routes
+  into their hubs, 76 to 67 URLs) is dry-run approved only; no consolidation
+  edit exists on any branch yet.
+
+## POST-MERGE NOTE: IA CONSOLIDATION IMPLEMENTED — NOT MERGED (2026-09-23)
+
+- The consolidation described as "dry-run approved only" above is now
+  implemented on `ia/page-consolidation` (local only). Nine routes became hub
+  sections, 76 → 67 public URLs; content ledger 121 items, 88 migrated,
+  33 exact duplicates, 0 unmapped. Full audit: docs/IA_CONSOLIDATION_AUDIT.md.
+- Re-measured on the branch: lock 235 files; pytest 68; lint clean; vitest
+  16; build tests 8; build 67 pages with `lastmod moved for 0`; raw metadata
+  67 (preview and Docker); link graph 67 pages, 175 links, 0 broken,
+  0 orphans; nine nginx 301s keep query and fragment; `/lab/` 200; unknown
+  path 404.
+- The live-app gates above remain, and one joins them: **AMPLIFY HASH
+  REDIRECT — REQUIRES LIVE AWS VERIFICATION.** LIVE AWS VERIFIED remains NO.
+- Verdict for the consolidation: READY WITH LIVE AWS VERIFICATION. Nothing
+  is merged, pushed or deployed until the owner authorises it.
+
+## POST-MERGE NOTE: AGENCY / EXPERIMENT LAB SEPARATION (2026-09-24)
+
+- The Experiment Lab is a separate product and is no longer bundled or
+  served from this repository: `frontend/lab/` and every deployment, lock and
+  tooling coupling were removed (`82228fb`); `ad03114` is the recovery
+  pointer. Statements above that describe `/lab/` as part of the Agency
+  deployment are historical. The Lab boundary line under INFO ("compiled
+  artifact, excluded from the lock and untouched") is superseded: the artifact
+  is gone and the lock needs no exclusion.
+- P3-1 (no related reading under the two Work rosters) is unchanged. A new
+  P3 is recorded: the retired pages' own `<title>` strings went with their
+  URLs by design; every other retired string is present, restored or an
+  exact duplicate (ledger in `LAUNCH_STATE.md`, 2026-09-24 note).
+- A verified nginx defect was fixed: trailing-slash requests answered 403 or
+  404 on the Docker path; they now redirect to the canonical URL.
+- Re-measured on the branch head: lock 235; pytest 68; lint clean; vitest
+  16; build tests 10; build 67 pages, `lastmod moved for 0`; raw metadata 67
+  on the preview and on Docker; link graph 67 / 175 / 0 / 0; nine legacy
+  301s; `/lab/` 404; 70 responsive loads clean; scroll harness equivalent to
+  the accepted baseline.
+- LIVE AWS VERIFIED remains NO. Verdict: READY FOR OWNER MERGE; AWS staging
+  follows the owner's merge and the live gates in ADR-002 / AWS_PREP §B3.
