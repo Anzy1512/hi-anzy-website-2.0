@@ -94,6 +94,22 @@ server {
     # index.html carries the asset hashes, so it must not be cached.
     error_page 404 /404.html;
 
+    # The nine standalone pages absorbed into their hubs
+    # (docs/IA_CONSOLIDATION_AUDIT.md) keep their URLs as permanent redirects
+    # to the section that took them in. $is_args$args keeps a query string
+    # ahead of the fragment; the fragment travels verbatim in Location. Regex
+    # locations are matched before the prefix catch-all below, and none of
+    # these paths carries an extension, so the asset rules never apply.
+    location ~ ^/work/built-here/?$          { return 301 "/work$is_args$args#built-here"; }
+    location ~ ^/work/built-together/?$      { return 301 "/work$is_args$args#built-together"; }
+    location ~ ^/network/collaborators/?$    { return 301 "/network$is_args$args#collaborators"; }
+    location ~ ^/network/artists-creators/?$ { return 301 "/network$is_args$args#creators"; }
+    location ~ ^/network/venue-partners/?$   { return 301 "/network$is_args$args#venues"; }
+    location ~ ^/network/partners/?$         { return 301 "/network$is_args$args#partners"; }
+    location ~ ^/collaborate/?$              { return 301 "/network$is_args$args#collaborate"; }
+    location ~ ^/careers/?$                  { return 301 "/network$is_args$args#careers"; }
+    location ~ ^/who-we-work-with/?$         { return 301 "/why-hi-anzy$is_args$args#who-we-work-with"; }
+
     location / {
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options        "SAMEORIGIN" always;

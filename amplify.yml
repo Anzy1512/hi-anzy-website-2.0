@@ -80,3 +80,21 @@ applications:
 # (type 200): it matches every extensionless path and would shadow every
 # prerendered page while the site still looks correct. See docs/ADR-002 and
 # AWS_PREP.md §B3 for the view-source launch gate.
+#
+# Legacy URLs (docs/IA_CONSOLIDATION_AUDIT.md): the nine standalone pages
+# absorbed into their hubs must answer 301 to the section that took them in.
+# Add these nine rules ABOVE the 404-200 rule, in this order:
+#   /work/built-here            -> /work#built-here                    301
+#   /work/built-together        -> /work#built-together                301
+#   /network/collaborators      -> /network#collaborators              301
+#   /network/artists-creators   -> /network#creators                   301
+#   /network/venue-partners     -> /network#venues                     301
+#   /network/partners           -> /network#partners                   301
+#   /collaborate                -> /network#collaborate                301
+#   /careers                    -> /network#careers                    301
+#   /who-we-work-with           -> /why-hi-anzy#who-we-work-with       301
+# AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION: whether Amplify
+# keeps the "#section" part of a redirect target is not proven in this
+# repository. Test all nine on the temporary Amplify hostname before any DNS
+# change (AWS_PREP.md §B3). nginx in the Docker image and the in-app router
+# are verified to keep the fragment; Amplify is not.

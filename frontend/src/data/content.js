@@ -757,6 +757,18 @@ export const ORBIT_CATEGORIES = [
   },
 ];
 
+/* The nine standalone pages absorbed into their hubs
+   (docs/IA_CONSOLIDATION_AUDIT.md). One list feeds the in-app redirects in
+   App.js; the build test checks that nginx, Vercel, the prerender and the
+   sitemap agree with it. The six rosters come from ORBIT_CATEGORIES above, so
+   each destination is written once. */
+export const LEGACY_ROUTES = [
+  ...ORBIT_CATEGORIES.map((c) => ({ from: c.legacyRoute, to: c.route })),
+  { from: "/who-we-work-with", to: "/why-hi-anzy#who-we-work-with" },
+  { from: "/collaborate", to: "/network#collaborate" },
+  { from: "/careers", to: "/network#careers" },
+];
+
 
 /* ── Engagement model ────────────────────────────────────────────────────────
    Work is grouped by development stage rather than sold as a flat menu, so the

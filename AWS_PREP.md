@@ -94,11 +94,22 @@ The site generates 76 prerendered `.html` files at build time (e.g. `build/work.
 
 **Owner Action — Amplify Console → App → Rewrites and redirects.**
 
-Exactly one rule (delete anything Amplify pre-populated):
+Ten rules, in this order (delete anything Amplify pre-populated): nine permanent
+redirects for the legacy URLs of the pages absorbed into their hubs
+(docs/IA_CONSOLIDATION_AUDIT.md), then the single SPA fallback.
 
 | # | Source | Target | Type | Purpose |
 |---|---|---|---|---|
-| 1 | `/<*>` | `/index.html` | `404-200` | Rewrite only when no real file exists — the prerendered pages, `/lab/`, `sitemap.xml`, `robots.txt` and hashed assets are served first; a genuinely unknown path gets the SPA shell |
+| 1 | `/work/built-here` | `/work#built-here` | `301` | Legacy URL of the Built Here roster, now a section of the Work hub |
+| 2 | `/work/built-together` | `/work#built-together` | `301` | Legacy URL of the Built Together roster, now a section of the Work hub |
+| 3 | `/network/collaborators` | `/network#collaborators` | `301` | Legacy URL of the collaborators roster, now a Network hub section |
+| 4 | `/network/artists-creators` | `/network#creators` | `301` | Legacy URL of the creators roster, now a Network hub section |
+| 5 | `/network/venue-partners` | `/network#venues` | `301` | Legacy URL of the venues roster, now a Network hub section |
+| 6 | `/network/partners` | `/network#partners` | `301` | Legacy URL of the partners roster, now a Network hub section |
+| 7 | `/collaborate` | `/network#collaborate` | `301` | Legacy URL of Collaborate, now the Network hub's participation track |
+| 8 | `/careers` | `/network#careers` | `301` | Legacy URL of Careers, now the Network hub's permanent-seat track |
+| 9 | `/who-we-work-with` | `/why-hi-anzy#who-we-work-with` | `301` | Legacy URL of Who We Work With, now a Why hiAnzy section |
+| 10 | `/<*>` | `/index.html` | `404-200` | Rewrite only when no real file exists — the prerendered pages, `/lab/`, `sitemap.xml`, `robots.txt` and hashed assets are served first; a genuinely unknown path gets the SPA shell |
 
 Type `404-200` is what makes this safe: unlike a type `200` catch-all it is
 applied only after Amplify fails to find a file, so it cannot shadow anything
@@ -106,6 +117,19 @@ that was built. A plain `404` → `/404.html` rule is deliberately *not* used:
 an insight or case study published only in the database between builds has no
 prerendered file yet and must still load as a 200 through the shell until the
 next build.
+
+> **AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION.** Rules 1–9 carry a
+> `#section` fragment in their target. nginx (the Docker image) and the in-app
+> router are verified to keep it; whether Amplify's redirect engine passes the
+> fragment through in `Location` is not proven anywhere in this repository. On
+> the temporary Amplify hostname, request each of the nine legacy URLs and
+> confirm a 301 whose `Location` ends with the fragment. If Amplify drops the
+> fragment, do not leave the rules as 301s to the bare hub path: replace rules
+> 1–9 with type `200` rewrites to `/index.html` for exactly those nine paths,
+> so the shell loads at the old URL and the in-app `LegacyRedirect` lands the
+> visitor on the section (with `replace`, so Back still works). That fallback
+> keeps visitors whole but leaves the old URLs answering 200, so it is a
+> stopgap to record, not the intended end state.
 
 **Verify empirically at setup — this is a launch gate.** The rule above relies
 on Amplify answering the clean URL `/work` with the file `work.html` before the
