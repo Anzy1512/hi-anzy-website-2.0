@@ -1952,3 +1952,29 @@ CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
   locally from `0208378` with no consolidation edit; awaiting owner approval.
 
 ## POST-MERGE STATUS: RECONCILED — CONSOLIDATION NOT STARTED
+
+## POST-MERGE STATUS: CONSOLIDATION IMPLEMENTED ON `ia/page-consolidation` (2026-09-23)
+
+- The information-architecture consolidation is implemented and verified on
+  `ia/page-consolidation` (fourteen commits after `main` `0208378`, listed in
+  docs/IA_CONSOLIDATION_AUDIT.md). The branch is local only: not merged, not
+  pushed, not deployed; no AWS resource, no DNS change.
+- Public routes on the branch: 67 (10 static, 6 services, 16 disciplines,
+  5 case studies, 30 insights). The six Orbit rosters, Collaborate, Careers
+  and Who We Work With are hub sections now; their nine URLs redirect
+  (in-app `LegacyRedirect`, nginx 301, Vercel entries, Amplify rules
+  documented). The "76 routes" figures above describe `main` and remain true
+  of `main`.
+- Content ledger: 121 items on the nine retired pages, 88 migrated, 33 exact
+  duplicates kept once at the destination, 0 unmapped.
+- Verified on the branch: lock 235 files, pytest 68, lint clean, vitest 16,
+  build tests 8, build 67 pages with `lastmod moved for 0`, raw metadata 67
+  on preview and Docker, link graph 67/175/0/0, nine nginx 301s with query
+  and fragment, `/lab/` 200, unknown path 404.
+- Two defects found and fixed during validation: Lenis clamped hash landings
+  to a stale page height after a redirect (`fix(scroll)`), and the sitemap
+  fingerprint of `/insights` and `/work` depended on whether the build read
+  the API or the snapshot (`fix(sitemap)`).
+- AWS: **AMPLIFY HASH REDIRECT — REQUIRES LIVE AWS VERIFICATION**
+  (AWS_PREP.md §B3). Verdict: READY WITH LIVE AWS VERIFICATION. Owner review
+  of the audit gates any push or merge.

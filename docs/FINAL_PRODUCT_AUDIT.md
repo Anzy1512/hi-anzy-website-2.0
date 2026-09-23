@@ -240,3 +240,19 @@ left as written.
 - **Next phase:** the information-architecture consolidation (nine routes
   into their hubs, 76 to 67 URLs) is dry-run approved only; no consolidation
   edit exists on any branch yet.
+
+## POST-MERGE NOTE: IA CONSOLIDATION IMPLEMENTED — NOT MERGED (2026-09-23)
+
+- The consolidation described as "dry-run approved only" above is now
+  implemented on `ia/page-consolidation` (local only). Nine routes became hub
+  sections, 76 → 67 public URLs; content ledger 121 items, 88 migrated,
+  33 exact duplicates, 0 unmapped. Full audit: docs/IA_CONSOLIDATION_AUDIT.md.
+- Re-measured on the branch: lock 235 files; pytest 68; lint clean; vitest
+  16; build tests 8; build 67 pages with `lastmod moved for 0`; raw metadata
+  67 (preview and Docker); link graph 67 pages, 175 links, 0 broken,
+  0 orphans; nine nginx 301s keep query and fragment; `/lab/` 200; unknown
+  path 404.
+- The live-app gates above remain, and one joins them: **AMPLIFY HASH
+  REDIRECT — REQUIRES LIVE AWS VERIFICATION.** LIVE AWS VERIFIED remains NO.
+- Verdict for the consolidation: READY WITH LIVE AWS VERIFICATION. Nothing
+  is merged, pushed or deployed until the owner authorises it.

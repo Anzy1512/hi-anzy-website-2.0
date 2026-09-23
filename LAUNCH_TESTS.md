@@ -714,3 +714,31 @@ Run on `main` at `0208378` (the PR #2 merge; tree identical to `bca84da`).
 | PR #2 reconciliation | 61 release commits present; `TREE(main) == TREE(bca84da)` |
 
 ## POST-MERGE RECONCILIATION STATUS: CLEAN
+
+---
+
+# IA CONSOLIDATION TEST LOG (2026-09-23)
+
+Run on `ia/page-consolidation` at its final commit (docs/IA_CONSOLIDATION_AUDIT.md
+holds the full audit and the commit list).
+
+| Check | Result |
+|---|---|
+| `python scripts/check_frontend_lock.py` | Verified 235 unchanged frontend files (written twice; second write identical) |
+| `pytest tests` (disposable Mongo on 27117) | 68 passed |
+| `npm run lint` / `npm test` / `npm run test:build` | clean / 16 passed (6 files) / 8 passed |
+| `npm run build` | 67 pages; `sitemap: 67 urls … lastmod moved for 0`; main chunk 685.48 kB (gzip 232.35 kB), stylesheet hash unchanged; tree clean afterwards |
+| `python scripts/check_raw_metadata.py` (vite preview, canonical `https://hianzy.com`) | 67 routes + 1 share image |
+| `python scripts/check_raw_metadata.py --base http://localhost:8080 --canonical-origin http://localhost:8080` (Docker) | 67 routes + 1 share image |
+| `node scripts/link-graph.cjs --md` (API sources) | 67 pages, 175 links, 0 broken, 0 orphans, 54 static anchor ids |
+| Legacy URLs, in-app (preview, `?utm=keep`) | 9 of 9 land on their section at 96 px (Work rosters 89 to 94 px), query kept, roster opened where the hash names one |
+| Legacy URLs, nginx (Docker) | 9 of 9 answer 301 with `?utm=keep` and the `#section` fragment in `Location`; `/careers/` 301; `/careers/x` 404 |
+| Direct hash loads at 320/375/768/1024/1200/1440/1920 | three hubs land within 87 to 96 px, no horizontal overflow, no nested scroll box |
+| Back / Forward | external `/careers` link → `/network#careers`; Back → `/` (replace semantics); Forward → section again; in-app chip → `/network#creators`, Back → `/work` |
+| Reduced motion | `/network/venue-partners` → `/network#venues` at 96 px through the native scroll path, roster open |
+| API outage / recovery | ecosystem and case-studies aborted: roster and built sections show their error copy at the landing offset, no page error; restored: creators 10, built-here 3, built-together 2 |
+| Command palette (Docker) | "who we work with" → "Who We Work With · Why hiAnzy · the audiences and the fit checklist" → `/why-hi-anzy#who-we-work-with` |
+| Docker walkthrough | 14 public pages 200 with title, h1, `index,follow` and canonical, no page error, no failed request; `/lab/` 200; `/no-such-page` 404 `noindex,follow`; sitemap 67 URLs with no legacy path |
+| Secret and artefact scan | `git diff main...HEAD`: no key, token or password pattern; no build output tracked |
+
+## IA CONSOLIDATION TEST STATUS: COMPLETE — NOT MERGED, NOT PUSHED
