@@ -81,9 +81,9 @@ const SECTION_ANCHORS = [
   // Sections absorbed from former standalone pages (docs/IA_CONSOLIDATION_AUDIT.md).
   // Each carries the words its old URL and page title answered to, so a visitor
   // searching by the name they remember still lands exactly there.
-  { label: "Who We Work With", page: "Why hiAnzy", to: "/why-hi-anzy#who-we-work-with", hint: "Why hiAnzy · the audiences and the fit checklist", body: "who we work with founders founder-led companies entrepreneurs idea builders d2c commerce hospitality service companies next stage of growth good working partnership fit audiences" },
-  { label: "Collaborate", page: "Network", to: "/network#collaborate", hint: "Network · join the network as an independent", body: "collaborate join the network specialists creators media venues partners independent introduce yourself bring your expertise how credit works" },
-  { label: "Careers", page: "Network", to: "/network#careers", hint: "Network · a permanent seat, how we hire", body: "careers jobs hiring open roles work with us permanent seat curious minds practical builders values introduce yourself" },
+  { absorbed: true, label: "Who We Work With", page: "Why hiAnzy", to: "/why-hi-anzy#who-we-work-with", hint: "Why hiAnzy · the audiences and the fit checklist", body: "who we work with founders founder-led companies entrepreneurs idea builders d2c commerce hospitality service companies next stage of growth good working partnership fit audiences" },
+  { absorbed: true, label: "Collaborate", page: "Network", to: "/network#collaborate", hint: "Network · join the network as an independent", body: "collaborate join the network specialists creators media venues partners independent introduce yourself bring your expertise how credit works" },
+  { absorbed: true, label: "Careers", page: "Network", to: "/network#careers", hint: "Network · a permanent seat, how we hire", body: "careers jobs hiring open roles work with us permanent seat curious minds practical builders values introduce yourself" },
 ];
 
 const build = () => {
@@ -134,7 +134,7 @@ const build = () => {
   });
 
   SECTION_ANCHORS.forEach((s) => {
-    push({ kind: "section", group: s.page, label: s.label, to: s.to, hint: s.hint, body: s.body });
+    push({ kind: "section", group: s.page, label: s.label, to: s.to, hint: s.hint, body: s.body, absorbed: !!s.absorbed });
   });
 
   // The six Orbit rosters, each a section of its hub since the consolidation
@@ -313,7 +313,13 @@ export const searchCommands = (query, limit = 24) => {
     if (!score) continue;
     // pages and systems outrank the long tail of individual service lines;
     // an encyclopedia entry outranks a passing mention in a note.
-    if (item.kind === "page") score += 8;
+    // A section that absorbed a whole page (docs/IA_CONSOLIDATION_AUDIT.md)
+    // keeps that page's rank: "who we work with" is also the label of the
+    // homepage preview section, and without this the preview won the tie and
+    // the search for the retired page landed on a teaser of it instead of
+    // the section that now holds its content. The six rosters are former
+    // pages too (ecosystem-page).
+    if (item.kind === "page" || item.kind === "ecosystem-page" || item.absorbed) score += 8;
     if (item.kind === "service") score += 6;
     if (item.kind === "knowledge") score += 4;
     scored.push({ item, score });
