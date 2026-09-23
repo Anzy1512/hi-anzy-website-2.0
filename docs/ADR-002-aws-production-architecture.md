@@ -15,6 +15,14 @@ the client-IP change landed in `9a900bb`, and both merged into `main` with
 PR #2 (`0208378`). The decision itself is still Proposed: nothing is
 provisioned, deployed or attached to DNS.
 
+Product boundary (2026-09-23): the Experiment Lab is no longer bundled or
+served from this repository (root `CLAUDE.md`, "Product boundary"). Every
+mention below of `frontend/lab/`, `/lab/`, the `cp -r lab build/lab` step and
+the Lab's fonts or CSP audit is historical; the Agency deployment paths carry
+no Lab step. The public page count in this document (76) predates the
+information-architecture consolidation, which took it to 67
+(`docs/IA_CONSOLIDATION_AUDIT.md`); the number follows the content.
+
 ## Date
 
 2026-09-23

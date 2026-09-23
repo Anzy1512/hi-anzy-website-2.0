@@ -2,10 +2,21 @@
 
 ## Status
 
-Accepted. Implemented before this document existed — `nginx.conf.template` and
-`frontend/Dockerfile` have referenced "ADR-001" in comments since the Lab was
-first mounted, but no document backed that reference until now. This closes
-that gap; it records a decision already in effect, not a new one.
+Superseded on 2026-09-23 — historical. The Experiment Lab (called the
+"Experience Lab" below) is a separate product in a separate project and is no
+longer bundled, served or deployed from this repository: `frontend/lab/` was
+removed, together with the nginx `/lab/` locations, the Docker copy, the
+Amplify and Vercel copy steps, the `customHttp.yml` cache entry and the
+source-lock exclusion described below. The last commit that still contains
+the bundled artifact is `ad03114` (`git show ad03114:frontend/lab/index.html`).
+The current boundary is stated in the root `CLAUDE.md` ("Product boundary").
+Everything below is kept as written, as the record of the earlier arrangement.
+
+Original status: Accepted. Implemented before this document existed —
+`nginx.conf.template` and `frontend/Dockerfile` have referenced "ADR-001" in
+comments since the Lab was first mounted, but no document backed that
+reference until now. This closes that gap; it records a decision already in
+effect, not a new one.
 
 ## Context
 

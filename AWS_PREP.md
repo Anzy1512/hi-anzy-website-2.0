@@ -28,8 +28,8 @@ File created: `amplify.yml` (repo root).
 Key points:
 - Uses Amplify's monorepo `applications` / `appRoot: frontend` format, because the app lives in `frontend/` rather than the repo root. Amplify then runs every command from inside `frontend/` and resolves artifact paths relative to it, so each path matches `vercel.json`'s frontend service 1:1.
 - Installs Node 22 via `nvm install 22` before `npm ci`.
-- `npm run build` triggers all npm lifecycle hooks automatically: `prebuild` (opacity/SEO/sitemap checks), `build` (Vite), `postbuild` (76 prerendered HTML pages plus `404.html` via `prerender-metadata.cjs`; the count follows the content — 13 static pages, 6 service categories, 16 disciplines, 6 Orbit routes, 5 case studies, 30 insights).
-- Copies `lab/` → `build/lab/` explicitly (Vercel handled this in its `buildCommand`).
+- `npm run build` triggers all npm lifecycle hooks automatically: `prebuild` (opacity/SEO/sitemap checks), `build` (Vite), `postbuild` (67 prerendered HTML pages plus `404.html` via `prerender-metadata.cjs`; the count follows the content — 10 static pages, 6 service categories, 16 disciplines, 5 case studies, 30 insights; the six Orbit routes became hub sections in the 2026-09-23 consolidation).
+- No Experiment Lab step. Superseded on 2026-09-23: earlier revisions copied `lab/` → `build/lab/` here and in `vercel.json`; the Lab is a separate product and is not deployed from this repository (root `CLAUDE.md`, "Product boundary").
 - `baseDirectory: build` — relative to `appRoot`, so Amplify serves `frontend/build/`.
 
 > **Why not `cd frontend` in each command:** within an Amplify phase the working directory persists between commands, so a `cd frontend` in the build phase followed by a root-relative path would resolve against `frontend/` and break. `appRoot` removes the ambiguity entirely.
@@ -46,7 +46,8 @@ SITE_URL=https://hianzy.com             # optional — already the default in bo
 > `scripts/prerender-metadata.cjs` / `scripts/generate-sitemap.js` fetch
 > `/api/case-studies` and `/api/insights` from it at build time. The API must
 > therefore be deployed, public and healthy **before** the site is built, and the
-> build log must show `metadata: generated 76 public HTML pages` and must not show
+> build log must show `metadata: generated 67 public HTML pages` (the number
+> follows the content) and must not show
 > `using the checked-in public content snapshot` — otherwise the build silently
 > prerendered from the checked-in snapshot (ADR-002, "Build-time content
 > dependency").
@@ -79,7 +80,7 @@ specific YAML format.
 
 ## B3 — SPA + prerender routing on Amplify
 
-The site generates 76 prerendered `.html` files at build time (e.g. `build/work.html`, `build/network/strategy.html`, `build/insights/<slug>.html`) plus `build/404.html`. Amplify must serve these at their clean URLs (e.g. `/work` → `build/work.html`) and fall back to the SPA shell only for a path that has no file — a database-only article published between builds, for example.
+The site generates 67 prerendered `.html` files at build time (e.g. `build/work.html`, `build/network/strategy.html`, `build/insights/<slug>.html`) plus `build/404.html`; the number follows the content. Amplify must serve these at their clean URLs (e.g. `/work` → `build/work.html`) and fall back to the SPA shell only for a path that has no file — a database-only article published between builds, for example.
 
 > ### ⚠ HIGH RISK — Amplify's documented SPA catch-all silently destroys the prerendering
 >
@@ -109,7 +110,7 @@ redirects for the legacy URLs of the pages absorbed into their hubs
 | 7 | `/collaborate` | `/network#collaborate` | `301` | Legacy URL of Collaborate, now the Network hub's participation track |
 | 8 | `/careers` | `/network#careers` | `301` | Legacy URL of Careers, now the Network hub's permanent-seat track |
 | 9 | `/who-we-work-with` | `/why-hi-anzy#who-we-work-with` | `301` | Legacy URL of Who We Work With, now a Why hiAnzy section |
-| 10 | `/<*>` | `/index.html` | `404-200` | Rewrite only when no real file exists — the prerendered pages, `/lab/`, `sitemap.xml`, `robots.txt` and hashed assets are served first; a genuinely unknown path gets the SPA shell |
+| 10 | `/<*>` | `/index.html` | `404-200` | Rewrite only when no real file exists — the prerendered pages, `sitemap.xml`, `robots.txt` and hashed assets are served first; a genuinely unknown path gets the SPA shell |
 
 Type `404-200` is what makes this safe: unlike a type `200` catch-all it is
 applied only after Amplify fails to find a file, so it cannot shadow anything
@@ -145,9 +146,9 @@ fallback runs. Test it rather than assuming it:
    Function that reproduces nginx's `try_files $uri $uri.html $uri/`
    (ADR-002, Option B).
 4. Re-test a nested route (`/network/strategy`), a database-backed route
-   (`/insights/<slug>` taken from `build/route-metadata.json`), the Experience
-   Lab (`/lab/`), `/sitemap.xml` (must come back as XML, not HTML), and an
-   unknown path (must render the not-found page).
+   (`/insights/<slug>` taken from `build/route-metadata.json`), `/sitemap.xml`
+   (must come back as XML, not HTML), and an unknown path (must render the
+   not-found page).
 5. Run `python scripts/check_raw_metadata.py --base https://<amplify-url>` —
    the same check CI runs against `vite preview`, for every route in
    `build/route-metadata.json`.
@@ -158,7 +159,7 @@ fallback runs. Test it rather than assuming it:
 This check is the difference between shipping working SEO and silently losing
 it on every page, so treat it as a launch gate, not a nice-to-have.
 
-**Note on `/lab/` subdirectory:** The `cp -r lab build/lab` in `amplify.yml` ensures the Experience Lab static bundle is in the artifact. Amplify serves it as a normal subdirectory; `/lab/` must resolve to `build/lab/index.html`, which step 4 above checks.
+**Superseded (2026-09-23):** earlier revisions copied the Experience Lab bundle into the artifact and checked `/lab/` in step 4. The Lab is a separate product now and is not deployed from this repository; `/lab/` is an unknown path on the Agency origin (root `CLAUDE.md`, "Product boundary").
 
 ---
 
