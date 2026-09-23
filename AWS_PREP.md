@@ -323,7 +323,7 @@ from an operator machine whose address is on the Atlas allow-list, with `MONGO_U
 
 ### Backend (App Runner)
 1. App Runner Console → Create service → Source: **Container registry (ECR)**.
-   - Build the image from `backend/Dockerfile` in CI (GitHub Actions with an OIDC role) or, for the first deploy, from a workstation; push it to ECR as `hianzy-api:<git-sha>` and `hianzy-api:prod`; App Runner deploys from `:prod` with automatic deployments.
+   - The image is built from `backend/Dockerfile` by `.github/workflows/deploy-api.yml` (GitHub OIDC → IAM role `hianzy-github-deploy` → ECR) and pushed as `hianzy-api:<git-sha>` only: the ECR repository uses immutable tags, App Runner automatic deployments stay off, and the workflow points the service at the exact SHA and waits for `/api/health`. Rollback is the same workflow run with a previous SHA as `image_tag`. Templates and the full plan: `deploy/aws/` and `docs/AWS_STAGING_EXECUTION_PLAN.md` (2026-09-24; this replaces the earlier `:prod`-tag idea).
    - App Runner's "source code repository" option is **not** a Dockerfile deploy: it builds with a managed runtime from an `apprunner.yaml`, which would replace the CI-tested `python:3.12-slim` image with whatever Python the managed runtime offers. Not used.
 2. Set all env vars from `backend/.env.aws.example` (secrets referenced from Secrets Manager; the instance role needs `secretsmanager:GetSecretValue` on them).
 3. Health check: HTTP, path `/api/health`, port `8000` (thresholds in B5).
@@ -333,7 +333,7 @@ from an operator machine whose address is on the Atlas allow-list, with `MONGO_U
 ### CI check (existing `.github/workflows/check.yml`)
 Existing GitHub Actions pipeline runs on push: pytest + frontend lint/test/build.
 This pipeline continues to run as a gate before any merge to `main`.
-No AWS-specific CI steps are needed for the Amplify flow; the ECR image build for App Runner is a new, separate workflow (ADR-002, Owner actions).
+No AWS-specific CI step is needed for the Amplify flow. The ECR image build and the App Runner update for the API live in `.github/workflows/deploy-api.yml` (added 2026-09-24 on `deploy/aws-staging`): its build and deploy jobs skip themselves until the `AWS_DEPLOY_ROLE_ARN` repository variable exists, and `tests/test_deploy_config.py` guards its shape (OIDC only, immutable commit tags, queued deploys, placeholder-only templates, no Experiment Lab coupling).
 
 > Post-merge (2026-09-23): the paragraph below is historical; resolved in `14a6392` (lock regenerated from the reviewed tree, 236 files verified) and CI was green at the PR #2 merge.
 

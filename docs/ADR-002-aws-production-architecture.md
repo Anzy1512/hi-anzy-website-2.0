@@ -594,6 +594,13 @@ Post-merge status (2026-09-23): items 1 to 4 are done and merged (`14a6392`,
 5. Add `.github/workflows/deploy-api.yml`: build `backend/Dockerfile`, push
    to ECR `hianzy-api` as `:<git-sha>` and `:prod` via an OIDC role
    `hianzy-github-deploy`, on push to `main` after `check.yml` is green.
+   Status (2026-09-24): added on `deploy/aws-staging` with immutable
+   `:<git-sha>` tags only (no `:prod` tag: the workflow points App Runner at
+   the exact SHA and waits for `/api/health`), its own backend test gate,
+   deploys queued per environment, and a `workflow_dispatch` rollback by
+   `image_tag`. Templates in `deploy/aws/`; plan in
+   `docs/AWS_STAGING_EXECUTION_PLAN.md`; environment matrix in
+   `docs/ENVIRONMENT_CONTRACT.md`; cutover in `docs/AWS_PRODUCTION_CUTOVER.md`.
 
 AWS account and network:
 

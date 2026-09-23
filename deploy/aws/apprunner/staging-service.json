@@ -1,0 +1,52 @@
+{
+  "ServiceName": "hianzy-api-staging",
+  "SourceConfiguration": {
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/AppRunnerECRAccessRole"
+    },
+    "AutoDeploymentsEnabled": false,
+    "ImageRepository": {
+      "ImageIdentifier": "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/hianzy-api:<GIT_SHA>",
+      "ImageRepositoryType": "ECR",
+      "ImageConfiguration": {
+        "Port": "8000",
+        "RuntimeEnvironmentVariables": {
+          "ENVIRONMENT": "production",
+          "DB_NAME": "hianzy_staging",
+          "TRUSTED_PROXY": "apprunner",
+          "CORS_ORIGINS": "<AMPLIFY_STAGING_ORIGIN>",
+          "COOKIE_SECURE": "true",
+          "COOKIE_SAMESITE": "none",
+          "SITE_URL": "<AMPLIFY_STAGING_ORIGIN>",
+          "PUBLIC_API_URL": "<APP_RUNNER_STAGING_ORIGIN>",
+          "RESEND_FROM": "<SENDER_ADDRESS>",
+          "CONTACT_NOTIFY_EMAIL": "<NOTIFY_ADDRESS>",
+          "ADMIN_EMAILS": "<ADMIN_ADDRESSES>"
+        },
+        "RuntimeEnvironmentSecrets": {
+          "MONGO_URL": "arn:aws:secretsmanager:<REGION>:<ACCOUNT_ID>:secret:hianzy/staging/MONGO_URL-<SUFFIX>",
+          "RESEND_API_KEY": "arn:aws:secretsmanager:<REGION>:<ACCOUNT_ID>:secret:hianzy/staging/RESEND_API_KEY-<SUFFIX>"
+        }
+      }
+    }
+  },
+  "InstanceConfiguration": {
+    "Cpu": "1 vCPU",
+    "Memory": "2 GB",
+    "InstanceRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/hianzy-apprunner-instance-role"
+  },
+  "HealthCheckConfiguration": {
+    "Protocol": "HTTP",
+    "Path": "/api/health",
+    "Interval": 10,
+    "Timeout": 5,
+    "HealthyThreshold": 1,
+    "UnhealthyThreshold": 5
+  },
+  "AutoScalingConfigurationArn": "arn:aws:apprunner:<REGION>:<ACCOUNT_ID>:autoscalingconfiguration/hianzy-api-staging-scaling/1/<ID>",
+  "NetworkConfiguration": {
+    "EgressConfiguration": {
+      "EgressType": "DEFAULT"
+    }
+  }
+}

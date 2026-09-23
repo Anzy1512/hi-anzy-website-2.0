@@ -2027,3 +2027,39 @@ CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
   no AWS resource.
 
 ## POST-MERGE STATUS: SEPARATED AND HARDENED — READY FOR OWNER MERGE
+
+## AWS STAGING READINESS (2026-09-24): REPOSITORY SIDE COMPLETE, NO AWS RESOURCE CREATED
+
+- **Merge gate.** PR #3 (`ia/page-consolidation`, head `10ea69b`) is OPEN,
+  MERGEABLE, CI green and not merged; `main` = `origin/main` = `0208378`.
+  AWS work was therefore not built on stale `main`: `deploy/aws-staging` was
+  cut from the verified PR #3 head, and PR #4 (draft) is stacked on PR #3.
+  After PR #3 merges: `git rebase --onto main 10ea69b deploy/aws-staging`,
+  retarget PR #4 to `main` (GitHub does it when the PR #3 branch is deleted).
+- **Pipeline.** `.github/workflows/deploy-api.yml` (`77391bf`): GitHub OIDC →
+  IAM role → ECR → App Runner; images tagged by commit SHA only; deploys queued
+  per environment; rollback by `workflow_dispatch` with `image_tag`; build and
+  deploy jobs skip themselves until `AWS_DEPLOY_ROLE_ARN` exists. Templates in
+  `deploy/aws/` (`03ce7cc`). Guards in `tests/test_deploy_config.py`, also run
+  by `check.yml` (`a525523`). Plans: `docs/AWS_STAGING_EXECUTION_PLAN.md`,
+  `docs/AWS_PRODUCTION_CUTOVER.md`, `docs/ENVIRONMENT_CONTRACT.md` (`b19c101`).
+- **Verified locally on `b19c101`:** lock 235; lint clean; vitest 16; build
+  tests 10; pytest 75 (7 deployment guards). The Docker stack built from the
+  same runtime files answers `/lab/` with the Agency 404, the nine legacy 301s,
+  the trailing-slash 301s, health ok, CORS from the site origin.
+- **Verified in CI on `b19c101`:** `Website checks` green on push and
+  pull_request; `Deploy API image`: Backend test gate passed, Build and push
+  image and Update App Runner skipped by design.
+- **UNVERIFIED, LIVE GATE:** everything on AWS: Amplify build, headers,
+  `404-200` routing, prerender serving, the nine legacy redirects and the hash
+  fragment (AMPLIFY HASH REDIRECT — LIVE VERIFICATION REQUIRED); App Runner
+  deploy, `/api/health`, secrets, `TRUSTED_PROXY`, client IP, CORS from the
+  Amplify origin; Atlas connection and network strategy.
+- **BLOCKED, OWNER ACTION:** merge PR #3; the Atlas network decision (NAT
+  parity or a disposable staging cluster); account, IAM, OIDC provider, ECR,
+  secret values; App Runner service creation; Amplify connection; GitHub
+  environments and variables.
+- **Not done, by design:** no merge, no provisioning, no NAT Gateway, no
+  Elastic IP, no database, no DNS change, no production deployment, no Lab.
+
+## AWS STAGING READINESS STATUS: READY FOR OWNER REVIEW, AWAITING THE MERGE OF PR #3
