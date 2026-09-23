@@ -59,7 +59,11 @@ export const OrbitSection = () => {
               the section's width (not the stage's) keeps every card's lift,
               tilt and drag exactly as EvidenceDeck computes it -- this only
               stops the bleed from becoming a second, page-level scrollbar. */}
-          <div className="sticky-cta-avoid mt-14 overflow-x-hidden">
+          {/* overflow-x-clip, not overflow-x-hidden: "hidden" on one axis forces the
+              other to "auto", which turned this wrapper into its own scroll box,
+              cut the active card's lift off at the top and added an inner
+              scrollbar. "clip" stops the horizontal bleed and leaves y visible. */}
+          <div className="sticky-cta-avoid mt-14 overflow-x-clip">
             <EvidenceDeck items={items} testId="orbit-deck" />
           </div>
 
