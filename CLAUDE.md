@@ -44,7 +44,7 @@ files unless explicitly requested.
 - Backend dev server: `uvicorn server:app` in `backend/` (see
   `docs/project-notes/LOCAL-DEVELOPMENT.md`).
 - Production build: `npm run build` in `frontend/` (Vite build → prerender →
-  56 static HTML pages in `frontend/build/`).
+  76 static HTML pages in `frontend/build/`).
 - Full stack: `docker compose up` at the repo root.
 
 ### Deployment boundary
