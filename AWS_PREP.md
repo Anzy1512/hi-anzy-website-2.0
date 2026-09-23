@@ -1,6 +1,7 @@
 # AWS Architecture Preparation
 
 Branch: `launch/step-1`  
+Post-merge (2026-09-23): merged into `main` via PR #2 (`0208378`); the branch name above is historical.  
 Scope: repo-side work only — no AWS resources created, no DNS touched, no deployment yet.
 
 Decision record: `docs/ADR-002-aws-production-architecture.md` (Proposed, 2026-09-23). Where this file and the ADR differ, the ADR is the intended state; this file is the working notes, aligned to it.
@@ -12,7 +13,7 @@ Decision record: `docs/ADR-002-aws-production-architecture.md` (Proposed, 2026-0
 | Item | Classification | Rationale |
 |---|---|---|
 | `vercel.json` | **VERCEL ONLY — RETIRE before AWS deploy** | Vercel Services routing config. Not read by Amplify or App Runner. Can be deleted once the team commits to AWS. Keep in the branch for now since Vercel is still the fallback. |
-| `IS_SERVERLESS = bool(os.environ.get("VERCEL"))` in `backend/server.py:52` | **KEEP — platform-independent** | On App Runner `VERCEL` is unset → `IS_SERVERLESS=False` → seeding + background workers run normally. This is correct and desired; no change to the gate. **One related change is required:** `client_ip()` (`server.py:340-354`) trusts `x-forwarded-for` only when `IS_SERVERLESS` is true, and on App Runner the container's socket peer is App Runner's own request router, so every visitor would share one rate-limit bucket (the A3 bug from LAUNCH_STATE.md, back again). Landed: with `TRUSTED_PROXY=apprunner` the service trusts the **rightmost** `x-forwarded-for` hop (the one App Runner appends), tested in `tests/test_client_ip.py` — see ADR-002, "Security notes". |
+| `IS_SERVERLESS = bool(os.environ.get("VERCEL"))` in `backend/server.py:52` | **KEEP — platform-independent** | On App Runner `VERCEL` is unset → `IS_SERVERLESS=False` → seeding + background workers run normally. This is correct and desired; no change to the gate. **One related change is required:** `client_ip()` (`server.py:340-354`) trusts `x-forwarded-for` only when `IS_SERVERLESS` is true, and on App Runner the container's socket peer is App Runner's own request router, so every visitor would share one rate-limit bucket (the A3 bug from LAUNCH_STATE.md, back again). Landed: with `TRUSTED_PROXY=apprunner` the service trusts the **rightmost** `x-forwarded-for` hop (the one App Runner appends), tested in `tests/test_api.py` — see ADR-002, "Security notes". |
 | `REACT_APP_BACKEND_URL` (frontend build var) | **KEEP — set value changes per platform** | On Vercel: unset (same-origin). On AWS Amplify: `https://api.hianzy.com`. The Vite `envPrefix` already handles this var. No code change needed. |
 | `backend/Dockerfile` | **KEEP — already App Runner compatible** | Python 3.12-slim, non-root user, port 8000, `uvicorn server:app --host 0.0.0.0 --port 8000`. Satisfies App Runner requirements. |
 | `/api/health` endpoint | **KEEP — already suitable for App Runner health check** | Pings DB, returns `{"status":"ok","db":"connected"}` (200) or raises 503 with body `{"detail":"Database unavailable"}`. App Runner checks `/api/health` on port 8000. |
@@ -309,7 +310,9 @@ Existing GitHub Actions pipeline runs on push: pytest + frontend lint/test/build
 This pipeline continues to run as a gate before any merge to `main`.
 No AWS-specific CI steps are needed for the Amplify flow; the ECR image build for App Runner is a new, separate workflow (ADR-002, Owner actions).
 
-**Currently red:** `scripts/check_frontend_lock.py` fails against the stale `docs/frontend-source-lock.json` (LAUNCH_STATE.md, FINAL INDEPENDENT AUDIT, B-1/B-2). Until the lock is reviewed and regenerated — and generated files such as `frontend/public/sitemap.xml` and `frontend/scripts/content-snapshot.json` are excluded from it — CI is not a gate.
+> Post-merge (2026-09-23): the paragraph below is historical; resolved in `14a6392` (lock regenerated from the reviewed tree, 236 files verified) and CI was green at the PR #2 merge.
+
+**Currently red (historical):** `scripts/check_frontend_lock.py` fails against the stale `docs/frontend-source-lock.json` (LAUNCH_STATE.md, FINAL INDEPENDENT AUDIT, B-1/B-2). Until the lock is reviewed and regenerated — and generated files such as `frontend/public/sitemap.xml` and `frontend/scripts/content-snapshot.json` are excluded from it — CI is not a gate.
 
 ---
 
@@ -367,4 +370,4 @@ A production MongoDB Atlas cluster is required. The local Docker Mongo is for de
 | `docs/ADR-002-aws-production-architecture.md` | Created (later) | Decision record: options, decision, env contract, owner actions |
 
 **No code changes to `backend/server.py`, `frontend/` source, or any existing env files in this phase.**
-The existing architecture is AWS-compatible with configuration-only changes, plus one small backend change required before launch — `client_ip()` behind App Runner (B1) — which landed after this phase, in the post-FABLE delta (`TRUSTED_PROXY`, `tests/test_client_ip.py`).
+The existing architecture is AWS-compatible with configuration-only changes, plus one small backend change required before launch — `client_ip()` behind App Runner (B1) — which landed after this phase, in the post-FABLE delta (`TRUSTED_PROXY`, tests in `tests/test_api.py`).

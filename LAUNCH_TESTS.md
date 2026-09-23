@@ -693,3 +693,24 @@ Playwright headless Chromium.
 | Backend | health ok, CORS preflight from site origin ok, secrets scan clean |
 
 ## POST-FABLE DELTA TEST STATUS: COMPLETE
+
+---
+
+# POST-MERGE RECONCILIATION TEST LOG (2026-09-23)
+
+Run on `main` at `0208378` (the PR #2 merge; tree identical to `bca84da`).
+
+| Check | Result |
+|---|---|
+| `python scripts/check_frontend_lock.py` | Verified 236 unchanged frontend files |
+| `pytest tests/test_api.py tests/test_frontend_lock.py` (disposable Mongo on 27117) | 68 passed |
+| `npm run lint` / `npm test` / `npm run test:build` | clean / 10 passed / 7 passed |
+| `npm run build` | 76 pages; `sitemap: 76 urls … lastmod moved for 0`; 685.18 kB (gzip 232.21 kB); tree clean afterwards |
+| `python scripts/check_raw_metadata.py` (vite preview, canonical `https://hianzy.com`) | 76 routes + share image verified |
+| `node scripts/link-graph.cjs --md` | 76 pages, 178 links, 0 broken, 0 orphans; only the timestamp changed, so the regenerated report was reverted |
+| Docker stack (`main` tree) | `check_raw_metadata.py --base http://localhost:8080 --canonical-origin http://localhost:8080`: 76 routes verified; `/lab/` 200 with immutable hashed assets; unknown path 404 with the not-found title and `noindex,follow` |
+| Insights (live API) | 30 total, 20 knowledge, 10 notes, 8 topics, 6 categories; `?topic=` and `?category=` filter; article bodies carry h2/p/quote/list/steps/faq/takeaway; related graph keys intact |
+| PR #1 reconciliation | `44d032a` and `3f531b3` are ancestors of `main`; empty diff on `Home.js` and `CommandPalette.js` |
+| PR #2 reconciliation | 61 release commits present; `TREE(main) == TREE(bca84da)` |
+
+## POST-MERGE RECONCILIATION STATUS: CLEAN

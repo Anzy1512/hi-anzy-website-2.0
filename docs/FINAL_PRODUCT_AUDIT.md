@@ -5,6 +5,10 @@ Nothing is merged to `main`, pushed, deployed or provisioned; the STOP GATE
 holds. This audit is independent of the phase's own commit messages: every
 number below was re-measured on the final tree.
 
+> Post-merge note (2026-09-23): the sentence above describes the state when
+> this audit was written. `launch/step-1` was pushed, PR #2 was opened with
+> green CI and merged into `main`. See "POST-MERGE STATUS" at the end.
+
 ## What the phase delivered
 
 | Area | Commit | Result |
@@ -205,3 +209,34 @@ separately measured).
 - INFO: the anonymous 401 from `/api/auth/me` carries no `Cache-Control`
   header (the authenticated 200 carries `no-store`, covered by tests); a 401
   is not cacheable by browsers.
+
+## POST-MERGE STATUS (2026-09-23)
+
+Recorded during the repository reconciliation that preceded the information
+architecture consolidation. Everything above this heading is historical and is
+left as written.
+
+- **Merged.** PR #2 (`Release candidate: hiAnzy Agency 2.0 + AWS production
+  preparation`) merged into `main` at 12:32 UTC as merge commit `0208378` (`020837893c0af5e7f2e5cda72734b430c955cd37`).
+  Its tree is byte-identical to the release head `bca84da`; all 61 release
+  commits are ancestors of `main`; no conflict resolution changed anything.
+- **PR #1** (`perf/launch-loading-pass-1`, head `44d032a`) is contained in
+  `main` through the release lineage: both of its commits (`3f531b3` lazy
+  ConnectedStory, `44d032a` lazy command index) are ancestors, the diff
+  against `main` for `Home.js` and `CommandPalette.js` is empty, and the
+  later palette work (`7436f5c`) builds on that lazy import rather than
+  replacing it. Nothing to reapply.
+- **Superseded statements above:** "Nothing is merged to `main`, pushed";
+  Owner action 1 ("push the branch; open the pull request"); "CODE READY on
+  `launch/step-1`". The code is on `main` now. **LIVE AWS VERIFIED remains
+  NO**: no infrastructure exists, and P1-2 is still a live-app gate.
+- **Stale reference corrected:** five lines in `AWS_PREP.md` and ADR-002
+  named `tests/test_client_ip.py`; the four client-IP tests live in
+  `tests/test_api.py` (68 backend tests pass). Corrected in this note's commit.
+- **Re-measured on `main` today:** lock 236 files verified; pytest 68 passed;
+  lint clean; vitest 10 passed; build tests 7 passed; build 76 pages with
+  `lastmod moved for 0`; raw metadata 76 routes verified; link graph 76 pages,
+  178 links, 0 broken, 0 orphans; unknown path 404; `/lab/` 200.
+- **Next phase:** the information-architecture consolidation (nine routes
+  into their hubs, 76 to 67 URLs) is dry-run approved only; no consolidation
+  edit exists on any branch yet.

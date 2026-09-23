@@ -11,6 +11,11 @@
 treated only as a source of verified components/fixes, never merged wholesale.
 See PORTING RESULTS below for what was actually brought in and why.
 
+> Post-merge note (2026-09-23): each section below records the figures at the
+> time it was written (for example "56 pages" before the knowledge articles;
+> "not merged, not pushed" before PR #2). The current state is in
+> "POST-MERGE STATUS" at the end of this file.
+
 ## ARCHITECTURE
 - Frontend: Vite 7 + React 18, vitest, eslint 9. `build` → `build/`. `prebuild`
   = check:opacity + check:seo + sitemap. `postbuild` = `prerender-metadata.cjs`
@@ -1919,3 +1924,31 @@ Sitemap: zero churn on rebuild. Link graph: 76 pages, 178 links, 0 broken,
 CODE READY: YES. LIVE AWS VERIFIED: NO (no infrastructure exists).
 
 ## POST-FABLE DELTA STATUS: COMPLETE — READY FOR GIT PUSH
+
+---
+
+# POST-MERGE STATUS (2026-09-23)
+
+- `launch/step-1` (`bca84da`) was pushed, PR #2 opened, CI green, and merged
+  into `main` as `0208378` (`020837893c0af5e7f2e5cda72734b430c955cd37`). The FABLE-5 "STOP GATE" and the delta closeout's
+  "READY FOR GIT PUSH" statements above are historical.
+- PR #1 (`perf/launch-loading-pass-1`) is contained in `main`; GitHub marked
+  it merged when its commits arrived through PR #2.
+- Current public routes: 76 (13 static, 6 services, 16 disciplines, 6 Orbit
+  rosters, 5 case studies, 30 insights), plus `/lab/`, `/404.html` and the
+  auth callback (a `#session_id=` fragment intercepted before routing; not a
+  route). The "56 pages" figures in earlier sections predate the knowledge
+  articles.
+- Re-verified on `main`: lock 236 files, pytest 68, lint clean, vitest 10,
+  build tests 7, build 76 pages with zero lastmod churn, raw metadata 76,
+  link graph 76/178/0/0, unknown path 404, `/lab/` 200. Scroll dispatch
+  guard, hash re-measure, Orbit `overflow-x: clip`, `useSceneVisibility` and
+  the Lenis settings (`lerp 0.16`, `wheelMultiplier 1.2`) are as committed.
+- AWS: still preparation only. `TRUSTED_PROXY=apprunner` is required on the
+  App Runner service; the Amplify hash redirects the consolidation will need
+  are an unproven live gate (AWS LIVE VERIFICATION REQUIRED).
+- Information-architecture consolidation: dry run complete (76 to 67 URLs,
+  nine routes absorbed, unmapped content 0); `ia/page-consolidation` exists
+  locally from `0208378` with no consolidation edit; awaiting owner approval.
+
+## POST-MERGE STATUS: RECONCILED — CONSOLIDATION NOT STARTED

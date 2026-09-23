@@ -646,3 +646,12 @@ that test file alongside `test_api.py` and keeps the standalone lock step.
   `Verified 236 unchanged frontend files.`
 - Not adopted in this phase: the line-ending policy of Recommendation 7. It
   is recorded as a follow-up in the final product audit.
+
+### Post-merge addendum (2026-09-23)
+
+Two further regenerations followed the record above, each for a single
+traced file named in its own commit: `20de858` (`src/components/OrbitSection.js`,
+the deck wrapper's `overflow-x: clip`) and `52e3b69` (`src/lib/motion.js`,
+the hash-target re-measure). The lock stayed at 236 entries and was
+verified at the PR #2 merge (`0208378`) and again during the post-merge
+reconciliation. No NEEDS REVIEW entry exists.
