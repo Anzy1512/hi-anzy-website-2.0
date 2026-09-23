@@ -784,6 +784,9 @@ export default function Network() {
           <div className="panel-dark mt-8 p-7 sm:p-9">
             <p className="sys-chip accent-orange-text">HOW CREDIT WORKS HERE</p>
             <p className="mt-3 text-[17px] leading-[1.6] text-[#F7F5EE]/85">
+              Specialists, creators, media and venues: the hiAnzy network runs on honest classification and real credit.
+            </p>
+            <p className="mt-3 text-[17px] leading-[1.6] text-[#F7F5EE]/85">
               Our work and network pages distinguish direct delivery, shared projects, independent credentials and access to partners. We identify each contribution so visitors can understand who did the work.
             </p>
             <p className="mt-4 text-[14px] text-[#F7F5EE]/75">
@@ -811,6 +814,9 @@ export default function Network() {
               </h2>
             </Reveal>
             <Reveal delay={160} as="p" className="mt-5 max-w-[48ch] font-editorial text-[clamp(1.1rem,1.4vw,1.35rem)] leading-[1.45] text-[#232A2A]/85">
+              We hire slowly and deliberately. If you notice things other people miss, introduce yourself anyway.
+            </Reveal>
+            <Reveal delay={220} as="p" className="mt-4 max-w-[52ch] text-[17px] leading-[1.6] text-[#232A2A]/78">
               There are no open roles listed here at the moment. You can still introduce yourself with your area of interest, a portfolio or example of your work, and what you would like to do next.
             </Reveal>
           </div>

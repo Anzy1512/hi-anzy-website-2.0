@@ -118,6 +118,9 @@ export default function WhyHiAnzy() {
             <Reveal delay={140} as="p" className="font-editorial mt-5 max-w-[52ch] text-[clamp(1.1rem,1.4vw,1.35rem)] italic leading-[1.5] text-[#232A2A]/78">
               You may be launching an idea, clarifying your position or improving systems the business has outgrown. We help connect the next step to the wider business goal.
             </Reveal>
+            <Reveal delay={180} as="p" className="mt-4 max-w-[60ch] text-[16.5px] leading-[1.6] text-[#232A2A]/78">
+              Founders, founder-led companies, businesses modernising systems, D2C and commerce brands, hospitality and teams entering the next stage of growth.
+            </Reveal>
             {/* Chaos → order, rather than the sitewide fade-up: this section is
                 about sorting — who fits, and who does not — so the tiles
                 arriving slightly out of alignment and settling into an exact
