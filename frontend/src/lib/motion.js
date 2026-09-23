@@ -35,7 +35,13 @@ export const webglAvailable = () => {
 export const LenisProvider = ({ children }) => {
   useEffect(() => {
     if (prefersReducedMotion()) return undefined;
-    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true });
+    // lerp raised from 0.12 and wheelMultiplier added on top of the 1.0
+    // default: measured live (synthetic wheel ticks + a getBoundingClientRect
+    // instrumentation harness) that the old values left scroll covering only
+    // half its nominal input distance and visibly lagging behind the wheel.
+    // Still damped, not instant -- this keeps the smooth-scroll feel, just
+    // snappier and covering more ground per tick.
+    const lenis = new Lenis({ lerp: 0.16, wheelMultiplier: 1.2, smoothWheel: true });
     window.__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const raf = (time) => lenis.raf(time * 1000);
@@ -73,6 +79,18 @@ export const subscribeScroll = (cb) => {
   const onNative = () => {
     if (!raf) raf = requestAnimationFrame(emitNative);
   };
+  // Once Lenis is driving, its own "scroll" event is the single source of
+  // truth: it fires every animation frame with the interpolated value. The
+  // native listener is only the fallback for when Lenis is absent (reduced
+  // motion). Left unconditional it re-fed every subscriber a second time per
+  // frame with the one-frame-stale window.scrollY, and that second pass ran
+  // after ScrollTrigger/GSAP had written the frame's styles, so each
+  // subscriber's layout read forced a synchronous reflow. Measured: every
+  // subscriber's calls split exactly in two between the two paths.
+  const onNativeScroll = () => {
+    if (lenisOff && window.__lenis) return;
+    onNative();
+  };
 
   // Lenis is created by a parent effect, which runs *after* child effects on
   // mount — so poll briefly for it instead of assuming it already exists.
@@ -94,7 +112,7 @@ export const subscribeScroll = (cb) => {
   };
   attach();
 
-  window.addEventListener("scroll", onNative, { passive: true });
+  window.addEventListener("scroll", onNativeScroll, { passive: true });
   window.addEventListener("resize", onNative);
   emitNative();
 
@@ -102,7 +120,7 @@ export const subscribeScroll = (cb) => {
     disposed = true;
     clearTimeout(attachTimer);
     if (lenisOff) lenisOff();
-    window.removeEventListener("scroll", onNative);
+    window.removeEventListener("scroll", onNativeScroll);
     window.removeEventListener("resize", onNative);
     if (raf) cancelAnimationFrame(raf);
   };
@@ -158,6 +176,7 @@ export const ScrollToTop = () => {
   useEffect(() => {
     let tries = 0;
     let retry = null;
+    let follow = null;
 
     const toTop = () => {
       // Drive whichever scroller is actually in charge — calling both makes
@@ -174,9 +193,45 @@ export const ScrollToTop = () => {
         else toTop();
         return;
       }
-      const top = el.getBoundingClientRect().top + window.scrollY - 96;
-      if (window.__lenis) window.__lenis.scrollTo(top, { immediate: true });
-      else window.scrollTo(0, top);
+      const scrollToEl = () => {
+        const top = el.getBoundingClientRect().top + window.scrollY - 96;
+        if (window.__lenis) window.__lenis.scrollTo(top, { immediate: true });
+        else window.scrollTo(0, top);
+      };
+      scrollToEl();
+      // Self-hosted fonts render in a fallback face until they load, then
+      // swap -- on a page with several long capability cards that is enough
+      // reflow to leave this target hundreds of pixels from where it was
+      // first measured (confirmed live on /what-we-do#build). document.fonts
+      // .ready resolves exactly when that swap is done, so this re-measures
+      // at the moment layout actually settles, not after a guessed delay.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(scrollToEl);
+      }
+      // Content above the target can also arrive after this measurement: on
+      // /work the case-study carousel replaces its skeleton once the API
+      // answers, which moved #orbit about 1000px (confirmed live: the visitor
+      // landed on the case studies instead). Re-measure while the document is
+      // still changing size, for a bounded time, and stop the moment the
+      // visitor scrolls themselves so a late resize never fights their intent.
+      if (typeof ResizeObserver === "function") {
+        const until = Date.now() + 3000;
+        const intents = ["wheel", "touchstart", "keydown"];
+        const stop = () => {
+          observer.disconnect();
+          clearTimeout(deadline);
+          intents.forEach((type) => window.removeEventListener(type, stop));
+          follow = null;
+        };
+        const observer = new ResizeObserver(() => {
+          if (Date.now() > until) stop();
+          else scrollToEl();
+        });
+        const deadline = setTimeout(stop, 3000);
+        observer.observe(document.body);
+        intents.forEach((type) => window.addEventListener(type, stop, { passive: true }));
+        follow = stop;
+      }
     };
 
     if (hash) toHash();
@@ -188,6 +243,7 @@ export const ScrollToTop = () => {
     return () => {
       clearTimeout(t);
       if (retry) clearTimeout(retry);
+      if (follow) follow();
     };
   }, [pathname, hash]);
   return null;

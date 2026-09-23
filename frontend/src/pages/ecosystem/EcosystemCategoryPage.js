@@ -9,6 +9,7 @@ import { getEcosystem, track } from "@/lib/api";
 import { ORBIT_CATEGORIES } from "@/data/content";
 import { ORBIT_GLYPHS } from "@/components/deck/OrbitGlyphs";
 import { abs } from "@/lib/absoluteUrl";
+import { RelatedReading } from "@/components/RelatedReading";
 
 /**
  * One shared index page for all 6 Orbit category routes — the category
@@ -25,6 +26,7 @@ export const EcosystemCategoryPage = ({ category }) => {
   const ref = useRevealObserver();
   const [items, setItems] = useState(null);
   const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const meta = ORBIT_CATEGORIES.find((c) => c.key === category);
   const Glyph = meta && ORBIT_GLYPHS[meta.key];
   const isCaseStudy = category === "built_here" || category === "built_together";
@@ -35,6 +37,9 @@ export const EcosystemCategoryPage = ({ category }) => {
     getEcosystem(category)
       .then(setItems)
       .catch(() => setError(true));
+  }, [category, retry]);
+
+  useEffect(() => {
     track("ecosystem_index_viewed", { category });
   }, [category]);
 
@@ -92,10 +97,10 @@ export const EcosystemCategoryPage = ({ category }) => {
           </Reveal>
         </div>
         <Reveal delay={260} className="mt-8">
-          {/* Plain /work, not a #hash — ScrollToTop (lib/motion.js) resets scroll
-              on every pathname change and has no hash-anchor handling today,
-              so a hash here would silently do nothing. */}
-          <Link to="/work" className="link-draw inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#232A2A]/70">
+          {/* ScrollToTop (lib/motion.js) does handle #hash targets, with a
+              retry for lazy-mounted content, so this can land on the actual
+              Orbit section rather than just the top of /work. */}
+          <Link to="/work#orbit" className="link-draw inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-[#232A2A]/70">
             <ArrowLeft size={14} /> Back to the Orbit
           </Link>
         </Reveal>
@@ -103,9 +108,11 @@ export const EcosystemCategoryPage = ({ category }) => {
 
       <section className="container-page section-pad-b" data-index-label={meta.name}>
         {error && (
-          <p className="panel-paper p-6 text-[14px] text-[#232A2A]/75" data-testid="ecosystem-error">
-            This index is being stubborn. Refresh, or say hi and we will walk you through it.
-          </p>
+          <div role="alert" className="panel-paper p-6 text-[14px] text-[#232A2A]/75" data-testid="ecosystem-error">
+            This index could not be loaded.{" "}
+            <button type="button" className="link-draw font-semibold" onClick={() => setRetry((value) => value + 1)}>Try again</button>
+            {" "}or <Link to="/contact" className="link-draw font-semibold">say hi</Link> and we will walk you through it.
+          </div>
         )}
         {!items && !error && (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="panel-paper h-[220px] animate-pulse" />)}</div>
@@ -187,6 +194,7 @@ export const EcosystemCategoryPage = ({ category }) => {
           A network relationship is not the same thing as hiAnzy-delivered client work, which is why every card is labelled honestly.
         </p>
       </section>
+      <RelatedReading kind="network" slug={category} title="READING ON THIS PART OF THE NETWORK" />
     </div>
   );
 };

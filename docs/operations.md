@@ -76,7 +76,7 @@ In another terminal from the project root:
 python scripts/check_raw_metadata.py --base http://127.0.0.1:3100
 ```
 
-The build creates 56 route-specific HTML heads, preserving React layout and animation code. The checker fetches every route over HTTP without JavaScript and verifies titles, descriptions, canonical URLs, sharing images and image availability. If building for another origin, pass `--canonical-origin` to match `SITE_URL`.
+The build creates 76 route-specific HTML heads, preserving React layout and animation code. The checker fetches every route over HTTP without JavaScript and verifies titles, descriptions, canonical URLs, sharing images and image availability. If building for another origin, pass `--canonical-origin` to match `SITE_URL`.
 
 Metadata uses live public API content when available and a checked-in public-content snapshot otherwise. The snapshot is tested against `backend/seed_data.py`; update both when changing seeded case/article metadata. Database-only editorial changes require a fresh build against that database. Each failed sitemap endpoint preserves its own previously known URLs; a successful empty list removes obsolete entries for that family.
 

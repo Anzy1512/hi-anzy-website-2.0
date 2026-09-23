@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import "@/pages/networkPage.css";
 import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, ArrowRight, ChevronDown } from "lucide-react";
@@ -413,7 +414,7 @@ export default function Network() {
       </section>
 
       {/* ── The sixteen disciplines, each explained on its own page ─────── */}
-      <section className="container-page section-pad" data-testid="network-disciplines">
+      <section id="network-disciplines-section" className="container-page section-pad" data-testid="network-disciplines">
         <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> THE DISCIPLINES, EXPLAINED
         </Reveal>
@@ -467,7 +468,7 @@ export default function Network() {
           from the Work page's Orbit section. The two work categories (Built
           Here / Built Together) deliberately stay there; this is the "right
           category in the right section" split. */}
-      <section className="container-page section-pad" data-index-label="THE ROSTERS" data-testid="network-orbit-deck-section">
+      <section id="network-rosters" className="container-page section-pad" data-index-label="THE ROSTERS" data-testid="network-orbit-deck-section">
         <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> THE ROSTERS
         </Reveal>
@@ -496,6 +497,15 @@ export default function Network() {
             }}
           />
         </Reveal>
+        <ul className="mt-6 flex flex-wrap justify-center gap-2" aria-label="Network rosters" data-testid="network-roster-links">
+          {networkRosters.map((r) => (
+            <li key={r.id}>
+              <Link to={r.href} className="sys-chip inline-flex items-center gap-1.5 rounded-full border border-[#232A2A]/25 px-3 py-1.5 text-[#232A2A]/75 transition-colors hover:border-[#F19020] hover:text-[#232A2A]" data-testid={`network-roster-link-${r.id}`}>
+                {r.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="network-specialists" className="container-page section-pad" data-index-label="THE SPECIALISTS">

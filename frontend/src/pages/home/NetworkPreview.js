@@ -16,7 +16,7 @@ const categoryName = value => value === "AI" || value === "PR" ? value : value[0
 export const NetworkPreview = ({ show3d }) => {
   const [activeCat, setActiveCat] = useState(null);
   return (
-    <section className="bg-[#1D2424] section-pad" data-testid="home-network-section">
+    <section id="home-network-section" className="bg-[#1D2424] section-pad" data-testid="home-network-section">
       <div className="container-page">
         <div className="grid items-center gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">

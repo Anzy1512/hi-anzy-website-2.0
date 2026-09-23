@@ -457,6 +457,16 @@ INSIGHTS = [
 ]
 
 
+from knowledge_articles import KNOWLEDGE_ARTICLES, NOTE_METADATA  # noqa: E402
+
+# The ten editorial notes above join the same taxonomy and link graph as the
+# knowledge articles; their prose is untouched, only metadata is merged in.
+for _note in INSIGHTS:
+    _note.setdefault("format", "note")
+    _note.setdefault("related", {"services": [], "disciplines": [], "work": [], "network": [], "insights": []})
+    _note.update(NOTE_METADATA.get(_note["slug"], {}))
+INSIGHTS.extend(KNOWLEDGE_ARTICLES)
+
 PORTFOLIO_GROUPS = [
     {"category": "Brand Decks", "slug": "brand-decks", "items": [
             {"name": "Orange Owl", "url": "https://drive.google.com/file/d/1kpSxwwBxpW67WO6E7hIkxy-bgcEoW4QO/view?usp=sharing"},

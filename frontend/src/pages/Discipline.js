@@ -7,6 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { MagneticButton } from "@/components/MagneticButton";
 import { ProvenanceTag } from "@/components/ProvenanceTag";
 import { NextSteps } from "@/components/NextSteps";
+import { RelatedReading } from "@/components/RelatedReading";
 import { PopIllustration } from "@/components/PopIllustration";
 import { useRevealObserver } from "@/lib/motion";
 import { getNetwork, track } from "@/lib/api";
@@ -27,6 +28,7 @@ export default function Discipline() {
   const ref = useRevealObserver();
   const d = DISCIPLINE_BY_SLUG[slug];
   const [members, setMembers] = useState(null);
+  const [membersError, setMembersError] = useState(false);
 
   useEffect(() => {
     if (!d) return;
@@ -34,7 +36,11 @@ export default function Discipline() {
     // nests it into ?category[category]= and the filter silently no-ops.
     getNetwork(d.category)
       .then(setMembers)
-      .catch(() => setMembers([]));
+      // A real failure used to render identically to a genuinely empty
+      // category (below), which specifically claims "the relationships
+      // exist, the write-ups are still being verified" -- a confident,
+      // specific claim that is simply wrong during an actual outage.
+      .catch(() => setMembersError(true));
   }, [d]);
 
   if (!d) {
@@ -141,7 +147,7 @@ export default function Discipline() {
                   <div className="flex items-baseline justify-between gap-4 border-b border-[#232A2A]/10 pb-3">
                     <dt className="font-mono-sys text-[12.5px] text-[#232A2A]/55">Specialists listed</dt>
                     <dd className="font-display text-[20px] leading-none accent-orange-text tabular-nums">
-                      {members === null ? "…" : members.length}
+                      {members === null ? (membersError ? "—" : "…") : members.length}
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-4">
@@ -211,13 +217,19 @@ export default function Discipline() {
           <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> WHO DOES IT
         </Reveal>
 
-        {!members && (
+        {!members && !membersError && (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => <div key={i} className="panel-paper h-[170px] animate-pulse" />)}
           </div>
         )}
 
-        {members && members.length === 0 && (
+        {membersError && (
+          <p role="alert" className="panel-paper mt-6 p-6 text-[15px] leading-relaxed text-[#232A2A]/75" data-testid="discipline-error">
+            This list could not be loaded. Refresh the page to try again, or <Link to="/contact" className="link-draw font-semibold">contact us</Link> in the meantime.
+          </p>
+        )}
+
+        {members && members.length === 0 && !membersError && (
           <p className="panel-paper mt-6 p-6 text-[15px] leading-relaxed text-[#232A2A]/75" data-testid="discipline-empty">
             Nothing public listed under {d.name} yet. The relationships exist. The write-ups are still being
             verified, and we would rather be slow than inventive.
@@ -294,6 +306,7 @@ export default function Discipline() {
         </Reveal>
       </section>
 
+      <RelatedReading kind="disciplines" slug={d.slug} />
       <NextSteps from="/network" title="Keep going" />
     </div>
   );

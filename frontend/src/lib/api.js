@@ -17,8 +17,8 @@ export const getNetworkCategories = () => axios.get(`${API}/network/categories`)
 export const getEcosystem = (category) =>
   axios.get(`${API}/ecosystem`, { params: category ? { category } : {} }).then((r) => r.data);
 
-export const getInsights = (category) =>
-  axios.get(`${API}/insights`, { params: category ? { category } : {} }).then((r) => r.data);
+export const getInsights = (category, topic) =>
+  axios.get(`${API}/insights`, { params: { ...(category ? { category } : {}), ...(topic ? { topic } : {}) } }).then((r) => r.data);
 
 export const getInsight = (slug) => axios.get(`${API}/insights/${slug}`).then((r) => r.data);
 

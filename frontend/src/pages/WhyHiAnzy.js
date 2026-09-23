@@ -11,6 +11,7 @@ import { CHARACTERS, TEAM_QUOTE } from "@/data/content";
 import { SITE_CONTACT } from "@/data/site";
 import { NextSteps } from "@/components/NextSteps";
 import { DissolveImage } from "@/components/DissolveImage";
+import { Picture } from "@/components/Picture";
 
 export default function WhyHiAnzy() {
   const ref = useRevealObserver();
@@ -41,9 +42,16 @@ export default function WhyHiAnzy() {
             <Reveal delay={200}>
               {/* Left plain on purpose: this sits above the fold, and a
                   scroll-scrubbed reveal there would either never play or delay
-                  the first thing the reader sees. */}
+                  the first thing the reader sees. Same reasoning rules out
+                  loading="lazy" on the image below: it is visible on first
+                  paint, so lazy-loading it only adds latency to a likely LCP
+                  candidate instead of saving any. Picture, not a raw <img>,
+                  so this gets the same AVIF/WebP-with-PNG-fallback delivery
+                  every other brand image on the site already uses -- this was
+                  the one place serving the full PNG (128KB) to every visitor
+                  where an AVIF sibling (30KB) already existed unused. */}
               <figure className="rounded-[18px] bg-[#D8CFB4]/40 p-5">
-                  <img src="/brand/art-cube-head.png" alt="hiAnzy collage artwork: a figure thinking through a puzzle" className="mx-auto max-h-[360px] w-full object-contain" loading="lazy" />
+                  <Picture src="/brand/art-cube-head.png" alt="hiAnzy collage artwork: a figure thinking through a puzzle" className="mx-auto max-h-[360px] w-full object-contain" />
                   <figcaption className="mt-3 text-center text-[13px] text-[#232A2A]/75">Connect the pieces, then make the idea real.</figcaption>
                 </figure>
               </Reveal>
@@ -58,7 +66,7 @@ export default function WhyHiAnzy() {
             <article className="panel-dark relative grid gap-6 p-8 sm:p-10 lg:grid-cols-12" data-testid="why-section-hi">
               <div className="lg:col-span-4">
                 <p className="sys-chip accent-orange-text">THE GREETING</p>
-                <h2 className="font-display mt-2 text-5xl text-[#F7F5EE]">Why “Hi”?</h2>
+                <h2 className="font-display mt-2 text-[clamp(2rem,3vw,2.8rem)] text-[#F7F5EE]">Why “Hi”?</h2>
               </div>
               <div className="lg:col-span-8">
                 <p className="text-[17px] leading-[1.6] text-[#F7F5EE]/85">
@@ -75,7 +83,7 @@ export default function WhyHiAnzy() {
             <Reveal>
               <article className="panel-paper h-full p-8 sm:p-10" data-testid="why-section-dreamers">
                 <p className="sys-chip text-[#232A2A]/55">THE TEMPERAMENT</p>
-                <h2 className="font-display mt-2 text-5xl text-[#232A2A]">Dreamers + Doers</h2>
+                <h2 className="font-display mt-2 text-[clamp(2rem,3vw,2.8rem)] text-[#232A2A]">Dreamers + Doers</h2>
                 <p className="mt-5 text-[17px] leading-[1.6] text-[#232A2A]/82">
                   We connect imagination with delivery. Strategy gives the idea a purpose; design and engineering give it form. Regular reviews keep the ambition connected to what your team can use.
                 </p>
@@ -84,7 +92,7 @@ export default function WhyHiAnzy() {
             <Reveal delay={100}>
               <article className="panel-paper h-full p-8 sm:p-10" data-testid="why-section-compass">
                 <p className="sys-chip text-[#232A2A]/55">THE MECHANICS</p>
-                <h2 className="font-display mt-2 text-5xl text-[#232A2A]">Compass + Engine</h2>
+                <h2 className="font-display mt-2 text-[clamp(2rem,3vw,2.8rem)] text-[#232A2A]">Compass + Engine</h2>
                 <p className="mt-5 text-[17px] leading-[1.6] text-[#232A2A]/82">
                   The compass is the plan: where to go, why it matters and what comes first. The engine is the work: the people, tools and processes that move it forward. We bring both into one accountable engagement.
                 </p>

@@ -33,9 +33,16 @@ module.exports = {
         "digital-white": "#F7F5EE",
         panel: "#1F2525",
       },
+      // These utilities are currently dormant: App.css's own .font-display/
+      // .font-editorial/.font-mono-sys rules are unlayered, so they always
+      // win over anything Tailwind generates into @layer utilities,
+      // regardless of source order. Kept in sync with App.css's --font-*
+      // tokens anyway so that stays true by design, not by accident, if
+      // that ever changes -- editorial was still Figtree here from before
+      // the Newsreader swap in App.css until this correction.
       fontFamily: {
         display: ["Rajdhani", "system-ui", "sans-serif"],
-        editorial: ["Figtree", "system-ui", "sans-serif"],
+        editorial: ["Newsreader", "Georgia", "serif"],
         "mono-sys": ["'IBM Plex Mono'", "ui-monospace", "monospace"],
       },
       maxWidth: {

@@ -9,6 +9,7 @@ import smtplib
 import secrets
 import hashlib
 import html
+import ipaddress
 import time
 import uuid
 from contextlib import asynccontextmanager, suppress
@@ -43,7 +44,35 @@ def required_setting(name: str) -> str:
 
 mongo_url = required_setting("MONGO_URL")
 database_name = required_setting("DB_NAME")
-client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=5000)
+
+# Vercel sets VERCEL=1 in every deployed function runtime. There the process is
+# a Vercel Function, not a container we own: instances appear and disappear
+# around traffic, several can be live at once, and execution is not guaranteed
+# to continue between requests. Anything that assumes one long-lived process
+# has to be gated on this.
+IS_SERVERLESS = bool(os.environ.get("VERCEL"))
+
+# Which proxy in front of this process may tell us the visitor's address
+# through x-forwarded-for. Unset (Docker, local, tests): none, the socket
+# peer is the visitor. "vercel": Vercel Functions overwrite the header, so
+# its first hop is the visitor. "apprunner": the App Runner request router
+# appends the visitor after any caller-supplied hops, so the rightmost hop is
+# the one it wrote. VERCEL=1 implies "vercel" (resolved per request in
+# client_ip), so the existing deployment keeps its behaviour with no new
+# variable.
+TRUSTED_PROXY = os.environ.get("TRUSTED_PROXY", "").strip().lower()
+if TRUSTED_PROXY not in {"", "vercel", "apprunner"}:
+    raise RuntimeError("TRUSTED_PROXY must be unset, 'vercel' or 'apprunner'")
+
+# One client per instance, created at import and reused by every warm
+# invocation — never per request. The smaller serverless pool is deliberate:
+# each live instance opens its own, and the driver default of 100 multiplied by
+# however many instances traffic spins up exhausts a shared Atlas tier's
+# connection cap long before it exhausts the app.
+mongo_options = {"serverSelectionTimeoutMS": 5000}
+if IS_SERVERLESS:
+    mongo_options["maxPoolSize"] = 10
+client = AsyncIOMotorClient(mongo_url, **mongo_options)
 db = client[database_name]
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "production").strip().lower()
@@ -51,19 +80,33 @@ IS_PRODUCTION = ENVIRONMENT not in {"development", "dev", "local"}
 
 @asynccontextmanager
 async def lifespan(app):
-    prune_task = None
-    delivery_task = None
+    tasks = []
     try:
-        await seed()
-        prune_task = asyncio.create_task(_prune_rate_limiter_loop())
-        delivery_task = asyncio.create_task(notification_loop(db, send_contact_notification, send_subscription_confirmation, mail_configured))
+        if IS_SERVERLESS:
+            # Startup runs again on every cold start here, so it has to be fast
+            # and it has to be safe. seed() is neither: ~70 round trips and a
+            # write path, and a transient Mongo error during it takes the whole
+            # instance down — every request 500s instead of degrading. Seeding
+            # is an explicit operator step instead: `python manage.py seed`.
+            #
+            # Both loops below are `while True` workers, and a Vercel Function
+            # is not guaranteed to execute between requests. The prune loop is
+            # also pointless (per-instance memory dies with the instance) and
+            # the delivery retry loop is documented as post-launch. Contact and
+            # subscribe still save durably and still attempt delivery inline,
+            # which is the part that carries the data.
+            logger.info("Serverless runtime: skipping seed and background workers")
+        else:
+            await seed()
+            tasks.append(asyncio.create_task(_prune_rate_limiter_loop()))
+            tasks.append(asyncio.create_task(notification_loop(db, send_contact_notification, send_subscription_confirmation, mail_configured)))
         yield
     finally:
-        for task in (prune_task, delivery_task):
-            if task:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await task
+        # Vercel allows ~500ms after SIGTERM, so teardown stays cancels-only.
+        for task in tasks:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
         client.close()
 
 
@@ -307,7 +350,42 @@ async def send_subscription_confirmation(record):
         "This link expires in seven days. If you did not request this, ignore the message.", record["email"])
 
 
-# One worker owns these buckets. Multiple workers need a shared rate-limit store.
+def _forwarded_hops(request: Request) -> List[str]:
+    return [hop.strip() for hop in request.headers.get("x-forwarded-for", "").split(",") if hop.strip()]
+
+
+def _is_ip(value: str) -> bool:
+    try:
+        ipaddress.ip_address(value)
+        return True
+    except ValueError:
+        return False
+
+
+def client_ip(request: Request) -> str:
+    """The visitor's address, not the proxy sitting in front of us.
+
+    Behind a proxy the socket peer is the proxy's own infrastructure, the same
+    value for every visitor, so a rate limit keyed on it is one shared global
+    bucket that real users lock each other out of. x-forwarded-for is read
+    only behind the proxy TRUSTED_PROXY names, and only the hop that proxy is
+    known to write: Vercel overwrites the header, so its first hop is the
+    visitor; App Runner appends the visitor after anything the caller sent,
+    so its last hop is. Anywhere else the header is caller-controlled and is
+    ignored. A hop that is not an IP address falls back to the socket peer.
+    """
+    peer = request.client.host if request.client else "unknown"
+    proxy = TRUSTED_PROXY or ("vercel" if IS_SERVERLESS else "")
+    if not proxy:
+        return peer
+    hops = _forwarded_hops(request)
+    if not hops:
+        return peer
+    candidate = hops[0] if proxy == "vercel" else hops[-1]
+    return candidate if _is_ip(candidate) else peer
+
+
+# Best-effort, per-instance. See the multi-instance note in LAUNCH_STATE.md.
 _rate: Dict[str, List[float]] = {}
 _RATE_PRUNE_AFTER = 900  # comfortably longer than any bucket's own window
 
@@ -397,13 +475,15 @@ async def list_ecosystem(category: Optional[EcosystemCategory] = None):
 
 
 @api_router.get("/insights")
-async def list_insights(category: Optional[str] = None):
-    """Return published insights, optionally filtered by category."""
+async def list_insights(category: Optional[str] = None, topic: Optional[str] = None):
+    """Return published insights, optionally filtered by category and/or topic."""
     query: Dict[str, Any] = {"published": True}
     if category:
         query["category"] = category
+    if topic:
+        query["topics"] = topic
     cursor = db.insights.find(query, {"_id": 0, "body": 0}).sort("_id", -1)
-    return await cursor.to_list(length=50)
+    return await cursor.to_list(length=200)
 
 
 @api_router.get("/insights/{slug}")
@@ -422,7 +502,7 @@ async def list_portfolio():
 
 @api_router.post("/contact")
 async def create_contact(payload: ContactCreate, request: Request):
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
 
     if payload.orgField:
         return {"ok": True, "id": None, "emailSent": False}
@@ -449,7 +529,7 @@ async def create_contact(payload: ContactCreate, request: Request):
 @api_router.post("/subscribe")
 async def create_subscription(payload: SubscribeCreate, request: Request):
     """Save an address once without disclosing existing subscriptions."""
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
 
     if payload.orgField:
         return {"ok": True}
@@ -522,18 +602,20 @@ async def require_admin(request: Request) -> dict:
 
 
 @api_router.get("/subscribers")
-async def list_subscribers(request: Request):
+async def list_subscribers(request: Request, response: Response):
     """Return subscribers to configured administrators."""
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
 
     cursor = db.subscribers.find({}, {"_id": 0, "ip": 0, "confirmationToken": 0, "confirmationHash": 0, "unsubscribeToken": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=500)
 
 
 @api_router.get("/contact-submissions")
-async def list_contact_submissions(request: Request):
+async def list_contact_submissions(request: Request, response: Response):
     """Return enquiries to administrators, excluding stored IP addresses."""
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
 
     cursor = db.contact_submissions.find({}, {"_id": 0, "ip": 0}).sort("createdAt", -1)
     return await cursor.to_list(length=200)
@@ -574,8 +656,9 @@ async def retry_enquiry(record_id: str, request: Request):
 
 
 @api_router.get("/operations/status")
-async def operations_status(request: Request):
+async def operations_status(request: Request, response: Response):
     await require_admin(request)
+    response.headers["Cache-Control"] = "no-store"
     return {"mailConfigured": mail_configured(),
             "notificationRecipientConfigured": bool(os.environ.get("CONTACT_NOTIFY_EMAIL")),
             "newEnquiries": await db.contact_submissions.count_documents({"reviewStatus": {"$in": ["new", None]}}),
@@ -604,7 +687,7 @@ async def newsletter_action_page(action: str, token: str = ""):
 async def newsletter_action(action: str, request: Request):
     if action not in {"confirm", "unsubscribe"}:
         raise HTTPException(404, "Unknown subscription action")
-    if rate_limited("newsletter_action", request.client.host if request.client else "unknown", 20, 600):
+    if rate_limited("newsletter_action", client_ip(request), 20, 600):
         raise HTTPException(429, "Please try again later")
     is_json = "application/json" in request.headers.get("content-type", "")
     if is_json:
@@ -647,7 +730,7 @@ async def newsletter_action(action: str, request: Request):
 
 @api_router.post("/analytics/event")
 async def track_event(evt: AnalyticsEvent, request: Request):
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     if rate_limited("analytics", ip, max_hits=60, window_seconds=60):
         return {"ok": True}
     await db.analytics_events.insert_one({
@@ -796,7 +879,8 @@ async def auth_session(request: Request, response: Response):
 
 
 @api_router.get("/auth/me")
-async def auth_me(request: Request):
+async def auth_me(request: Request, response: Response):
+    response.headers["Cache-Control"] = "no-store"
     user = await session_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")

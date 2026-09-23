@@ -1,0 +1,156 @@
+/* Touch guidance and a deeper instrument-panel texture for the Network map. */
+.network-constellation-stage::before,
+.network-constellation-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.network-constellation-stage::before {
+  z-index: 0;
+  background-image: linear-gradient(rgba(247, 245, 238, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(247, 245, 238, .055) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, #000 12%, transparent 78%);
+  opacity: .72;
+}
+.network-constellation-stage::after {
+  z-index: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(241, 144, 32, .12), transparent 25%), radial-gradient(circle at 16% 22%, rgba(143, 182, 196, .08), transparent 20%), radial-gradient(circle at 82% 74%, rgba(229, 74, 37, .08), transparent 20%);
+}
+.network-constellation-stage > .absolute.inset-0 {
+  z-index: 1;
+}
+.network-touch-hint {
+  position: absolute;
+  z-index: 12;
+  left: 18px;
+  bottom: 16px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 36px);
+  padding: 8px 12px;
+  border: 1px solid rgba(247, 245, 238, .18);
+  border-radius: 999px;
+  background: rgba(29, 36, 36, .76);
+  color: rgba(247, 245, 238, .72);
+  font-family: var(--font-system);
+  font-size: 11px;
+  letter-spacing: .06em;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color .3s ease, color .3s ease, transform .3s ease;
+}
+.network-touch-hint .font-mono-sys {
+  flex: none;
+  color: #F19020;
+  font-size: 9px;
+  letter-spacing: .12em;
+}
+.network-touch-hint.is-active {
+  border-color: rgba(241, 144, 32, .6);
+  color: #F7F5EE;
+  transform: translateY(-2px);
+}
+
+/* The specialist directory is a stack of focused sections. Keeping one panel
+   open at a time gives the long page a clear rhythm and prevents the roster
+   from becoming a wall of simultaneous cards. */
+.network-resource-directory {
+  position: relative;
+}
+.network-resource-section {
+  overflow: hidden;
+  border: 1px solid rgba(35, 42, 42, .16);
+  border-radius: 16px;
+  background: rgba(247, 245, 238, .58);
+  transition: border-color .3s ease, background-color .3s ease, box-shadow .3s ease;
+}
+.network-resource-section.is-open {
+  border-color: rgba(241, 144, 32, .68);
+  background: rgba(247, 245, 238, .78);
+  box-shadow: 0 16px 38px rgba(35, 42, 42, .08);
+}
+.network-resource-section__trigger {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  color: #232A2A;
+  text-align: left;
+  transition: background-color .25s ease;
+}
+.network-resource-section__trigger:hover,
+.network-resource-section__trigger:focus-visible {
+  background: rgba(241, 144, 32, .09);
+  outline: none;
+}
+.network-resource-section__index {
+  color: #F19020;
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+.network-resource-section__heading {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+.network-resource-section__title {
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+  line-height: 1;
+}
+.network-resource-section__summary {
+  overflow: hidden;
+  color: rgba(35, 42, 42, .65);
+  font-family: var(--font-editorial);
+  font-size: 14px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.network-resource-section__count {
+  color: rgba(35, 42, 42, .56);
+  font-size: 10px;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+.network-resource-section.is-open .network-resource-section__count {
+  color: #9a5507;
+}
+.network-resource-section__icon {
+  color: rgba(35, 42, 42, .62);
+  transition: transform .3s ease, color .3s ease;
+}
+.network-resource-section.is-open .network-resource-section__icon {
+  color: #F19020;
+  transform: rotate(180deg);
+}
+.network-resource-section__body {
+  padding: 0 20px 20px;
+  animation: network-directory-reveal .38s cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes network-directory-reveal {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (hover: none), (pointer: coarse) {
+  .network-touch-hint { display: flex; }
+}
+@media (max-width: 520px) {
+  .network-touch-hint { left: 10px; right: 10px; bottom: 10px; max-width: none; justify-content: center; padding-inline: 10px; font-size: 10px; }
+  .network-touch-hint .font-mono-sys { display: none; }
+  .network-resource-section__trigger { grid-template-columns: auto minmax(0, 1fr) auto; gap: 11px; padding: 15px 14px; }
+  .network-resource-section__summary { font-size: 13px; white-space: normal; }
+  .network-resource-section__count { grid-column: 2; grid-row: 2; justify-self: start; }
+  .network-resource-section__icon { grid-column: 3; grid-row: 1 / span 2; }
+  .network-resource-section__body { padding: 0 14px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .network-touch-hint,
+  .network-resource-section,
+  .network-resource-section__icon { transition: none; }
+  .network-resource-section__body { animation: none; }
+}

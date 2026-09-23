@@ -1,49 +1,99 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, CornerDownLeft } from "lucide-react";
-import { searchCommands } from "@/lib/commandIndex";
 import { track } from "@/lib/api";
 
 /**
  * The command palette. Cmd/Ctrl-K, or the button in the nav.
  *
- * This site sells brand operating systems, and says in its own copy that it
- * wants "technology without theatre". So the one piece of interface ambition
- * it takes is the one that is an instrument rather than a spectacle: the site
- * behaves like the thing it sells. There is no glowing cursor, no ambient
- * audio and no volumetric fog anywhere in this component, and that is the
- * point — those would make the page contradict the sentence next to them.
- *
- * It also solves a real navigation problem rather than decorating one. The
- * site has 49 routes, six systems, 175 named services and sixteen
- * disciplines, and the 175 were previously unreachable except by opening a
- * package-builder widget and scrolling. Typing "pain point" now goes straight
- * to the audit page that contains it.
- *
- * Keyboard-first by construction: it is the only way in, arrow keys move,
- * Enter navigates, Escape closes, focus returns to whatever opened it. That
- * makes the most ambitious thing on the site also the most accessible one.
+ * The search index is intentionally loaded only when the palette opens. That
+ * keeps the large service/content dataset out of the initial route dependency
+ * graph for visitors who never use site search.
  */
 export const CommandPalette = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
+  const [searchCommandsFn, setSearchCommandsFn] = useState(null);
+  const [indexFailed, setIndexFailed] = useState(false);
 
   const inputRef = useRef(null);
   const listRef = useRef(null);
   const returnFocusRef = useRef(null);
+  const moduleRef = useRef(null);
+  const dynamicRef = useRef(null);
 
-  const results = useMemo(() => searchCommands(query), [query]);
+  useEffect(() => {
+    if (!open || searchCommandsFn || indexFailed) return undefined;
+    let current = true;
+    import("@/lib/commandIndex")
+      .then((mod) => {
+        if (!current) return;
+        moduleRef.current = mod;
+        setSearchCommandsFn(() => mod.searchCommands);
+      })
+      .catch(() => {
+        if (current) setIndexFailed(true);
+      });
+    return () => { current = false; };
+  }, [open, searchCommandsFn, indexFailed]);
+
+  // Case studies, insights and ecosystem entries are fetched, not static, so
+  // they land after the module itself resolves. This effect asks for them
+  // once the module is present and again on every opening: loadDynamicIndex
+  // keeps a successful load, so that costs nothing, and after a load in
+  // which every source failed it fetches again, so a palette first opened
+  // during an API outage recovers on its next opening. When a new item set
+  // arrives, searchCommandsFn gets a fresh closure over the same function,
+  // which is what makes the results memo below recompute for the query
+  // already typed; a cached load resolves to the same set and sets nothing,
+  // so re-running on the state change it caused ends there.
+  useEffect(() => {
+    const mod = moduleRef.current;
+    if (!open || !mod) return undefined;
+    let current = true;
+    mod.loadDynamicIndex().then((items) => {
+      if (!current || items === dynamicRef.current) return;
+      dynamicRef.current = items;
+      setSearchCommandsFn(() => (q) => mod.searchCommands(q));
+    });
+    return () => { current = false; };
+  }, [open, searchCommandsFn]);
+
+  const results = useMemo(
+    () => (searchCommandsFn ? searchCommandsFn(query) : []),
+    [query, searchCommandsFn]
+  );
 
   const close = useCallback(() => {
+    if (indexFailed) {
+      // Resetting indexFailed here used to be the whole fix, and it looked
+      // right: it clears the effect's guard, so the next open calls import()
+      // again. Verified live that it is not enough. A browser's module
+      // registry caches a *failed* dynamic import against its exact URL for
+      // the life of the page — a second import() for that same URL rejects
+      // immediately from the cache, with no network request at all, even
+      // once the file is back and serving 200. Confirmed directly: the same
+      // specifier kept failing after the file was restored; only a request
+      // with a different URL (or a fresh page) succeeded. Vite resolves
+      // "@/lib/commandIndex" to a fixed hashed URL at build time, so there is
+      // no query-string trick available here without breaking that
+      // resolution. A reload is the standard recovery for a failed chunk
+      // load for exactly this reason — it is also what actually fixes the
+      // far more common real-world case a transient blip stands in for
+      // here: a new deploy shipped while this tab was open, so the loaded
+      // bundle is asking for a chunk hash the server no longer has, and no
+      // in-page retry can produce a hash the current bundle doesn't know.
+      window.location.reload();
+      return;
+    }
     setOpen(false);
     setQuery("");
     setActive(0);
-    // Give focus back to whatever had it, or the palette is a keyboard dead end.
     const el = returnFocusRef.current;
     if (el && document.contains(el)) el.focus();
-  }, []);
+  }, [indexFailed]);
 
   const openPalette = useCallback(() => {
     returnFocusRef.current = document.activeElement;
@@ -51,7 +101,6 @@ export const CommandPalette = () => {
     track("command_palette_opened");
   }, []);
 
-  // Global shortcut. Listens on keydown so it beats the browser's own find bar.
   useEffect(() => {
     const onKey = (e) => {
       const mod = e.metaKey || e.ctrlKey;
@@ -71,7 +120,6 @@ export const CommandPalette = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, close, openPalette]);
 
-  // Expose one opener so the nav button and anything else use the same path.
   useEffect(() => {
     window.__openCommandPalette = openPalette;
     return () => { delete window.__openCommandPalette; };
@@ -83,7 +131,6 @@ export const CommandPalette = () => {
 
   useEffect(() => { setActive(0); }, [query]);
 
-  // Keep the highlighted row in view when arrowing past the fold.
   useEffect(() => {
     const list = listRef.current;
     if (!list) return;
@@ -95,10 +142,6 @@ export const CommandPalette = () => {
     (item) => {
       if (!item) return;
       track("command_palette_navigate", { to: item.to, kind: item.kind, q: query.slice(0, 40) });
-      // Close without restoring focus — the element that opened this is about
-      // to be replaced by a new route. Focus goes to the new page's <main>
-      // instead, so a screen-reader user is told they have moved rather than
-      // being dropped on <body> with no announcement.
       returnFocusRef.current = null;
       close();
       navigate(item.to);
@@ -111,6 +154,7 @@ export const CommandPalette = () => {
   );
 
   const onInputKey = (e) => {
+    if (!searchCommandsFn) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((i) => Math.min(i + 1, results.length - 1));
@@ -121,9 +165,11 @@ export const CommandPalette = () => {
       e.preventDefault();
       go(results[active]);
     } else if (e.key === "Home") {
-      e.preventDefault(); setActive(0);
+      e.preventDefault();
+      setActive(0);
     } else if (e.key === "End") {
-      e.preventDefault(); setActive(Math.max(0, results.length - 1));
+      e.preventDefault();
+      setActive(Math.max(0, results.length - 1));
     }
   };
 
@@ -166,7 +212,11 @@ export const CommandPalette = () => {
           <kbd className="cmdk-kbd">ESC</kbd>
         </div>
 
-        {results.length === 0 ? (
+        {!searchCommandsFn && !indexFailed ? (
+          <p className="cmdk-empty" role="status">Preparing search…</p>
+        ) : indexFailed ? (
+          <p className="cmdk-empty" role="status">Search couldn’t load. Close this panel and try again.</p>
+        ) : results.length === 0 ? (
           <p className="cmdk-empty" data-testid="command-palette-empty">
             Nothing matches “{query}”. Try a problem rather than a product: “pricing”, “retention”,
             “dashboard”.

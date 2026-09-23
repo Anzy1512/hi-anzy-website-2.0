@@ -74,6 +74,24 @@ def test_category_filter(api, route):
     assert items and all(item['category'] == category for item in items)
 
 
+def test_knowledge_articles_shape_and_topic_filter(api):
+    items = api.get('/api/insights').json()
+    knowledge = [i for i in items if i.get('format') == 'knowledge']
+    notes = [i for i in items if i.get('format') == 'note']
+    assert knowledge and notes
+    for item in knowledge:
+        assert item['definition'] and item['topics'] and item['related']
+        assert 'body' not in item
+    topic = knowledge[0]['topics'][0]
+    filtered = api.get('/api/insights', params={'topic': topic}).json()
+    assert filtered and all(topic in item['topics'] for item in filtered)
+    assert api.get('/api/insights', params={'topic': 'Not A Topic'}).json() == []
+    detail = api.get('/api/insights/' + knowledge[0]['slug']).json()
+    assert any(block['type'] == 'steps' for block in detail['body'])
+    for target in detail['related']['insights']:
+        assert api.get('/api/insights/' + target).status_code == 200
+
+
 def test_contact_persists_normalized_fields(api):
     response = api.post('/api/contact', json={**CONTACT, 'name': '  Audit Tester  '})
     assert response.status_code == 200
@@ -424,3 +442,69 @@ def test_public_metadata_snapshot_matches_seed_content():
     root = Path(__file__).resolve().parents[1]
     actual = json.loads((root / 'frontend/scripts/content-snapshot.json').read_text(encoding='utf-8'))
     assert actual == expected
+
+
+def _request(headers, peer='10.0.0.1'):
+    return Mock(headers=headers, client=Mock(host=peer) if peer else None)
+
+
+def test_client_ip_trusts_the_forwarded_header_only_on_vercel(monkeypatch):
+    """Off Vercel the header is attacker-controlled; on Vercel the platform owns it.
+
+    Getting this backwards fails in opposite, equally bad ways: trusting it
+    everywhere lets anyone rotate the header to walk past the rate limit, and
+    trusting it nowhere buckets every Vercel visitor under one shared proxy
+    address, so real users lock each other out of the contact form.
+    """
+    spoofed = _request({'x-forwarded-for': '203.0.113.9, 10.1.1.1'})
+
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    assert server.client_ip(spoofed) == '10.0.0.1'
+
+    monkeypatch.setattr(server, 'IS_SERVERLESS', True)
+    assert server.client_ip(spoofed) == '203.0.113.9'
+    assert server.client_ip(_request({})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '  '})) == '10.0.0.1'
+    assert server.client_ip(_request({}, peer=None)) == 'unknown'
+
+
+def test_client_ip_behind_app_runner_uses_the_hop_the_platform_wrote(monkeypatch):
+    """App Runner's request router is the socket peer for every request and appends the
+    visitor's address as the LAST x-forwarded-for hop, after anything the caller sent.
+    TRUSTED_PROXY=apprunner reads that hop; nothing else in the header is believed."""
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'apprunner')
+    assert server.client_ip(_request({})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.7'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 198.51.100.4, 203.0.113.7'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': ' 203.0.113.7 , ,'})) == '203.0.113.7'
+    assert server.client_ip(_request({'x-forwarded-for': '2001:db8::1'})) == '2001:db8::1'
+    for malformed in ('', '   ', ',', 'not-an-ip', '203.0.113.7:443', '<script>', '1.1.1.1, garbage'):
+        assert server.client_ip(_request({'x-forwarded-for': malformed})) == '10.0.0.1', malformed
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.7'}, peer=None)) == '203.0.113.7'
+    assert server.client_ip(_request({}, peer=None)) == 'unknown'
+
+
+def test_client_ip_ignores_a_spoofed_header_outside_any_trusted_proxy(monkeypatch):
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', '')
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1'})) == '10.0.0.1'
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 2.2.2.2'})) == '10.0.0.1'
+    # an explicit setting wins over the Vercel implication, and vercel still reads the first hop
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'vercel')
+    assert server.client_ip(_request({'x-forwarded-for': '1.1.1.1, 2.2.2.2'})) == '1.1.1.1'
+
+
+def test_rate_limit_buckets_follow_the_derived_address(monkeypatch):
+    monkeypatch.setattr(server, 'IS_SERVERLESS', False)
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', 'apprunner')
+    bucket = 'client-ip-' + uuid.uuid4().hex
+    visitor_a = server.client_ip(_request({'x-forwarded-for': '203.0.113.7'}))
+    visitor_b = server.client_ip(_request({'x-forwarded-for': '203.0.113.8'}))
+    assert visitor_a != visitor_b  # two visitors behind the same proxy peer are two buckets
+    assert [server.rate_limited(bucket, visitor_a, max_hits=3, window_seconds=60) for _ in range(3)] == [False] * 3
+    assert server.rate_limited(bucket, visitor_a, max_hits=3, window_seconds=60) is True
+    assert server.rate_limited(bucket, visitor_b, max_hits=3, window_seconds=60) is False
+    monkeypatch.setattr(server, 'TRUSTED_PROXY', '')
+    # outside a trusted context the header cannot open a fresh bucket
+    assert server.client_ip(_request({'x-forwarded-for': '203.0.113.9'})) == '10.0.0.1'

@@ -7,6 +7,12 @@ import { API } from "@/lib/api";
 
 const AuthContext = createContext({ user: null, loading: true, login: () => {}, logout: () => {} });
 
+// fetch has no default timeout. A session check that never answers used to
+// hide both the sign-in control and the avatar for the rest of the visit, and
+// a hung session exchange left the visitor on the "Signing you in" screen
+// with no way out. Same 15 s deadline as the axios calls in api.js.
+const deadline = () => (typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(15000) : undefined);
+
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
@@ -15,7 +21,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/auth/me`, { credentials: "include" });
+      const res = await fetch(`${API}/auth/me`, { credentials: "include", signal: deadline() });
       if (!res.ok) throw new Error("unauthenticated");
       setUser(await res.json());
     } catch (e) {
@@ -44,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+      await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include", signal: deadline() });
     } catch (e) {
       /* session cleanup best-effort */
     }
@@ -83,6 +89,7 @@ export const AuthCallback = () => {
       method: "POST",
       headers: { "X-Session-ID": sessionId },
       credentials: "include",
+      signal: deadline(),
     })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("exchange failed"))))
       .then((data) => finish(data.user))

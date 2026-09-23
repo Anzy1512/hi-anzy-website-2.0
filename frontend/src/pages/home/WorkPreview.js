@@ -7,7 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { ProvenanceTag } from "@/components/ProvenanceTag";
 import { getCaseStudies, track } from "@/lib/api";
 import { subscribeScroll, useReducedMotion } from "@/lib/motion";
-import { CASE_VISUALS, CaseGraphic } from "@/pages/home/ConnectedStory";
+import { CASE_VISUALS, CaseGraphic } from "@/pages/home/caseVisuals";
 
 const firstSentence = (text = "") => text.match(/^.*?[.!?](?:\s|$)/)?.[0] || text;
 
@@ -35,18 +35,34 @@ export const WorkPreview = () => {
     if (!section || !row || reduced) return undefined;
     let frame = 0;
 
+    /* Measured with a DevTools performance trace: this used to read
+       getBoundingClientRect()/scrollWidth on every scroll-driven rAF, then
+       write row.scrollLeft in the same tick. That read landed after other
+       scroll-frame code (Lenis, ScrollTrigger.update, GSAP's ticker) had
+       already written styles this frame, so the browser had to flush layout
+       synchronously to answer it — a forced reflow, repeated on effectively
+       every frame of every scroll. The trace showed ~130ms of it across one
+       3.5s scroll on this page alone. None of these numbers change from one
+       scroll pixel to the next, only when the row's content width changes or
+       the viewport resizes, so they belong in `measure`, not in the every-
+       frame `sync` path. */
+    const metrics = { start: 0, travel: 1, maxScroll: 0 };
+    const measure = () => {
+      const rect = section.getBoundingClientRect();
+      const sectionTop = rect.top + window.scrollY;
+      metrics.start = sectionTop - window.innerHeight * 0.72;
+      metrics.travel = Math.max(rect.height - window.innerHeight * 0.28, window.innerHeight * 0.55);
+      metrics.maxScroll = Math.max(row.scrollWidth - row.clientWidth, 0);
+    };
+    measure();
+
     const sync = (scrollY) => {
       if (draggingRef.current || frame) return;
       frame = requestAnimationFrame(() => {
         frame = 0;
-        const maxScroll = Math.max(row.scrollWidth - row.clientWidth, 0);
-        if (!maxScroll) return;
-        const rect = section.getBoundingClientRect();
-        const sectionTop = rect.top + scrollY;
-        const start = sectionTop - window.innerHeight * 0.72;
-        const travel = Math.max(rect.height - window.innerHeight * 0.28, window.innerHeight * 0.55);
-        const progress = Math.min(1, Math.max(0, (scrollY - start) / travel));
-        row.scrollLeft = maxScroll * progress;
+        if (!metrics.maxScroll) return;
+        const progress = Math.min(1, Math.max(0, (scrollY - metrics.start) / metrics.travel));
+        row.scrollLeft = metrics.maxScroll * progress;
       });
     };
 
@@ -57,8 +73,9 @@ export const WorkPreview = () => {
     row.addEventListener("pointerup", onPointerUp, { passive: true });
     row.addEventListener("pointercancel", onPointerUp, { passive: true });
     row.addEventListener("pointerleave", onPointerUp, { passive: true });
-    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => sync(window.scrollY));
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
     resizeObserver?.observe(row);
+    window.addEventListener("resize", measure);
 
     return () => {
       unsubscribe();
@@ -68,11 +85,12 @@ export const WorkPreview = () => {
       row.removeEventListener("pointercancel", onPointerUp);
       row.removeEventListener("pointerleave", onPointerUp);
       resizeObserver?.disconnect();
+      window.removeEventListener("resize", measure);
     };
   }, [cases, reduced]);
 
   return (
-    <section ref={sectionRef} className="container-page section-pad" data-testid="home-work-section">
+    <section ref={sectionRef} id="home-work-section" className="container-page section-pad" data-testid="home-work-section">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading kicker="PROOF" title="Less portfolio. More proof." testId="work-heading" />
         <Reveal delay={150}>

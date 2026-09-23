@@ -10,6 +10,8 @@ import { useRevealObserver } from "@/lib/motion";
 import { getCaseStudy, getCaseStudies, track } from "@/lib/api";
 import { CATEGORY_BY_SLUG } from "@/data/content";
 import { CaseBanner } from "@/components/ContextBanner";
+import { NextSteps } from "@/components/NextSteps";
+import { RelatedReading } from "@/components/RelatedReading";
 
 const SECTIONS = [
   { key: "situation", label: "SITUATION" },
@@ -46,11 +48,11 @@ export default function WorkDetail() {
     return () => { current = false; };
   }, [slug, retry]);
 
-  if (loadError) return <div role="alert" className="container-page py-32"><h1 className="font-display text-4xl">We could not load this page.</h1><button type="button" className="btn-ink mt-6" onClick={() => setRetry(value => value + 1)}>Try again</button></div>;
+  if (loadError) return <div role="alert" className="container-page py-32 pt-[84px]"><h1 className="font-display text-4xl">We could not load this page.</h1><button type="button" className="btn-ink mt-6" onClick={() => setRetry(value => value + 1)}>Try again</button></div>;
 
   if (notFound) {
     return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 pt-[84px]" data-testid="work-detail-not-found">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 px-4 text-center pt-[84px]" data-testid="work-detail-not-found">
         <p className="font-display text-5xl text-[#232A2A]">That case file went missing.</p>
         <MagneticButton to="/work" className="btn-ink">Back to the Work</MagneticButton>
       </div>
@@ -173,6 +175,8 @@ export default function WorkDetail() {
           </Link>
         )}
       </article>
+      <RelatedReading kind="work" slug={cs.slug} title="THE THINKING BEHIND THIS CASE" />
+      <NextSteps from="/work-detail" />
     </div>
   );
 }

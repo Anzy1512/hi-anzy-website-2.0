@@ -36,7 +36,7 @@ export const Hero = ({ show3d }) => {
   const handleCoreFailed = useCallback(() => setCoreReady(false), []);
 
   return (
-    <section className="relative container-page pb-10 pt-[100px] lg:pb-14 lg:pt-[112px]" data-testid="home-hero-section">
+    <section id="home-hero-section" className="relative container-page pb-10 pt-[100px] lg:pb-14 lg:pt-[112px]" data-testid="home-hero-section">
       <div className="grid items-center gap-10 lg:grid-cols-12">
         <div className="lg:col-span-6">
           <Reveal as="p" className="font-display text-[clamp(0.82rem,1vw,1.06rem)] font-semibold uppercase leading-[1.1] tracking-[0.08em]" testId="hero-kicker">
@@ -86,6 +86,16 @@ export const Hero = ({ show3d }) => {
               style={{ aspectRatio: "4/4" }}
               data-testid="hero-core-frame"
             >
+              {/* The canvas is transparent by design (see below), so it was sitting
+                  directly on .panel-dark's flat fill — the one uninterrupted block
+                  of solid colour on a page that is otherwise printed with the
+                  two-plate halftone everywhere else. A glow rooted at the hub's own
+                  position (the scene's origin, dead centre under this camera) reads
+                  as the diagram's energy rather than added decoration, and the same
+                  dot plate as the rest of the site keeps this panel from reading as
+                  a hole cut out of the page. Behind both the fallback and the
+                  canvas, and under everything: purely a backdrop. */}
+              <div className="hero-core-backdrop absolute inset-0" aria-hidden="true" />
               {/* The diagram paints first — same layering .motif-frame uses for its
                   deck scenes — and the canvas fades in on top once it is truly
                   ready, instead of popping in over what had been an empty frame.

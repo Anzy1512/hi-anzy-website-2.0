@@ -1,0 +1,5873 @@
+{
+  "summary": {
+    "generatedAt": "2026-09-23T11:48:55.448Z",
+    "contentSources": {
+      "cases": "api",
+      "insights": "api",
+      "ecosystem": "api"
+    },
+    "files": 119,
+    "links": 178,
+    "byType": {
+      "mailto": 12,
+      "internal": 159,
+      "same-page-hash": 3,
+      "other": 4
+    },
+    "pages": 76,
+    "pagesByKind": {
+      "static": 13,
+      "service": 6,
+      "discipline": 16,
+      "ecosystem-category": 6,
+      "case-study": 5,
+      "insight": 30
+    },
+    "broken": 0,
+    "orphans": [],
+    "staticIds": 45,
+    "ecosystemItems": 35
+  },
+  "pages": [
+    {
+      "route": "/",
+      "kind": "static",
+      "title": "/",
+      "inbound": [
+        {
+          "from": "src/components/Nav.js",
+          "text": "to",
+          "line": 125
+        },
+        {
+          "from": "src/components/RouteErrorBoundary.js",
+          "text": "Home",
+          "line": 40
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 2
+        },
+        {
+          "from": "src/lib/auth.js",
+          "text": "navigate",
+          "line": 82
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 60
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 61
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 62
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 63
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 64
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 65
+        },
+        {
+          "from": "src/pages/NotFound.js",
+          "text": "Take me somewhere useful",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do",
+      "kind": "static",
+      "title": "/what-we-do",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 37
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 42
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 53
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 68
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 72
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 3
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 75
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 76
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Find an engagement",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )}> Explore What We Do",
+          "line": 18
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "See what we do",
+          "line": 112
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "WHAT WE DO",
+          "line": 126
+        }
+      ]
+    },
+    {
+      "route": "/how-we-work",
+      "kind": "static",
+      "title": "/how-we-work",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 18
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 28
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 32
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 38
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 59
+        },
+        {
+          "from": "src/components/Packages.js",
+          "text": "how we work",
+          "line": 163
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 4
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "See the build sequence",
+          "line": 89
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Inside the process",
+          "line": 110
+        },
+        {
+          "from": "src/pages/home/Hero.js",
+          "text": "track(\"method_explored\", )}> See How It Works",
+          "line": 64
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "Explore the five-stage method",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "route": "/work",
+      "kind": "static",
+      "title": "/work",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 22
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 27
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 33
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 39
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 43
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 52
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 73
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 5
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 67
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 68
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 69
+        },
+        {
+          "from": "src/pages/Contact.js",
+          "text": "Explore Our Work",
+          "line": 202
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "Back to the Orbit",
+          "line": 103
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore the work",
+          "line": 61
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Visit the work archive",
+          "line": 73
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "See the Work",
+          "line": 97
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "Visit the work archive.",
+          "line": 106
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )}> Related work",
+          "line": 101
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "Back to the Work",
+          "line": 57
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "ALL WORK",
+          "line": 83
+        }
+      ]
+    },
+    {
+      "route": "/network",
+      "kind": "static",
+      "title": "/network",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 17
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 23
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 57
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 6
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 71
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 72
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 73
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "Back to the network",
+          "line": 53
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "THE NETWORK",
+          "line": 96
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Meet the network",
+          "line": 112
+        },
+        {
+          "from": "src/pages/home/Hero.js",
+          "text": "to",
+          "line": 81
+        },
+        {
+          "from": "src/pages/home/NetworkPreview.js",
+          "text": "Explore the Network",
+          "line": 50
+        },
+        {
+          "from": "src/pages/home/NetworkPreview.js",
+          "text": "track(\"network_category_selected\", )} > />}> categoryName(c))} />}> categoryName",
+          "line": 60
+        }
+      ]
+    },
+    {
+      "route": "/why-hi-anzy",
+      "kind": "static",
+      "title": "/why-hi-anzy",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 44
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 62
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "route": "/insights",
+      "kind": "static",
+      "title": "/insights",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 24
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 48
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 64
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 67
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 8
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 169
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 185
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "Back to Insights",
+          "line": 97
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "INSIGHTS",
+          "line": 172
+        }
+      ]
+    },
+    {
+      "route": "/contact",
+      "kind": "static",
+      "title": "/contact",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 19
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 54
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 69
+        },
+        {
+          "from": "src/components/PackageBuilder.js",
+          "text": "navigate (dynamic)",
+          "line": 114
+        },
+        {
+          "from": "src/components/Packages.js",
+          "text": "track(\"cta_primary_click\", )} > Scope this stage",
+          "line": 100
+        },
+        {
+          "from": "src/components/StickyCta.js",
+          "text": "track(\"cta_primary_click\", )} data-testid=\"sticky-cta-link\" > Start a Conversati",
+          "line": 127
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 39
+        },
+        {
+          "from": "src/pages/Careers.js",
+          "text": "Introduce Yourself",
+          "line": 53
+        },
+        {
+          "from": "src/pages/Collaborate.js",
+          "text": "Introduce Yourself",
+          "line": 69
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "contact us",
+          "line": 228
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "say hi",
+          "line": 114
+        },
+        {
+          "from": "src/pages/home/Closing.js",
+          "text": "track(\"cta_primary_click\", )}> Build It Right",
+          "line": 50
+        },
+        {
+          "from": "src/pages/home/Diagnostic.js",
+          "text": "track(\"diagnostic_cta_click\", )}> Find the Gap",
+          "line": 28
+        },
+        {
+          "from": "src/pages/home/Hero.js",
+          "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+          "line": 61
+        },
+        {
+          "from": "src/pages/HowWeWork.js",
+          "text": "track(\"cta_primary_click\", )}>Discuss Your Project",
+          "line": 119
+        },
+        {
+          "from": "src/pages/Resources.js",
+          "text": "track(\"resource_discussed\", )} className=\"link-draw mt-5 inline-flex w-fit items",
+          "line": 43
+        },
+        {
+          "from": "src/pages/Resources.js",
+          "text": "contact form",
+          "line": 71
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"cta_primary_click\", )} > Start a Conversation",
+          "line": 288
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "Talk about this",
+          "line": 104
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+          "line": 124
+        },
+        {
+          "from": "src/pages/WhoWeWorkWith.js",
+          "text": "Start a Conversation",
+          "line": 55
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "contact us",
+          "line": 170
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "Talk to us",
+          "line": 175
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+          "line": 286
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "contact us",
+          "line": 346
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+          "line": 163
+        }
+      ]
+    },
+    {
+      "route": "/who-we-work-with",
+      "kind": "static",
+      "title": "/who-we-work-with",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 47
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 12
+        },
+        {
+          "from": "src/pages/home/WhoWith.js",
+          "text": "See Who We Work With",
+          "line": 40
+        },
+        {
+          "from": "src/pages/home/WhoWith.js",
+          "text": "The full filter, and where we tend to earn our fee",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "route": "/collaborate",
+      "kind": "static",
+      "title": "/collaborate",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 29
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 63
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "route": "/careers",
+      "kind": "static",
+      "title": "/careers",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 49
+        },
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 58
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "route": "/resources",
+      "kind": "static",
+      "title": "/resources",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 74
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 15
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 16
+        },
+        {
+          "from": "src/data/content.js",
+          "text": "to",
+          "line": 17
+        }
+      ]
+    },
+    {
+      "route": "/coming-soon",
+      "kind": "static",
+      "title": "/coming-soon",
+      "inbound": [
+        {
+          "from": "src/components/Footer.js",
+          "text": "track(\"hianzy_ai_teaser_clicked\", )} className=\"link-draw mt-3 inline-flex items",
+          "line": 189
+        },
+        {
+          "from": "src/components/Footer.js",
+          "text": "track(\"imkaan_teaser_clicked\", )} className=\"link-draw mt-3 inline-flex items-ce",
+          "line": 207
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to",
+          "line": 40
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/business-audit-strategy",
+      "kind": "service",
+      "title": "Business Audit & Strategy",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/brand-experience",
+      "kind": "service",
+      "title": "Brand & Experience",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/digital-technology-automation",
+      "kind": "service",
+      "title": "Digital, Technology & Automation",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/growth-content-commerce",
+      "kind": "service",
+      "title": "Growth, Content & Commerce",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/media-creators-experiences",
+      "kind": "service",
+      "title": "Media, Creators & Experiences",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/what-we-do/advisory-security-scale",
+      "kind": "service",
+      "title": "Advisory, Security & Scale",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 98
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "Explore this approach (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "to (dynamic)",
+          "line": 109
+        },
+        {
+          "from": "src/pages/home/WhatWeDoGrid.js",
+          "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til (dynamic)",
+          "line": 26
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE SERVICE · (dynamic)",
+          "line": 296
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 334
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > (dynamic)",
+          "line": 77
+        },
+        {
+          "from": "src/pages/WhatWeDo.js",
+          "text": "track(\"service_explored\", )} > Explore this capability (dynamic)",
+          "line": 107
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} > (dynamic)",
+          "line": 138
+        }
+      ]
+    },
+    {
+      "route": "/network/strategy",
+      "kind": "discipline",
+      "title": "Strategy",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/brand",
+      "kind": "discipline",
+      "title": "Brand",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/design",
+      "kind": "discipline",
+      "title": "Design",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/technology",
+      "kind": "discipline",
+      "title": "Technology",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/ai",
+      "kind": "discipline",
+      "title": "AI",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/automation",
+      "kind": "discipline",
+      "title": "Automation",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/performance",
+      "kind": "discipline",
+      "title": "Performance",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/media",
+      "kind": "discipline",
+      "title": "Media",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/creators",
+      "kind": "discipline",
+      "title": "Creators",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/production",
+      "kind": "discipline",
+      "title": "Production",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/events",
+      "kind": "discipline",
+      "title": "Events",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/venues",
+      "kind": "discipline",
+      "title": "Venues",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/experiences",
+      "kind": "discipline",
+      "title": "Experiences",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/pr",
+      "kind": "discipline",
+      "title": "PR",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/security",
+      "kind": "discipline",
+      "title": "Security",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/network/operations",
+      "kind": "discipline",
+      "title": "Operations",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 120
+        },
+        {
+          "from": "src/pages/Discipline.js",
+          "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam (dynamic)",
+          "line": 268
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE DISCIPLINE (dynamic)",
+          "line": 303
+        },
+        {
+          "from": "src/pages/Network.js",
+          "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap- (dynamic)",
+          "line": 443
+        }
+      ]
+    },
+    {
+      "route": "/work/built-here",
+      "kind": "ecosystem-category",
+      "title": "BUILT HERE",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 691
+        }
+      ]
+    },
+    {
+      "route": "/work/built-together",
+      "kind": "ecosystem-category",
+      "title": "BUILT TOGETHER",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 700
+        }
+      ]
+    },
+    {
+      "route": "/network/collaborators",
+      "kind": "ecosystem-category",
+      "title": "MINDS IN THE MIX",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 709
+        }
+      ]
+    },
+    {
+      "route": "/network/artists-creators",
+      "kind": "ecosystem-category",
+      "title": "FACES & VOICES",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 718
+        }
+      ]
+    },
+    {
+      "route": "/network/venue-partners",
+      "kind": "ecosystem-category",
+      "title": "PLACES WITH POSSIBILITY",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 730
+        }
+      ]
+    },
+    {
+      "route": "/network/partners",
+      "kind": "ecosystem-category",
+      "title": "PARTNERS IN PROGRESS",
+      "inbound": [
+        {
+          "from": "src/data/content.js",
+          "text": "route",
+          "line": 739
+        }
+      ]
+    },
+    {
+      "route": "/work/the-storefront-was-never-the-problem",
+      "kind": "case-study",
+      "title": "The Storefront Was Never the Problem",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 230
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className (dynamic)",
+          "line": 170
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "WHAT CHANGED Read the case study (dynamic)",
+          "line": 67
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group  (dynamic)",
+          "line": 111
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene (dynamic)",
+          "line": 310
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > · (dynamic)",
+          "line": 311
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "to (dynamic)",
+          "line": 181
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "the case page (dynamic)",
+          "line": 256
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"case_opened\", )}> Open dedicated case page (dynamic)",
+          "line": 289
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_opened\", )}> NEXT CASE (dynamic)",
+          "line": 169
+        }
+      ]
+    },
+    {
+      "route": "/work/a-rebrand-that-turned-out-to-be-a-pricing-problem",
+      "kind": "case-study",
+      "title": "A Rebrand That Turned Out to Be a Pricing Problem",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 230
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className (dynamic)",
+          "line": 170
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "WHAT CHANGED Read the case study (dynamic)",
+          "line": 67
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group  (dynamic)",
+          "line": 111
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene (dynamic)",
+          "line": 310
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > · (dynamic)",
+          "line": 311
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "to (dynamic)",
+          "line": 181
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "the case page (dynamic)",
+          "line": 256
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"case_opened\", )}> Open dedicated case page (dynamic)",
+          "line": 289
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_opened\", )}> NEXT CASE (dynamic)",
+          "line": 169
+        }
+      ]
+    },
+    {
+      "route": "/work/commerce-untangled",
+      "kind": "case-study",
+      "title": "Commerce, Untangled",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 230
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className (dynamic)",
+          "line": 170
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "WHAT CHANGED Read the case study (dynamic)",
+          "line": 67
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group  (dynamic)",
+          "line": 111
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene (dynamic)",
+          "line": 310
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > · (dynamic)",
+          "line": 311
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "to (dynamic)",
+          "line": 181
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "the case page (dynamic)",
+          "line": 256
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"case_opened\", )}> Open dedicated case page (dynamic)",
+          "line": 289
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_opened\", )}> NEXT CASE (dynamic)",
+          "line": 169
+        }
+      ]
+    },
+    {
+      "route": "/work/launch-systems-for-a-festival-season",
+      "kind": "case-study",
+      "title": "Launch Systems for a Festival Season",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 230
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className (dynamic)",
+          "line": 170
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "WHAT CHANGED Read the case study (dynamic)",
+          "line": 67
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group  (dynamic)",
+          "line": 111
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene (dynamic)",
+          "line": 310
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > · (dynamic)",
+          "line": 311
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "to (dynamic)",
+          "line": 181
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "the case page (dynamic)",
+          "line": 256
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"case_opened\", )}> Open dedicated case page (dynamic)",
+          "line": 289
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_opened\", )}> NEXT CASE (dynamic)",
+          "line": 169
+        }
+      ]
+    },
+    {
+      "route": "/work/the-dashboard-nobody-opened",
+      "kind": "case-study",
+      "title": "The Dashboard Nobody Opened",
+      "inbound": [
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 230
+        },
+        {
+          "from": "src/pages/ecosystem/EcosystemCategoryPage.js",
+          "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className (dynamic)",
+          "line": 170
+        },
+        {
+          "from": "src/pages/home/ConnectedStory.js",
+          "text": "WHAT CHANGED Read the case study (dynamic)",
+          "line": 67
+        },
+        {
+          "from": "src/pages/home/WorkPreview.js",
+          "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group  (dynamic)",
+          "line": 111
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene (dynamic)",
+          "line": 310
+        },
+        {
+          "from": "src/pages/ServiceDetail.js",
+          "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > · (dynamic)",
+          "line": 311
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "to (dynamic)",
+          "line": 181
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "the case page (dynamic)",
+          "line": 256
+        },
+        {
+          "from": "src/pages/Work.js",
+          "text": "track(\"case_opened\", )}> Open dedicated case page (dynamic)",
+          "line": 289
+        },
+        {
+          "from": "src/pages/WorkDetail.js",
+          "text": "track(\"case_opened\", )}> NEXT CASE (dynamic)",
+          "line": 169
+        }
+      ]
+    },
+    {
+      "route": "/insights/reputation-management",
+      "kind": "insight",
+      "title": "Reputation Management",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/experiential-marketing-and-events",
+      "kind": "insight",
+      "title": "Experiential Marketing and Event Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/creator-marketing",
+      "kind": "insight",
+      "title": "Creator Marketing",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/seo-for-businesses",
+      "kind": "insight",
+      "title": "SEO for Businesses: What Still Matters and What Changed",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/conversion-rate-optimisation",
+      "kind": "insight",
+      "title": "Conversion Rate Optimisation",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/content-strategy",
+      "kind": "insight",
+      "title": "Content Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/performance-marketing",
+      "kind": "insight",
+      "title": "Performance Marketing",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/website-strategy",
+      "kind": "insight",
+      "title": "Website Strategy: What a Website Is For",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/ai-readiness",
+      "kind": "insight",
+      "title": "AI Readiness: How to Tell Whether Your Business Is Ready for AI",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/crm-strategy",
+      "kind": "insight",
+      "title": "CRM Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/business-process-automation",
+      "kind": "insight",
+      "title": "Business Process Automation and Marketing Automation",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/tone-of-voice",
+      "kind": "insight",
+      "title": "Tone of Voice",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/customer-journey-mapping",
+      "kind": "insight",
+      "title": "Customer Journey Mapping",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/rebrand-vs-brand-refresh",
+      "kind": "insight",
+      "title": "Rebranding vs Brand Refresh: Which One You Actually Need",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/messaging-architecture",
+      "kind": "insight",
+      "title": "Messaging Architecture",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/brand-positioning-explained",
+      "kind": "insight",
+      "title": "Brand Positioning Explained",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/go-to-market-strategy",
+      "kind": "insight",
+      "title": "Go-to-Market Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/operating-model-explained",
+      "kind": "insight",
+      "title": "Operating Model: How Work Actually Gets Done",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/business-audit-explained",
+      "kind": "insight",
+      "title": "The Business Audit: What It Is, What It Finds, When to Run One",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/what-is-a-brand-operating-system",
+      "kind": "insight",
+      "title": "What Is a Brand Operating System?",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/why-we-package-services",
+      "kind": "insight",
+      "title": "Packages Exist Because Sequencing Is the Hard Part",
+      "inbound": [
+        {
+          "from": "src/components/Packages.js",
+          "text": "sequencing note",
+          "line": 159
+        },
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/writing-for-humans-and-answer-engines",
+      "kind": "insight",
+      "title": "Writing for Humans and Answer Engines Without Wrecking Either",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/how-to-brief-a-project-when-you-dont-know-whats-wrong",
+      "kind": "insight",
+      "title": "How to Brief a Project When You Do Not Know What Is Wrong",
+      "inbound": [
+        {
+          "from": "src/components/NextSteps.js",
+          "text": "to",
+          "line": 34
+        },
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/what-does-a-business-systems-consultancy-do",
+      "kind": "insight",
+      "title": "What Does a Business Systems Consultancy Actually Do?",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/the-problem-behind-the-problem",
+      "kind": "insight",
+      "title": "The Problem Behind the Problem",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/a-better-funnel-cannot-rescue-a-confused-offer",
+      "kind": "insight",
+      "title": "A Better Funnel Cannot Rescue a Confused Offer",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/ai-is-not-the-strategy",
+      "kind": "insight",
+      "title": "AI Is Not the Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/clarity-converts-before-the-cta-does",
+      "kind": "insight",
+      "title": "Clarity Converts Before the CTA Does",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/the-invoice-should-not-be-the-strategy",
+      "kind": "insight",
+      "title": "The Invoice Should Not Be the Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "route": "/insights/looking-busy-is-not-a-growth-strategy",
+      "kind": "insight",
+      "title": "Looking Busy Is Not a Growth Strategy",
+      "inbound": [
+        {
+          "from": "src/components/RelatedReading.js",
+          "text": "· Read it (dynamic)",
+          "line": 40
+        },
+        {
+          "from": "src/lib/commandIndex.js",
+          "text": "to (dynamic)",
+          "line": 247
+        },
+        {
+          "from": "src/pages/InsightDetail.js",
+          "text": "· {r.definition && } (dynamic)",
+          "line": 341
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "{p.topics?.length > 0 && ( )} Read the entry (dynamic)",
+          "line": 192
+        },
+        {
+          "from": "src/pages/Insights.js",
+          "text": "Read it (dynamic)",
+          "line": 225
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "file": "src/components/Footer.js",
+      "line": 82,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "Say hi.",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/components/Footer.js",
+      "line": 153,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/components/Footer.js",
+      "line": 160,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/components/Footer.js",
+      "line": 189,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/coming-soon#hi-anzy-ai",
+      "template": false,
+      "text": "track(\"hianzy_ai_teaser_clicked\", )} className=\"link-draw mt-3 inline-flex items",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/coming-soon",
+      "query": "",
+      "hash": "hi-anzy-ai",
+      "route": "/coming-soon",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/Footer.js",
+      "line": 207,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/coming-soon#imkaan",
+      "template": false,
+      "text": "track(\"imkaan_teaser_clicked\", )} className=\"link-draw mt-3 inline-flex items-ce",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/coming-soon",
+      "query": "",
+      "hash": "imkaan",
+      "route": "/coming-soon",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/Nav.js",
+      "line": 121,
+      "tag": "a",
+      "attr": "href",
+      "raw": "#main",
+      "template": false,
+      "text": "Skip to content",
+      "type": "same-page-hash",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "main",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/Nav.js",
+      "line": 125,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "",
+      "route": "/"
+    },
+    {
+      "file": "src/components/Nav.js",
+      "line": 207,
+      "tag": "MagneticButton",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "track(\"cta_primary_click\", )}> Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/components/Nav.js",
+      "line": 261,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "track(\"cta_primary_click\", )}> Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 17,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 18,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 19,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 22,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 23,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 24,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 27,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 28,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 29,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/collaborate",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/collaborate",
+      "query": "",
+      "hash": "",
+      "route": "/collaborate"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 32,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 33,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 34,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights/how-to-brief-a-project-when-you-dont-know-whats-wrong",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/how-to-brief-a-project-when-you-dont-know-whats-wrong",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 37,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#build",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "build",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 38,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 39,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 42,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#packages",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "packages",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 43,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 44,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/why-hi-anzy",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/why-hi-anzy",
+      "query": "",
+      "hash": "",
+      "route": "/why-hi-anzy"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 47,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/who-we-work-with",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/who-we-work-with",
+      "query": "",
+      "hash": "",
+      "route": "/who-we-work-with"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 48,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 49,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/careers",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/careers",
+      "query": "",
+      "hash": "",
+      "route": "/careers"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 52,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 53,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#packages",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "packages",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 54,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 57,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 58,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/careers",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/careers",
+      "query": "",
+      "hash": "",
+      "route": "/careers"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 59,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 62,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/why-hi-anzy",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/why-hi-anzy",
+      "query": "",
+      "hash": "",
+      "route": "/why-hi-anzy"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 63,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/collaborate",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/collaborate",
+      "query": "",
+      "hash": "",
+      "route": "/collaborate"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 64,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 67,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 68,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 69,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 72,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#packages",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "packages",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 73,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/components/NextSteps.js",
+      "line": 74,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/resources",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/resources",
+      "query": "",
+      "hash": "",
+      "route": "/resources"
+    },
+    {
+      "file": "src/components/PackageBuilder.js",
+      "line": 114,
+      "tag": "navigate",
+      "attr": "navigate",
+      "raw": "/contact?${params.toString()}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": ":param",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/components/Packages.js",
+      "line": 100,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )} > Scope this stage",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/components/Packages.js",
+      "line": 159,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights/why-we-package-services",
+      "template": false,
+      "text": "sequencing note",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/why-we-package-services",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/components/Packages.js",
+      "line": 163,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "how we work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/components/RelatedReading.js",
+      "line": 40,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights/${p.slug}",
+      "template": true,
+      "text": "· Read it",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/:param",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/components/RouteErrorBoundary.js",
+      "line": 40,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/",
+      "template": false,
+      "text": "Home",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "",
+      "route": "/"
+    },
+    {
+      "file": "src/components/StickyCta.js",
+      "line": 127,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )} data-testid=\"sticky-cta-link\" > Start a Conversati",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 691,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/work/built-here",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/built-here",
+      "query": "",
+      "hash": "",
+      "route": "/work/built-here"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 700,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/work/built-together",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/built-together",
+      "query": "",
+      "hash": "",
+      "route": "/work/built-together"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 709,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/network/collaborators",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/collaborators",
+      "query": "",
+      "hash": "",
+      "route": "/network/collaborators"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 718,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/network/artists-creators",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/artists-creators",
+      "query": "",
+      "hash": "",
+      "route": "/network/artists-creators"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 730,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/network/venue-partners",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/venue-partners",
+      "query": "",
+      "hash": "",
+      "route": "/network/venue-partners"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 739,
+      "tag": "data",
+      "attr": "route",
+      "raw": "/network/partners",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/partners",
+      "query": "",
+      "hash": "",
+      "route": "/network/partners"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 2,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "",
+      "route": "/"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 3,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 4,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 5,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 6,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 7,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/why-hi-anzy",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/why-hi-anzy",
+      "query": "",
+      "hash": "",
+      "route": "/why-hi-anzy"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 8,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 12,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/who-we-work-with",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/who-we-work-with",
+      "query": "",
+      "hash": "",
+      "route": "/who-we-work-with"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 13,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/collaborate",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/collaborate",
+      "query": "",
+      "hash": "",
+      "route": "/collaborate"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 14,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/careers",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/careers",
+      "query": "",
+      "hash": "",
+      "route": "/careers"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 15,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/resources",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/resources",
+      "query": "",
+      "hash": "",
+      "route": "/resources"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 16,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/resources#privacy",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/resources",
+      "query": "",
+      "hash": "privacy",
+      "route": "/resources",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/data/content.js",
+      "line": 17,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/resources#terms",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/resources",
+      "query": "",
+      "hash": "terms",
+      "route": "/resources",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/auth.js",
+      "line": 82,
+      "tag": "navigate",
+      "attr": "navigate",
+      "raw": "/",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "",
+      "route": "/"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 39,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 40,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/coming-soon",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/coming-soon",
+      "query": "",
+      "hash": "",
+      "route": "/coming-soon"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 60,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-hero-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-hero-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 61,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-diagnostic-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-diagnostic-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 62,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-what-we-do-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-what-we-do-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 63,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-work-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-work-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 64,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-network-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-network-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 65,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/#home-who-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "home-who-section",
+      "route": "/",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 67,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work#work-case-studies",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "work-case-studies",
+      "route": "/work",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 68,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work#orbit",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "orbit",
+      "route": "/work",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 69,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work#portfolio-wall",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "portfolio-wall",
+      "route": "/work",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 71,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network#network-disciplines-section",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "network-disciplines-section",
+      "route": "/network",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 72,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network#network-rosters",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "network-rosters",
+      "route": "/network",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 73,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network#network-specialists",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "network-specialists",
+      "route": "/network",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 75,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#packages",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "packages",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 76,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do#build",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "build",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 98,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 109,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 120,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/network/${slugify(d)}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/:param",
+      "query": "",
+      "hash": "",
+      "route": "/network/:slug"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 169,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights?category=${encodeURIComponent(cat.name)}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "category=:param",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 185,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights?topic=${encodeURIComponent(t.name)}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "topic=:param",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 230,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/work/${cs.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/lib/commandIndex.js",
+      "line": 247,
+      "tag": "data",
+      "attr": "to",
+      "raw": "/insights/${post.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/:param",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/pages/Careers.js",
+      "line": 53,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "Introduce Yourself",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Collaborate.js",
+      "line": 69,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "Introduce Yourself",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "line": 181,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "line": 202,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "Explore Our Work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "line": 53,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "Back to the network",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "line": 96,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "THE NETWORK",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "line": 228,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "contact us",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "line": 268,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network/${r.slug}",
+      "template": true,
+      "text": "track(\"discipline_cross_link\", )} data-testid={`discipline-related-$ `} classNam",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/:param",
+      "query": "",
+      "hash": "",
+      "route": "/network/:slug"
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "line": 296,
+      "tag": "MagneticButton",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "track(\"cta_primary_click\", )} > Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/ecosystem/EcosystemCategoryPage.js",
+      "line": 103,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work#orbit",
+      "template": false,
+      "text": "Back to the Orbit",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "orbit",
+      "route": "/work",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/pages/ecosystem/EcosystemCategoryPage.js",
+      "line": 114,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "say hi",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/ecosystem/EcosystemCategoryPage.js",
+      "line": 170,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${item.slug}",
+      "template": true,
+      "text": "track(\"ecosystem_profile_opened\", )} data-testid={`ecosystem-card-$ `} className",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/home/Closing.js",
+      "line": 50,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}> Build It Right",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/home/Closing.js",
+      "line": 53,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "Have an idea? A problem? Something you cannot quite explain yet? Say hi.",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 61,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "Explore the work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 67,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${item.slug}",
+      "template": true,
+      "text": "WHAT CHANGED Read the case study",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 73,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "Visit the work archive",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 89,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "Find your starting point",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 89,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "See the build sequence",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 107,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${gap.service}",
+      "template": true,
+      "text": "Explore this approach",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 109,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${item.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 109,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do#packages",
+      "template": false,
+      "text": "Find an engagement",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "packages",
+      "route": "/what-we-do",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 110,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "Inside the process",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 112,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "Meet the network",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "line": 113,
+      "tag": "a",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "Let’s connect the dots",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/home/Diagnostic.js",
+      "line": 28,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"diagnostic_cta_click\", )}> Find the Gap",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/home/Hero.js",
+      "line": 61,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/home/Hero.js",
+      "line": 64,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "track(\"method_explored\", )}> See How It Works",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/pages/home/Hero.js",
+      "line": 81,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/home/NetworkPreview.js",
+      "line": 50,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "Explore the Network",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/home/NetworkPreview.js",
+      "line": 60,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network",
+      "template": false,
+      "text": "track(\"network_category_selected\", )} > />}> categoryName(c))} />}> categoryName",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network",
+      "query": "",
+      "hash": "",
+      "route": "/network"
+    },
+    {
+      "file": "src/pages/home/WhatWeDoGrid.js",
+      "line": 18,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/what-we-do",
+      "template": false,
+      "text": "track(\"service_explored\", )}> Explore What We Do",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do"
+    },
+    {
+      "file": "src/pages/home/WhatWeDoGrid.js",
+      "line": 26,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "track(\"service_explored\", )} data-testid={`category-tile-$ `} className=\"cap-til",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/home/WhoWith.js",
+      "line": 40,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/who-we-work-with",
+      "template": false,
+      "text": "See Who We Work With",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/who-we-work-with",
+      "query": "",
+      "hash": "",
+      "route": "/who-we-work-with"
+    },
+    {
+      "file": "src/pages/home/WhoWith.js",
+      "line": 59,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/who-we-work-with",
+      "template": false,
+      "text": "The full filter, and where we tend to earn our fee",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/who-we-work-with",
+      "query": "",
+      "hash": "",
+      "route": "/who-we-work-with"
+    },
+    {
+      "file": "src/pages/home/WorkPreview.js",
+      "line": 97,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "See the Work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/home/WorkPreview.js",
+      "line": 106,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "Visit the work archive.",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/home/WorkPreview.js",
+      "line": 111,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${cs.slug}",
+      "template": true,
+      "text": "track(\"case_opened\", )} data-testid={`work-card-$ `} className=\"case-card group ",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/HowWeWork.js",
+      "line": 119,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}>Discuss Your Project",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 97,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "Back to Insights",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 172,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights",
+      "template": false,
+      "text": "INSIGHTS",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights",
+      "query": "",
+      "hash": "",
+      "route": "/insights"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 211,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "#${h.id}",
+      "template": true,
+      "text": "",
+      "type": "same-page-hash",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": ":param",
+      "anchor": "dynamic-id"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 296,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "THE SERVICE ·",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 303,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network/${d.slug}",
+      "template": true,
+      "text": "THE DISCIPLINE",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/:param",
+      "query": "",
+      "hash": "",
+      "route": "/network/:slug"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 310,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${s}",
+      "template": true,
+      "text": "THE PROOF · CASE STUDY Situation, gap, decision, build, result, and what happene",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 329,
+      "tag": "MagneticButton",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "track(\"cta_primary_click\", )}> Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/InsightDetail.js",
+      "line": 341,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights/${r.slug}",
+      "template": true,
+      "text": "· {r.definition && }",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/:param",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/pages/Insights.js",
+      "line": 192,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights/${p.slug}",
+      "template": true,
+      "text": "{p.topics?.length > 0 && ( )} Read the entry",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/:param",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/pages/Insights.js",
+      "line": 225,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/insights/${p.slug}",
+      "template": true,
+      "text": "Read it",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/insights/:param",
+      "query": "",
+      "hash": "",
+      "route": "/insights/:slug"
+    },
+    {
+      "file": "src/pages/Network.js",
+      "line": 443,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/network/${d.slug}",
+      "template": true,
+      "text": "track(\"discipline_opened\", )} data-testid={`discipline-card-$ `} className=\"cap-",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/network/:param",
+      "query": "",
+      "hash": "",
+      "route": "/network/:slug"
+    },
+    {
+      "file": "src/pages/NotFound.js",
+      "line": 20,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/",
+      "template": false,
+      "text": "Take me somewhere useful",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "",
+      "route": "/"
+    },
+    {
+      "file": "src/pages/Resources.js",
+      "line": 43,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"resource_discussed\", )} className=\"link-draw mt-5 inline-flex w-fit items",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Resources.js",
+      "line": 71,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "contact form",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 112,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/what-we-do",
+      "template": false,
+      "text": "See what we do",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 126,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do",
+      "template": false,
+      "text": "WHAT WE DO",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 288,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )} > Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 311,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${cs.slug}",
+      "template": true,
+      "text": "track(\"service_to_case\", )} data-testid={`service-proof-$ `} > ·",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 334,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${o.slug}",
+      "template": true,
+      "text": "track(\"service_explored\", )} >",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/ServiceDetail.js",
+      "line": 337,
+      "tag": "data",
+      "attr": "to",
+      "raw": "service_detail",
+      "template": false,
+      "text": "",
+      "type": "other",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 41,
+      "tag": "a",
+      "attr": "href",
+      "raw": "#build",
+      "template": false,
+      "text": "Build Your Brief",
+      "type": "same-page-hash",
+      "status": "ok",
+      "note": "",
+      "pathname": "/",
+      "query": "",
+      "hash": "build",
+      "anchor": "static-id"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 44,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/how-we-work",
+      "template": false,
+      "text": "Explore the five-stage method",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/how-we-work",
+      "query": "",
+      "hash": "",
+      "route": "/how-we-work"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 77,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "track(\"service_explored\", )} >",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 101,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "track(\"service_explored\", )}> Related work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 104,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "Talk about this",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 107,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "track(\"service_explored\", )} > Explore this capability",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 124,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 80,
+      "tag": "data",
+      "attr": "to",
+      "raw": "service_detail",
+      "template": false,
+      "text": "",
+      "type": "other",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 101,
+      "tag": "data",
+      "attr": "to",
+      "raw": "work",
+      "template": false,
+      "text": "",
+      "type": "other",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/WhatWeDo.js",
+      "line": 111,
+      "tag": "data",
+      "attr": "to",
+      "raw": "service_detail",
+      "template": false,
+      "text": "",
+      "type": "other",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/WhoWeWorkWith.js",
+      "line": 55,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/WhyHiAnzy.js",
+      "line": 108,
+      "tag": "MagneticButton",
+      "attr": "href",
+      "raw": "mailto:${SITE_CONTACT.email}",
+      "template": true,
+      "text": "track(\"cta_primary_click\", )}> Say Hi",
+      "type": "mailto",
+      "status": "ok",
+      "note": ""
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 170,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "contact us",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 175,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "Talk to us",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 181,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${cs.slug}",
+      "template": true,
+      "text": "",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 256,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${expandedCase.slug}",
+      "template": true,
+      "text": "the case page",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 286,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 289,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${expandedCase.slug}",
+      "template": true,
+      "text": "track(\"case_opened\", )}> Open dedicated case page",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    },
+    {
+      "file": "src/pages/Work.js",
+      "line": 346,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "contact us",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/WorkDetail.js",
+      "line": 57,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "Back to the Work",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/WorkDetail.js",
+      "line": 83,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work",
+      "template": false,
+      "text": "ALL WORK",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work",
+      "query": "",
+      "hash": "",
+      "route": "/work"
+    },
+    {
+      "file": "src/pages/WorkDetail.js",
+      "line": 138,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/what-we-do/${c.slug}",
+      "template": true,
+      "text": "track(\"case_to_service\", )} data-testid={`work-detail-service-$ `} >",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/what-we-do/:param",
+      "query": "",
+      "hash": "",
+      "route": "/what-we-do/:slug"
+    },
+    {
+      "file": "src/pages/WorkDetail.js",
+      "line": 163,
+      "tag": "MagneticButton",
+      "attr": "to",
+      "raw": "/contact",
+      "template": false,
+      "text": "track(\"cta_primary_click\", )}> Start a Conversation",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/contact",
+      "query": "",
+      "hash": "",
+      "route": "/contact"
+    },
+    {
+      "file": "src/pages/WorkDetail.js",
+      "line": 169,
+      "tag": "Link",
+      "attr": "to",
+      "raw": "/work/${next.slug}",
+      "template": true,
+      "text": "track(\"case_opened\", )}> NEXT CASE",
+      "type": "internal",
+      "status": "ok",
+      "note": "",
+      "pathname": "/work/:param",
+      "query": "",
+      "hash": "",
+      "route": "/work/:slug"
+    }
+  ],
+  "brokenLinks": [],
+  "ids": [
+    {
+      "file": "src/App.js",
+      "id": "main",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/CommandPalette.js",
+      "id": "cmdk-input",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/CommandPalette.js",
+      "id": "cmdk-list",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/OrbitSection.js",
+      "id": "orbit",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/PackageBuilder.js",
+      "id": "build",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/PackageBuilder.js",
+      "id": "builder-filter",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/Packages.js",
+      "id": "packages",
+      "dynamic": false
+    },
+    {
+      "file": "src/components/RouteErrorBoundary.js",
+      "id": "root",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/ComingSoon.js",
+      "id": "hi-anzy-ai",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/ComingSoon.js",
+      "id": "imkaan",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-name",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-name-err",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-email",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-email-err",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-company",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-role",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-website",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-message",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-message-err",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-stage",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-range",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-timeline",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-phone",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Contact.js",
+      "id": "cf-org",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Discipline.js",
+      "id": "discipline-specialists",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "proof",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "gap",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "system",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "method",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "team",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/ConnectedStory.js",
+      "id": "start",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/Diagnostic.js",
+      "id": "home-diagnostic-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/Hero.js",
+      "id": "home-hero-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/NetworkPreview.js",
+      "id": "home-network-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/WhatWeDoGrid.js",
+      "id": "home-what-we-do-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/WhoWith.js",
+      "id": "home-who-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/home/WorkPreview.js",
+      "id": "home-work-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Network.js",
+      "id": "network-disciplines-section",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Network.js",
+      "id": "network-rosters",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Network.js",
+      "id": "network-specialists",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Resources.js",
+      "id": "privacy",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Resources.js",
+      "id": "terms",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Work.js",
+      "id": "work-case-studies",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Work.js",
+      "id": "work-expand-panel",
+      "dynamic": false
+    },
+    {
+      "file": "src/pages/Work.js",
+      "id": "portfolio-wall",
+      "dynamic": false
+    }
+  ]
+}

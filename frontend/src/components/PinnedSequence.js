@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
 import { ScrollTrigger, useReducedMotion } from "@/lib/motion";
 
@@ -18,13 +18,19 @@ import { VisibleSequence } from "./VisibleSequence";
  *  - Every step is in the DOM the whole time; only opacity/transform change.
  *    Reduced motion drops the pin entirely and renders a plain list, so the
  *    content is never gated behind an animation.
+ *  - The pin belongs to the pinned section, not to the mode switch. GSAP
+ *    re-parents the pinned section into a pin-spacer of its own, which
+ *    React never sees. When the mode changes (the viewport crosses 640px,
+ *    reduced motion toggles) React deletes the section, and the trigger
+ *    must be killed first so the section is back under its real parent when
+ *    React calls removeChild; otherwise the removal throws "The node to be
+ *    removed is not a child of this node". React runs a deleted component's
+ *    layout-effect cleanups before it removes that component's DOM, but it
+ *    processes a child deletion before the parent's own cleanup, so the
+ *    trigger lives in PinnedStory, in a layout effect, and dies with it.
  */
 export const PinnedSequence = ({ steps = [], kicker, title, testId = "pinned-sequence" }) => {
-  const sectionRef = useRef(null);
-  const triggerRef = useRef(null);
   const reduced = useReducedMotion();
-  const [active, setActive] = useState(0);
-  const [pinned, setPinned] = useState(false);
 
   /**
    * Whether the viewport is wide enough to pin. This has to be state rather
@@ -47,16 +53,26 @@ export const PinnedSequence = ({ steps = [], kicker, title, testId = "pinned-seq
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || steps.length === 0) return undefined;
+  if (steps.length === 0) return null;
+  if (!wideEnough || reduced) return <VisibleSequence steps={steps} kicker={kicker} title={title} testId={testId} />;
 
-    const canPin = wideEnough && !reduced;
-    if (!canPin) {
-      setPinned(false);
-      setActive(0);
-      return undefined;
-    }
+  return <PinnedStory steps={steps} kicker={kicker} title={title} testId={testId} />;
+};
+
+/**
+ * The pinned section and the trigger that pins it, one lifetime. Created in
+ * a layout effect so its cleanup runs synchronously inside React's commit,
+ * before the section's DOM node is removed (see the note above).
+ */
+const PinnedStory = ({ steps, kicker, title, testId }) => {
+  const sectionRef = useRef(null);
+  const triggerRef = useRef(null);
+  const [active, setActive] = useState(0);
+  const [pinned, setPinned] = useState(false);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return undefined;
 
     setPinned(true);
     const trigger = ScrollTrigger.create({
@@ -85,13 +101,12 @@ export const PinnedSequence = ({ steps = [], kicker, title, testId = "pinned-seq
 
     return () => {
       clearTimeout(settle);
+      // kill() reverts the pin: the section leaves GSAP's pin-spacer and is
+      // back under its real parent before React removes it.
       trigger.kill();
       triggerRef.current = null;
     };
-  }, [steps.length, wideEnough, reduced]);
-
-  if (steps.length === 0) return null;
-  if (!wideEnough || reduced) return <VisibleSequence steps={steps} kicker={kicker} title={title} testId={testId} />;
+  }, [steps.length]);
 
   return (
     <section
