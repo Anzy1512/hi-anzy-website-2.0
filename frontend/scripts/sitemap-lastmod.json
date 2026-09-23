@@ -1,15 +1,7 @@
 {
   "/": {
-    "fp": "90563ebda38fa257",
+    "fp": "0ea7361ce0438dfd",
     "lastmod": "2026-09-23"
-  },
-  "/careers": {
-    "fp": "8bc9b8f58dba306b",
-    "lastmod": "2026-09-12"
-  },
-  "/collaborate": {
-    "fp": "aa9225cac5b97d84",
-    "lastmod": "2026-09-12"
   },
   "/coming-soon": {
     "fp": "948ea9bcc9559685",
@@ -20,11 +12,11 @@
     "lastmod": "2026-09-19"
   },
   "/how-we-work": {
-    "fp": "073306c9d92a8323",
+    "fp": "8972390ebee956f2",
     "lastmod": "2026-09-23"
   },
   "/insights": {
-    "fp": "00ff336566c42db1",
+    "fp": "d492b6d33f5652ee",
     "lastmod": "2026-09-23"
   },
   "/insights/a-better-funnel-cannot-rescue-a-confused-offer": {
@@ -148,87 +140,71 @@
     "lastmod": "2026-09-22"
   },
   "/network": {
-    "fp": "96c488725662fecc",
+    "fp": "a67fa8eb30189d88",
     "lastmod": "2026-09-23"
   },
   "/network/ai": {
-    "fp": "8a4b998937dc0516",
-    "lastmod": "2026-09-23"
-  },
-  "/network/artists-creators": {
-    "fp": "73669ece902c8068",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/automation": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/brand": {
-    "fp": "8a4b998937dc0516",
-    "lastmod": "2026-09-23"
-  },
-  "/network/collaborators": {
-    "fp": "73669ece902c8068",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/creators": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/design": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/events": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/experiences": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/media": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/operations": {
-    "fp": "8a4b998937dc0516",
-    "lastmod": "2026-09-23"
-  },
-  "/network/partners": {
-    "fp": "73669ece902c8068",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/performance": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/pr": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/production": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/security": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/strategy": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/technology": {
-    "fp": "8a4b998937dc0516",
-    "lastmod": "2026-09-23"
-  },
-  "/network/venue-partners": {
-    "fp": "73669ece902c8068",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/network/venues": {
-    "fp": "8a4b998937dc0516",
+    "fp": "d0f639c0c955b7e5",
     "lastmod": "2026-09-23"
   },
   "/resources": {
@@ -236,56 +212,44 @@
     "lastmod": "2026-09-12"
   },
   "/what-we-do": {
-    "fp": "fef59faf8205624f",
+    "fp": "e97b7471750ad468",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/advisory-security-scale": {
-    "fp": "81b49fa5e52bb2fa",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/brand-experience": {
-    "fp": "81b49fa5e52bb2fa",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/business-audit-strategy": {
-    "fp": "81b49fa5e52bb2fa",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/digital-technology-automation": {
-    "fp": "81b49fa5e52bb2fa",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/growth-content-commerce": {
-    "fp": "81b49fa5e52bb2fa",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/what-we-do/media-creators-experiences": {
-    "fp": "81b49fa5e52bb2fa",
-    "lastmod": "2026-09-23"
-  },
-  "/who-we-work-with": {
-    "fp": "b7ab7a9dbb914f05",
+    "fp": "e0bbd13f141f8dec",
     "lastmod": "2026-09-23"
   },
   "/why-hi-anzy": {
-    "fp": "ef04d4dd0b41c668",
+    "fp": "51349c189bea9d23",
     "lastmod": "2026-09-23"
   },
   "/work": {
-    "fp": "7e50ef221b32ca4c",
+    "fp": "8a628fb7b13a5ed3",
     "lastmod": "2026-09-23"
   },
   "/work/a-rebrand-that-turned-out-to-be-a-pricing-problem": {
     "fp": "043629119c028609",
     "lastmod": "2026-09-22"
-  },
-  "/work/built-here": {
-    "fp": "73669ece902c8068",
-    "lastmod": "2026-09-23"
-  },
-  "/work/built-together": {
-    "fp": "73669ece902c8068",
-    "lastmod": "2026-09-23"
   },
   "/work/commerce-untangled": {
     "fp": "26bcfb619139b494",

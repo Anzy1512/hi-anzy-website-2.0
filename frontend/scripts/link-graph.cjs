@@ -47,11 +47,12 @@ async function content(endpoint, fallback) {
 // point, and App.js is small enough that drift shows up immediately in the
 // "unmatched" bucket below.
 const ROUTES = [
-  '/', '/what-we-do', '/what-we-do/:slug', '/how-we-work', '/work', '/work/built-here', '/work/built-together',
-  '/work/:slug', '/network', '/network/collaborators', '/network/artists-creators', '/network/venue-partners',
-  '/network/partners', '/network/:slug', '/why-hi-anzy', '/insights', '/insights/:slug', '/contact',
-  '/who-we-work-with', '/collaborate', '/careers', '/resources', '/coming-soon',
+  '/', '/what-we-do', '/what-we-do/:slug', '/how-we-work', '/work', '/work/:slug', '/network', '/network/:slug',
+  '/why-hi-anzy', '/insights', '/insights/:slug', '/contact', '/resources', '/coming-soon',
 ];
+// The nine former standalone routes are permanent redirects now (LEGACY_ROUTES
+// in src/data/content.js). A link to one of them is reported as BROKEN on
+// purpose: every internal link should point at the canonical section.
 const LAB = '/lab/';
 
 /* ------------------------------------------------------------ extraction */
@@ -161,7 +162,7 @@ async function main() {
     ids.push(...extractIds(f, src));
   }
 
-  const { CATEGORIES, ORBIT_CATEGORIES, INSIGHT_CATEGORIES } = sourceData('src/data/content.js');
+  const { CATEGORIES, INSIGHT_CATEGORIES } = sourceData('src/data/content.js');
   const { DISCIPLINES } = sourceData('src/data/disciplines.js');
   const snapshot = require('./content-snapshot.json');
   const cases = await content('case-studies', snapshot.cases);
@@ -171,10 +172,12 @@ async function main() {
   // Every concrete public page.
   const pages = new Map();
   const addPage = (route, kind, title) => pages.set(route, { route, kind, title, inbound: [] });
-  ['/', '/what-we-do', '/how-we-work', '/work', '/network', '/why-hi-anzy', '/insights', '/contact', '/who-we-work-with', '/collaborate', '/careers', '/resources', '/coming-soon'].forEach(r => addPage(r, 'static', r));
+  ['/', '/what-we-do', '/how-we-work', '/work', '/network', '/why-hi-anzy', '/insights', '/contact', '/resources', '/coming-soon'].forEach(r => addPage(r, 'static', r));
   CATEGORIES.forEach(c => addPage(`/what-we-do/${c.slug}`, 'service', c.title));
   DISCIPLINES.forEach(d => addPage(`/network/${d.slug}`, 'discipline', d.name));
-  ORBIT_CATEGORIES.forEach(o => addPage(o.route, 'ecosystem-category', o.name));
+  // The six Orbit rosters are sections of /work and /network now
+  // (ORBIT_CATEGORIES.route is a hash destination); their anchors are checked
+  // below like any other id.
   cases.rows.forEach(c => addPage(`/work/${c.slug}`, 'case-study', c.title));
   insights.rows.forEach(i => addPage(`/insights/${i.slug}`, 'insight', i.title));
 
@@ -260,7 +263,7 @@ function markdown(report) {
   const lines = [];
   lines.push('# FINAL LINK GRAPH', '', `Generated ${summary.generatedAt} by \`frontend/scripts/link-graph.cjs\`. Content sources: cases=${summary.contentSources.cases}, insights=${summary.contentSources.insights}, ecosystem=${summary.contentSources.ecosystem}.`, '');
   lines.push('## Summary', '', '| Metric | Value |', '|---|---|');
-  lines.push(`| Source files scanned | ${summary.files} |`, `| Links found | ${summary.links} |`, `| Public pages | ${summary.pages} |`, `| Broken links | ${summary.broken} |`, `| Orphan pages | ${summary.orphans.length} |`, `| Static anchor ids | ${summary.staticIds} |`, `| Ecosystem items (name-only, link to category page) | ${summary.ecosystemItems} |`, '');
+  lines.push(`| Source files scanned | ${summary.files} |`, `| Links found | ${summary.links} |`, `| Public pages | ${summary.pages} |`, `| Broken links | ${summary.broken} |`, `| Orphan pages | ${summary.orphans.length} |`, `| Static anchor ids | ${summary.staticIds} |`, `| Ecosystem items (name-only, listed on a roster section) | ${summary.ecosystemItems} |`, '');
   lines.push('Links by type: ' + Object.entries(summary.byType).map(([k, v]) => `${k}=${v}`).join(', '), '');
   lines.push('Pages by kind: ' + Object.entries(summary.pagesByKind).map(([k, v]) => `${k}=${v}`).join(', '), '');
   lines.push('## Broken links', '');

@@ -55,10 +55,12 @@ async function build() {
   const parsedSite = new URL(SITE);
   if (!['https:', 'http:'].includes(parsedSite.protocol)) throw new Error('SITE_URL must be an HTTP(S) origin');
   const shell = fs.readFileSync(path.join(ROOT, 'build/index.html'), 'utf8');
+  // The nine routes absorbed into their hubs (docs/IA_CONSOLIDATION_AUDIT.md)
+  // are permanent redirects, not pages: nothing is written at their paths, so
+  // the edge answers 301 before any file lookup could serve a stale page.
   const pages = {
     '/': 'Home', '/what-we-do': 'WhatWeDo', '/how-we-work': 'HowWeWork', '/work': 'Work',
     '/network': 'Network', '/why-hi-anzy': 'WhyHiAnzy', '/insights': 'Insights',
-    '/who-we-work-with': 'WhoWeWorkWith', '/collaborate': 'Collaborate', '/careers': 'Careers',
     '/resources': 'Resources', '/contact': 'Contact', '/coming-soon': 'ComingSoon',
   };
   const routes = [];
@@ -70,11 +72,10 @@ async function build() {
     if (!title || !description) throw new Error(`Missing static metadata for ${route}`);
     routes.push({ route, title, description });
   }
-  const { CATEGORIES, ORBIT_CATEGORIES } = sourceData('src/data/content.js');
+  const { CATEGORIES } = sourceData('src/data/content.js');
   const { DISCIPLINES } = sourceData('src/data/disciplines.js');
   for (const item of CATEGORIES) routes.push({route:`/what-we-do/${item.slug}`, title:`${item.title} | hiAnzy`, description:item.lede || item.copy});
   for (const item of DISCIPLINES) routes.push({route:`/network/${item.slug}`, title:`${item.name} | hiAnzy Network`, description:item.lede});
-  for (const item of ORBIT_CATEGORIES) routes.push({route:item.route, title:`${item.name} | The Hi Anzy Orbit | hiAnzy`, description:item.seoDescription || item.copy});
   const snapshot = require('./content-snapshot.json');
   const [cases, insights] = await Promise.all([content('case-studies', snapshot.cases), content('insights', snapshot.insights)]);
   for (const item of cases) routes.push({route:`/work/${item.slug}`, title:`${item.title} | hiAnzy Work`, description:item.summary, image:item.image, type:'article'});
@@ -90,5 +91,5 @@ async function build() {
   console.log(`metadata: generated ${routes.length} public HTML pages`);
 }
 
-module.exports = { head, render, build };
+module.exports = { head, render, build, sourceData };
 if (require.main === module) build().catch(error => { console.error(error.message); process.exitCode = 1; });
