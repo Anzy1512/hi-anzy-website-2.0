@@ -15,7 +15,9 @@ import { relatedInsightsFor, formatLabel } from "@/lib/knowledge";
  * enrichment of a page that is already complete, and a placeholder or an error
  * panel here would claim the page has a problem when only its footnotes do.
  */
-export const RelatedReading = ({ kind, slug, title = "READ THE THINKING BEHIND IT", limit = 6 }) => {
+// className: the page-level default keeps every existing call site as it was;
+// a hub that already provides the container passes its own spacing instead.
+export const RelatedReading = ({ kind, slug, title = "READ THE THINKING BEHIND IT", limit = 6, className = "container-page section-pad-b" }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export const RelatedReading = ({ kind, slug, title = "READ THE THINKING BEHIND I
   if (items.length === 0) return null;
 
   return (
-    <section className="container-page section-pad-b" aria-label="Related reading" data-testid={`related-reading-${kind}`}>
+    <section className={className} aria-label="Related reading" data-testid={`related-reading-${kind}`}>
       <Reveal as="p" className="sys-chip flex items-center gap-3 text-[#232A2A]/60">
         <span className="inline-block h-[3px] w-10 rounded-full bg-[#F19020]" /> {title}
       </Reveal>

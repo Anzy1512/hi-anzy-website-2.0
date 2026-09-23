@@ -688,7 +688,12 @@ export const ORBIT_CATEGORIES = [
     // what the <Seo> description actually needs to tell a search result or
     // link preview about what the category page contains.
     seoDescription: "Projects hiAnzy built and delivered directly, each written up as a full case study.",
-    route: "/work/built-here",
+    // Absorbed into the Work hub (docs/IA_CONSOLIDATION_AUDIT.md): the roster
+    // is a section of /work now. legacyRoute is the retired standalone URL,
+    // kept for the permanent redirects and the tests that check them.
+    route: "/work#built-here",
+    anchor: "built-here",
+    legacyRoute: "/work/built-here",
   },
   {
     num: "02",
@@ -697,7 +702,9 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Collaborations & joint work",
     copy: "Good work rarely asks who deserves all the credit.",
     seoDescription: "Case studies built alongside collaborators and partners, credited honestly rather than claimed as solo work.",
-    route: "/work/built-together",
+    route: "/work#built-together",
+    anchor: "built-together",
+    legacyRoute: "/work/built-together",
   },
   {
     num: "03",

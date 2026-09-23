@@ -68,11 +68,11 @@ export const OrbitSection = () => {
           </div>
 
           <p className="font-mono-sys mt-10 text-center text-[12.5px] text-[#232A2A]/50">
-            Each card opens its own index — real names, honestly labelled, verified on the date shown.
+            Each card opens its roster: the two Work rosters just below, the four Network rosters on the Network page. Real names, honestly labelled, verified on the date shown.
           </p>
-          {/* Plain links to the same six pages the deck opens. The deck renders
+          {/* Plain links to the same six sections the deck opens. The deck renders
               real anchors, but only the active card is visually reachable, and a
-              category page should not depend on a carousel to be found. */}
+              roster should not depend on a carousel to be found. */}
           <ul className="mt-5 flex flex-wrap justify-center gap-2" aria-label="Orbit categories" data-testid="orbit-category-links">
             {ORBIT_CATEGORIES.map((c) => (
               <li key={c.key}>
