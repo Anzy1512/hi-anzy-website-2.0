@@ -176,6 +176,7 @@ export const ScrollToTop = () => {
   useEffect(() => {
     let tries = 0;
     let retry = null;
+    let follow = null;
 
     const toTop = () => {
       // Drive whichever scroller is actually in charge — calling both makes
@@ -207,6 +208,30 @@ export const ScrollToTop = () => {
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(scrollToEl);
       }
+      // Content above the target can also arrive after this measurement: on
+      // /work the case-study carousel replaces its skeleton once the API
+      // answers, which moved #orbit about 1000px (confirmed live: the visitor
+      // landed on the case studies instead). Re-measure while the document is
+      // still changing size, for a bounded time, and stop the moment the
+      // visitor scrolls themselves so a late resize never fights their intent.
+      if (typeof ResizeObserver === "function") {
+        const until = Date.now() + 3000;
+        const intents = ["wheel", "touchstart", "keydown"];
+        const stop = () => {
+          observer.disconnect();
+          clearTimeout(deadline);
+          intents.forEach((type) => window.removeEventListener(type, stop));
+          follow = null;
+        };
+        const observer = new ResizeObserver(() => {
+          if (Date.now() > until) stop();
+          else scrollToEl();
+        });
+        const deadline = setTimeout(stop, 3000);
+        observer.observe(document.body);
+        intents.forEach((type) => window.addEventListener(type, stop, { passive: true }));
+        follow = stop;
+      }
     };
 
     if (hash) toHash();
@@ -218,6 +243,7 @@ export const ScrollToTop = () => {
     return () => {
       clearTimeout(t);
       if (retry) clearTimeout(retry);
+      if (follow) follow();
     };
   }, [pathname, hash]);
   return null;
