@@ -776,3 +776,26 @@ Chromium with the tab fronted.
 | Hygiene | tracked files: no key, token, password or connection string (only the documented placeholder in AWS_PREP §B15); only `.example` env files tracked; no logs, dumps, screenshots or patch scripts tracked; two workstation paths in `docs/audits/Audit-report.md` redacted |
 
 ## AGENCY SEPARATION TEST STATUS: COMPLETE — NOT MERGED
+
+---
+
+# AWS STAGING READINESS TEST LOG (2026-09-24)
+
+Run on `deploy/aws-staging` at `b19c101`, stacked on PR #3's head `10ea69b`;
+no runtime file differs from `10ea69b`.
+
+| Check | Result | Class |
+|---|---|---|
+| `python -m pytest tests/test_deploy_config.py` | 7 passed: OIDC-only workflow with no static key; commit-SHA image tags; deploy gated on the test job and queued per environment; jobs skip until the role variable exists; templates parse with placeholders and no real account ID; the only wildcard is the ECR login token; backend image and `.env.aws.example` match the App Runner contract; `customHttp.yml` names the API origin without broad sources; `amplify.yml` builds from `frontend/` with `npm ci`; no Experiment Lab coupling in any deployment file | VERIFIED LOCALLY |
+| `pytest tests` (disposable Mongo on 27117) | 75 passed | VERIFIED LOCALLY |
+| `python scripts/check_frontend_lock.py` / `npm run lint` / `npm test` / `npm run test:build` | 235 files / clean / 16 / 10 | VERIFIED LOCALLY |
+| Workflow structure (YAML parse) | jobs `test` → `build-push` → `deploy`; concurrency group `deploy-api-<environment>` with cancel-in-progress false; `main` targets the `production` environment; `workflow_dispatch` inputs `environment`, `image_tag` | VERIFIED LOCALLY |
+| `Website checks` on the branch (now including the deployment guards) | pass on push (1m24s) and on pull_request (1m10s) | VERIFIED IN CI |
+| `Deploy API image` on the branch | Backend test gate pass (44s); Build and push image skipped; Update App Runner skipped (no `AWS_DEPLOY_ROLE_ARN`, as designed) | VERIFIED IN CI |
+| Docker stack (runtime files identical to `10ea69b`) | `/lab/` 301 → `/lab` 404, `/lab/index.html` 404; nine legacy URLs 301; `/work/` 301; `/no-such-page` 404; `/work` 200; sitemap 200 with no Lab entry; `/api/health` ok with db connected; anonymous `auth/me` 401; CORS preflight from the site origin allowed | VERIFIED LOCALLY |
+| Amplify build, custom headers, `404-200` routing, prerender serving, legacy redirects, hash fragment | not run | UNVERIFIED — LIVE GATE |
+| App Runner deploy, `/api/health`, environment and secrets injection, `TRUSTED_PROXY=apprunner`, forwarded client IP, CORS from the Amplify origin | not run | UNVERIFIED — LIVE GATE |
+| Atlas connection, network strategy, credentials | not run | UNVERIFIED — LIVE GATE (owner decision first) |
+| First real workflow run (image pushed to ECR, service updated) | not run | BLOCKED — OWNER ACTION (account, IAM, variables) |
+
+## AWS STAGING READINESS TEST STATUS: REPOSITORY GATES GREEN, LIVE GATES OPEN
