@@ -8,9 +8,22 @@
  *
  * Static routes and the slug-driven ones (services, disciplines) come from the
  * source files, so they are correct with no server running. Insights and case
- * studies live in the database, so they are fetched when the API is reachable
- * and simply omitted when it is not — a sitemap missing its blog is a smaller
- * problem than a build that fails because a dev database was asleep.
+ * studies live in the database: they are fetched when the API is reachable,
+ * taken from the checked-in public content snapshot when it is not, and as a
+ * last resort carried over from the previous sitemap. A sitemap missing its
+ * blog is a smaller problem than a build that fails because a dev database
+ * was asleep.
+ *
+ * lastmod is stable. Every URL carries a fingerprint of what defines its
+ * content: the source files behind a route written in code (the page module
+ * and every data module it imports), or the public record (slug, title,
+ * summary or excerpt, seo) behind one that lives in the database. The
+ * fingerprint and the date it last changed are remembered in
+ * scripts/sitemap-lastmod.json, which is committed. A build moves lastmod only
+ * for a page whose fingerprint moved. Before this, every build stamped today
+ * on every URL, which told crawlers the whole site changed whenever anything
+ * was deployed. A route seen for the first time takes the date of the last
+ * commit that touched its sources when git is available, otherwise today.
  *
  *   node scripts/generate-sitemap.js
  */
@@ -18,33 +31,48 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const https = require("https");
+const crypto = require("crypto");
+const { spawnSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..");
-require('dotenv').config({ path: path.join(ROOT, '.env'), quiet: true });
+require("dotenv").config({ path: path.join(ROOT, ".env"), quiet: true });
 const SITE = (process.env.SITE_URL || "https://hianzy.com").replace(/\/+$/, "");
 const API = (process.env.REACT_APP_BACKEND_URL || process.env.LOCAL_API_URL || "http://127.0.0.1:8111").replace(/\/+$/, "");
+const SNAPSHOT = path.join(__dirname, "content-snapshot.json");
+const MANIFEST = path.join(__dirname, "sitemap-lastmod.json");
 
+// [route, priority, changefreq, page sources, database family folded into the fingerprint]
+// Sources are the page module(s); the data modules they import are found
+// automatically. A directory means every file under it.
+const ECOSYSTEM = ["src/pages/ecosystem/EcosystemCategoryPage.js"];
 const STATIC_ROUTES = [
-  ["/", 1.0, "weekly"],
-  ["/what-we-do", 0.9, "monthly"],
-  ["/how-we-work", 0.8, "monthly"],
-  ["/work", 0.9, "weekly"],
-  ["/work/built-here", 0.6, "monthly"],
-  ["/work/built-together", 0.6, "monthly"],
-  ["/network", 0.8, "monthly"],
-  ["/network/collaborators", 0.6, "monthly"],
-  ["/network/artists-creators", 0.6, "monthly"],
-  ["/network/venue-partners", 0.6, "monthly"],
-  ["/network/partners", 0.6, "monthly"],
-  ["/why-hi-anzy", 0.6, "yearly"],
-  ["/insights", 0.9, "weekly"],
-  ["/who-we-work-with", 0.6, "monthly"],
-  ["/collaborate", 0.6, "monthly"],
-  ["/careers", 0.5, "monthly"],
-  ["/resources", 0.6, "monthly"],
-  ["/contact", 0.7, "yearly"],
-  ["/coming-soon", 0.5, "monthly"],
+  ["/", 1.0, "weekly", ["src/pages/Home.js", "src/pages/home"]],
+  ["/what-we-do", 0.9, "monthly", ["src/pages/WhatWeDo.js"]],
+  ["/how-we-work", 0.8, "monthly", ["src/pages/HowWeWork.js"]],
+  ["/work", 0.9, "weekly", ["src/pages/Work.js", "src/components/OrbitSection.js"], "cases"],
+  ["/work/built-here", 0.6, "monthly", ECOSYSTEM],
+  ["/work/built-together", 0.6, "monthly", ECOSYSTEM],
+  ["/network", 0.8, "monthly", ["src/pages/Network.js"]],
+  ["/network/collaborators", 0.6, "monthly", ECOSYSTEM],
+  ["/network/artists-creators", 0.6, "monthly", ECOSYSTEM],
+  ["/network/venue-partners", 0.6, "monthly", ECOSYSTEM],
+  ["/network/partners", 0.6, "monthly", ECOSYSTEM],
+  ["/why-hi-anzy", 0.6, "yearly", ["src/pages/WhyHiAnzy.js"]],
+  ["/insights", 0.9, "weekly", ["src/pages/Insights.js"], "insights"],
+  ["/who-we-work-with", 0.6, "monthly", ["src/pages/WhoWeWorkWith.js"]],
+  ["/collaborate", 0.6, "monthly", ["src/pages/Collaborate.js"]],
+  ["/careers", 0.5, "monthly", ["src/pages/Careers.js"]],
+  ["/resources", 0.6, "monthly", ["src/pages/Resources.js"]],
+  ["/contact", 0.7, "yearly", ["src/pages/Contact.js"]],
+  ["/coming-soon", 0.5, "monthly", ["src/pages/ComingSoon.js"]],
 ];
+const SERVICE_SOURCES = ["src/pages/ServiceDetail.js"];
+const DISCIPLINE_SOURCES = ["src/pages/Discipline.js"];
+// The public fields a record's page is made of. The same keys exist in the API
+// response and in the content snapshot, so a build that falls back to the
+// snapshot computes the same fingerprint as one that reached the API.
+const INSIGHT_KEYS = ["slug", "title", "excerpt", "seo"];
+const CASE_KEYS = ["slug", "title", "summary"];
 
 /** Pull `slug: "…"` out of a data module without needing to evaluate it. */
 const slugsFrom = (relPath) => {
@@ -88,35 +116,101 @@ const validRecords = (items) => Array.isArray(items) && items.every(item => item
 const xmlEscape = (s) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+const sha = (input) => crypto.createHash("sha1").update(input).digest("hex").slice(0, 16);
+
+/** JSON with object keys sorted, so the same record always hashes the same. */
+const canon = (value) =>
+  JSON.stringify(value, (key, v) =>
+    v && typeof v === "object" && !Array.isArray(v) ? Object.keys(v).sort().reduce((o, k) => ((o[k] = v[k]), o), {}) : v
+  );
+
+/** Files under a path, as posix-style paths relative to ROOT (same on every OS). */
+const listFiles = (rel) => {
+  const abs = path.join(ROOT, rel);
+  if (!fs.existsSync(abs)) return [];
+  if (fs.statSync(abs).isDirectory()) return fs.readdirSync(abs).sort().flatMap((name) => listFiles(`${rel}/${name}`));
+  return [rel];
+};
+
+const DATA_IMPORT = /from\s+["']@\/data\/([A-Za-z0-9_.-]+)["']/g;
+
+/** The page's own files plus every data module they import: what its content is made of. */
+const sourcesOf = (entries) => {
+  const files = new Set();
+  const queue = entries.flatMap(listFiles);
+  while (queue.length) {
+    const rel = queue.shift();
+    if (files.has(rel)) continue;
+    files.add(rel);
+    const src = fs.readFileSync(path.join(ROOT, rel), "utf8");
+    DATA_IMPORT.lastIndex = 0;
+    let m;
+    while ((m = DATA_IMPORT.exec(src))) queue.push(...listFiles(`src/data/${m[1]}${m[1].includes(".") ? "" : ".js"}`));
+  }
+  return [...files].sort();
+};
+
+const fingerprintFiles = (files) =>
+  files.length ? sha(files.map((rel) => `${rel}:${sha(fs.readFileSync(path.join(ROOT, rel)))}`).join("\n")) : "no-sources";
+
+const fingerprintRecord = (record, keys) =>
+  sha(canon(Object.fromEntries(keys.map((k) => [k, record[k] === undefined ? null : record[k]]))));
+
+/** Date of the last commit touching these files, or null when git is not available here. */
+const gitDate = (files) => {
+  if (!files.length) return null;
+  try {
+    const result = spawnSync("git", ["log", "-1", "--format=%cs", "--", ...files], { cwd: ROOT, encoding: "utf8" });
+    const date = result.status === 0 ? result.stdout.trim() : "";
+    return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
+  } catch (e) {
+    return null;
+  }
+};
+
 (async () => {
   const today = new Date().toISOString().slice(0, 10);
-  const urls = STATIC_ROUTES.map(([loc, priority, changefreq]) => ({ loc, priority, changefreq }));
+  const snapshot = fs.existsSync(SNAPSHOT) ? JSON.parse(fs.readFileSync(SNAPSHOT, "utf8")) : null;
+
+  /** API first, the checked-in snapshot second; null means fall back to the previous sitemap. */
+  const loadFamily = async (endpoint, key) => {
+    const live = await getJson(`${API}/api/${endpoint}`);
+    if (validRecords(live)) return { records: live, source: "api" };
+    if (snapshot && validRecords(snapshot[key])) return { records: snapshot[key], source: "snapshot" };
+    return { records: null, source: "previous sitemap" };
+  };
+  const insights = await loadFamily("insights", "insights");
+  const cases = await loadFamily("case-studies", "cases");
+  const familyFingerprint = (family, keys) => (family.records || []).map((r) => fingerprintRecord(r, keys)).join(",");
+  const folded = { insights: familyFingerprint(insights, INSIGHT_KEYS), cases: familyFingerprint(cases, CASE_KEYS) };
+
+  const urls = STATIC_ROUTES.map(([loc, priority, changefreq, sources, family]) => {
+    const files = sourcesOf(sources);
+    const fp = family ? sha(`${fingerprintFiles(files)}|${folded[family]}`) : fingerprintFiles(files);
+    return { loc, priority, changefreq, fp, files };
+  });
 
   const services = slugsFrom("src/data/content.js");
-  services.forEach((s) => urls.push({ loc: `/what-we-do/${s}`, priority: 0.8, changefreq: "monthly" }));
+  const serviceFiles = sourcesOf(SERVICE_SOURCES);
+  const serviceFp = fingerprintFiles(serviceFiles);
+  services.forEach((s) => urls.push({ loc: `/what-we-do/${s}`, priority: 0.8, changefreq: "monthly", fp: serviceFp, files: serviceFiles }));
 
   const disciplines = slugsFrom("src/data/disciplines.js");
-  disciplines.forEach((s) => urls.push({ loc: `/network/${s}`, priority: 0.7, changefreq: "monthly" }));
+  const disciplineFiles = sourcesOf(DISCIPLINE_SOURCES);
+  const disciplineFp = fingerprintFiles(disciplineFiles);
+  disciplines.forEach((s) => urls.push({ loc: `/network/${s}`, priority: 0.7, changefreq: "monthly", fp: disciplineFp, files: disciplineFiles }));
 
-  const insights = await getJson(`${API}/api/insights`);
   let insightCount = 0;
-  if (validRecords(insights)) {
-    insights.forEach((i) => {
-      if (!i || !i.slug) return;
-      urls.push({ loc: `/insights/${i.slug}`, priority: 0.7, changefreq: "monthly" });
-      insightCount += 1;
-    });
-  }
+  (insights.records || []).forEach((i) => {
+    urls.push({ loc: `/insights/${i.slug}`, priority: 0.7, changefreq: "monthly", fp: fingerprintRecord(i, INSIGHT_KEYS), files: [] });
+    insightCount += 1;
+  });
 
-  const cases = await getJson(`${API}/api/case-studies`);
   let caseCount = 0;
-  if (validRecords(cases)) {
-    cases.forEach((c) => {
-      if (!c || !c.slug) return;
-      urls.push({ loc: `/work/${c.slug}`, priority: 0.7, changefreq: "monthly" });
-      caseCount += 1;
-    });
-  }
+  (cases.records || []).forEach((c) => {
+    urls.push({ loc: `/work/${c.slug}`, priority: 0.7, changefreq: "monthly", fp: fingerprintRecord(c, CASE_KEYS), files: [] });
+    caseCount += 1;
+  });
 
   // de-duplicate, keeping the highest priority seen for a path
   const byLoc = new Map();
@@ -126,6 +220,24 @@ const xmlEscape = (s) =>
   });
   const final = [...byLoc.values()].sort((a, b) => b.priority - a.priority || a.loc.localeCompare(b.loc));
 
+  // lastmod: remembered per fingerprint, moved only when the fingerprint moved.
+  const previous = fs.existsSync(MANIFEST) ? JSON.parse(fs.readFileSync(MANIFEST, "utf8")) : {};
+  const moved = [];
+  final.forEach((u) => {
+    const known = previous[u.loc];
+    if (known && known.fp === u.fp && /^\d{4}-\d{2}-\d{2}$/.test(known.lastmod || "")) {
+      u.lastmod = known.lastmod;
+      return;
+    }
+    u.lastmod = (!known && gitDate(u.files)) || today;
+    moved.push(u.loc);
+  });
+  const manifest = Object.fromEntries(
+    [...final].sort((a, b) => a.loc.localeCompare(b.loc)).map((u) => [u.loc, { fp: u.fp, lastmod: u.lastmod }])
+  );
+  const manifestText = JSON.stringify(manifest, null, 2) + "\n";
+  if (!fs.existsSync(MANIFEST) || fs.readFileSync(MANIFEST, "utf8") !== manifestText) fs.writeFileSync(MANIFEST, manifestText, "utf8");
+
   const xml =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -134,7 +246,7 @@ const xmlEscape = (s) =>
         (u) =>
           "  <url>\n" +
           `    <loc>${xmlEscape(SITE + u.loc)}</loc>\n` +
-          `    <lastmod>${today}</lastmod>\n` +
+          `    <lastmod>${u.lastmod}</lastmod>\n` +
           `    <changefreq>${u.changefreq}</changefreq>\n` +
           `    <priority>${u.priority.toFixed(1)}</priority>\n` +
           "  </url>"
@@ -144,17 +256,18 @@ const xmlEscape = (s) =>
 
   const out = path.join(ROOT, "public", "sitemap.xml");
 
-  // Recover only the route families whose endpoint failed. A successful empty
-  // array is authoritative and must remove stale URLs for that family.
+  // Recover only the route families that neither the API nor the snapshot could
+  // provide. A successful empty array is authoritative and must remove stale
+  // URLs for that family. Carried-over entries keep their own lastmod.
   const failedFamilies = [
-    !validRecords(insights) && "/insights/",
-    !validRecords(cases) && "/work/",
+    !insights.records && "/insights/",
+    !cases.records && "/work/",
   ].filter(Boolean);
   let outputXml = xml;
   if (failedFamilies.length && fs.existsSync(out)) {
-    const previous = fs.readFileSync(out, "utf8");
+    const previousXml = fs.readFileSync(out, "utf8");
     const preserved = [];
-    for (const block of previous.match(/<url>[\s\S]*?<\/url>/g) || []) {
+    for (const block of previousXml.match(/<url>[\s\S]*?<\/url>/g) || []) {
       const loc = block.match(/<loc>([^<]+)<\/loc>/)?.[1];
       if (!loc) continue;
       const route = new URL(loc.replace(/&amp;/g, "&")).pathname;
@@ -165,7 +278,7 @@ const xmlEscape = (s) =>
     console.log(`sitemap: preserved ${preserved.length} paths from unavailable content endpoints`);
   }
   if (failedFamilies.length && !fs.existsSync(out)) {
-    throw new Error("Cannot generate a complete sitemap: content API unavailable and no previous sitemap exists");
+    throw new Error("Cannot generate a complete sitemap: content API unavailable, no content snapshot and no previous sitemap exists");
   }
   fs.writeFileSync(out, outputXml, "utf8");
 
@@ -185,7 +298,8 @@ const xmlEscape = (s) =>
   console.log(
     `sitemap: ${final.length} urls ` +
       `(${STATIC_ROUTES.length} static, ${services.length} services, ${disciplines.length} disciplines, ` +
-      `${insightCount} insights, ${caseCount} cases)` +
-      (insightCount + caseCount === 0 ? "  [API unreachable — database-backed pages omitted]" : "")
+      `${insightCount} insights [${insights.source}], ${caseCount} cases [${cases.source}]); ` +
+      `lastmod moved for ${moved.length}` +
+      (moved.length && moved.length <= 12 ? `: ${moved.join(", ")}` : "")
   );
 })();
