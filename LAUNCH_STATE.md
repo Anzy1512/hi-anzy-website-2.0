@@ -1820,3 +1820,73 @@ thing on App Runner.
 
 **I-3 — Anonymous `401` on `/api/auth/me`** on every page load. Expected,
 documented as P2, unchanged.
+
+---
+
+# FABLE-5 — FINAL PRODUCT COMPLETION
+
+Ran 2026-09-22/23 on `launch/step-1` from `62216dc`. Eleven focused commits;
+full audit in `docs/FINAL_PRODUCT_AUDIT.md`; verification log in
+`LAUNCH_TESTS.md` (FABLE-5 TEST LOG).
+
+## WHAT LANDED
+
+- `98a7c8b` feat(insights): establish marketing knowledge encyclopedia — 20
+  evergreen entries + 10 notes on `/api/insights`, eight topics, related graph,
+  encyclopedia renderer (TOC, inline cross-links, GO DEEPER, NEXT TOPICS,
+  Article/BreadcrumbList/FAQPage JSON-LD), RelatedReading on service,
+  discipline, case-study and roster pages, snapshot regenerated, tests.
+- `a3825ef` feat(search): connect section-level knowledge destinations —
+  topic hubs and entries indexed; a destination-path tier so "contact" and
+  "coming soon" resolve.
+- `b135a9d` feat(content): complete missing public destinations — the six
+  Orbit roster pages linked as plain links from Work and Network.
+- `29c2614` docs(links): link-graph inventory (`frontend/scripts/link-graph.cjs`,
+  `docs/FINAL_LINK_GRAPH.md`): 76 pages, 178 links, 0 broken, 0 orphans.
+- `b4c243f` fix(ui): revert the pin before React removes the pinned section —
+  L-1 below is closed: reproduced deterministically (viewport across 640px)
+  and fixed structurally, no try/catch.
+- `b77ba88` feat(seo): stabilise sitemap lastmod on content fingerprints —
+  B-2 below is closed: a build moves lastmod only for pages whose fingerprint
+  moved; snapshot fallback when the API is unreachable.
+- `7436f5c` fix(ui): give every API-backed surface a visible failure state —
+  RouteErrorBoundary, retry states, auth fetch deadlines, palette recovery;
+  verified under a controlled API outage.
+- `70d0e1a` docs(aws): finalize production architecture — ADR-002 (Proposed):
+  Amplify + App Runner (ECR) + Atlas with conditions; H-2 decided (VPC
+  connector + NAT + Elastic IP), H-1 documented as a 404-200 rule plus a
+  launch gate.
+- `35d619f` chore(aws): align deployment configuration — customHttp.yml now
+  uses the monorepo shape from the AWS custom-header YAML reference (H-3
+  closed); amplify.yml, backend/.env.aws.example and AWS_PREP.md corrected.
+- `14a6392` fix(ci): establish deterministic frontend freeze — B-1 closed:
+  every drift since `54886e4` traced in `docs/FRONTEND_FREEZE_AUDIT.md`, the
+  checker classifies and regenerates (`--write`), 4 tests, lock regenerated
+  (236 entries), CI runs the tests.
+- docs(release): this record, the final audit and the regenerated link graph.
+
+## FINAL INDEPENDENT AUDIT — STATUS AFTER FABLE-5
+
+| Item | Status |
+|---|---|
+| B-1 stale lock | Closed (`14a6392`): traced, not blessed; CI lock step green |
+| B-2 lock dirtied by every build | Closed (`b77ba88`, `14a6392`): generated outputs deterministic |
+| H-1 Amplify SPA rewrite | Documented as the rule not to add; single `404-200` rewrite plus the §B3 launch gate (P1-2 in the final audit) |
+| H-2 Atlas network access | Decided in ADR-002: VPC connector + NAT Gateway + Elastic IP, costed |
+| H-3 customHttp.yml shape | Closed (`35d619f`): verified against the AWS reference, launch check kept |
+| M-1 dual deploy | Open, ordered into the ADR-002 cutover (P2-4) |
+| M-2 App Runner config not in code | Open (P3-4) |
+| M-3 cross-subdomain auth | Open, tied to the sign-in decision (P2-1) |
+| L-1 removeChild | Closed (`b4c243f`) |
+| L-2 bundle sizes | Open, inherent (P3-3) |
+| L-3 local test friction | Documented recipe (disposable Mongo on 27117, `TEST_MONGO_URL`, `--basetemp`) |
+| I-3 anonymous 401 on `/api/auth/me` | Unchanged, P2-1 |
+
+## STOP GATE
+
+Not merged to `main`, not pushed, no AWS provisioned, no DNS change, no
+`hianzy.com` attachment, no production Mongo data, no credential anywhere in
+the tree. Next exact action is the owner's: review and `git push origin
+launch/step-1`.
+
+## FABLE-5 STATUS: COMPLETE — STOP GATE REACHED

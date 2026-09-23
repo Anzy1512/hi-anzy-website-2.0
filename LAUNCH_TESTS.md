@@ -633,3 +633,42 @@ suppressed while deck in view, resumes normal behavior once scrolled clear.
 | Docker rebuild + live verification | PASS — no new console errors |
 
 ## PART 28A TEST STATUS: COMPLETE
+
+---
+
+# FABLE-5 TEST LOG
+
+Final tree `14a6392` plus the docs(release) commit. Production build served by
+`vite preview` on 3100 against the Docker API on 8010; browser checks in
+Playwright headless Chromium.
+
+## AUTOMATED
+
+| Suite | Result |
+|---|---|
+| `pytest tests/test_api.py tests/test_frontend_lock.py` (disposable Mongo on 27117) | 65 passed |
+| `npm test` (vitest, 4 files incl. `RouteErrorBoundary.test.jsx`) | 10 passed |
+| `npm run test:build` (prerender render, sitemap fallbacks, stable lastmod) | 7 passed |
+| `npm run lint` | clean |
+| `npm run build` | 76 pages; `sitemap: 76 urls … lastmod moved for 0` on a rebuild |
+| `python scripts/check_raw_metadata.py` | 76 routes + share image verified |
+| `python scripts/check_frontend_lock.py` | Verified 236 unchanged frontend files |
+| `node scripts/link-graph.cjs --md` | 76 pages, 178 links, 0 broken, 0 orphans |
+
+## BROWSER
+
+| Check | Result |
+|---|---|
+| Insights hub | 8 topic chips with counts, 7 category chips, 20 entries + 10 notes, CollectionPage JSON-LD; chip click → `?topic=Brand` (9 entries + 1 note); `?topic=Operations` deep link 3 + 3; empty state with Clear filters |
+| Encyclopedia entry | breadcrumb, KNOWLEDGE chip, 8-item TOC (click scrolls and sets the hash), 11 inline cross-links, steps, FAQ, takeaway, 9 GO DEEPER links, 4 NEXT TOPICS, Article + BreadcrumbList + FAQPage JSON-LD, canonical |
+| Unknown article slug | not-found state with an `h1` and a way back; title "Page not found" |
+| RelatedReading | service page 5 links, discipline page 1, case page 3, roster pages 6/5/1/6 |
+| Orbit and roster links | 6 links under the Work deck, 4 under the Network carousel |
+| Palette | "brand", "knowledge", "operations", "seo", "venue", "crm", "automation" return typed destinations; "contact", "coming soon", "imkaan" resolve; dynamic results refresh for a query typed before they arrive |
+| Responsive | 12 routes × 320/375/768/1024/1440/1920: no horizontal overflow |
+| removeChild | before: thrown at 1440→600 in 3 of 3 scenarios; after: 0 page errors in 6 scenarios, pin-spacer 1 → 0 → 1 |
+| Controlled outage | API stopped: 9 routes + palette, every one with nav, footer, an alert and retry where designed; 0 page errors; API restarted: retry restores roster (7), Insights (20) and palette dynamic results on the next opening |
+| Scroll bench | article 16.7 ms avg frame, 0 over 33 ms; Home 30 ms / Work 28 ms avg on the software-WebGL harness floor recorded in the scroll-fix bench; no regression |
+| Docker stack | web rebuilt from HEAD, healthy; sitemap 76 URLs with the local build's lastmod set; prerendered titles; `/lab/` 200; unknown path 404 |
+
+## FABLE-5 TEST STATUS: COMPLETE
