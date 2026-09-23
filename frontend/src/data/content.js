@@ -9,9 +9,11 @@ export const NAV_LINKS = [
 ];
 
 export const FOOTER_LINKS = [
-  { label: "Who We Work With", to: "/who-we-work-with" },
-  { label: "Collaborate", to: "/collaborate" },
-  { label: "Careers", to: "/careers" },
+  // Sections of their hubs since the consolidation (docs/IA_CONSOLIDATION_AUDIT.md);
+  // `section` keeps search from indexing them a second time as pages.
+  { label: "Who We Work With", to: "/why-hi-anzy#who-we-work-with", section: true },
+  { label: "Collaborate", to: "/network#collaborate", section: true },
+  { label: "Careers", to: "/network#careers", section: true },
   { label: "Resources", to: "/resources" },
   { label: "Privacy", to: "/resources#privacy" },
   { label: "Terms", to: "/resources#terms" },

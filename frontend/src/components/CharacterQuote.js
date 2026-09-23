@@ -39,9 +39,6 @@ const QUOTE_ROUTES = [
   "/how-we-work",
   "/what-we-do",
   "/insights",
-  "/who-we-work-with",
-  "/collaborate",
-  "/careers",
   "/resources",
 ];
 
