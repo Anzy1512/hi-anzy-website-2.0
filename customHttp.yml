@@ -8,43 +8,80 @@
 #   Amplify: connect-src 'self' https://api.hianzy.com
 #            (frontend on hianzy.com calls backend on api.hianzy.com)
 #
-# Update api.hianzy.com if the API subdomain changes.
+# The API origin here must equal the REACT_APP_BACKEND_URL the bundle was built
+# with, or every API call is blocked by the browser on a page that otherwise
+# renders — with no build error. docs/ADR-002 attaches api.hianzy.com to App
+# Runner before the first Amplify build so this value never has to carry a
+# temporary *.awsapprunner.com origin. Update it if the API subdomain changes.
 #
-# appRoot is required because amplify.yml uses the monorepo applications
-# format; it must match the appRoot there (frontend) and the
-# AMPLIFY_MONOREPO_APP_ROOT environment variable set in the Amplify Console.
+# MONOREPO SHAPE: amplify.yml uses the `applications` / `appRoot: frontend`
+# format, and monorepo custom headers use the matching nesting —
+# `applications` → `appRoot` → `customHeaders` — with the same appRoot as
+# amplify.yml and as the AMPLIFY_MONOREPO_APP_ROOT environment variable set in
+# the Amplify Console. This is the format in the AWS "Custom header YAML
+# reference" (Amplify Hosting User Guide, monorepo example), checked on
+# 2026-09-23. An earlier revision put `appRoot` on each customHeaders entry,
+# which is the CDK construct's property shape, not the file format, and would
+# have applied no headers at all.
 #
-# VERIFY AT SETUP: AWS documents that monorepo custom headers use a specific
-# YAML format. Amplify's own Console can emit a canonical customHttp.yml —
-# download it once during setup and confirm this file's shape matches before
-# relying on these headers. If appRoot is wrong the headers silently do not
-# apply, which would drop CSP and the other protections below.
+# VERIFY AT SETUP — launch gate, not optional: the Amplify Console emits a
+# canonical customHttp.yml for the app. Download it once and confirm this
+# file's nesting matches, then request / and one /assets/<hash>.js on the
+# deployed URL and confirm the headers below are present. If the shape is
+# wrong the headers silently do not apply, which drops the CSP and every other
+# protection here with a green build.
+#
+# CSP audit (2026-09-23, docs/ADR-002): every directive was checked against
+# the built site. Fonts are self-hosted under /fonts/ and /lab/fonts/
+# (font-src 'self'); the 3D scenes are procedural — no textures, models or
+# HDRIs are fetched; the Lab bundle makes no cross-origin requests and uses no
+# workers or WebAssembly; theme-boot.js is an external script (script-src
+# 'self', no 'unsafe-inline'); GSAP and React need style-src 'unsafe-inline'.
+# Known gap, pre-existing on every platform and left as-is: a signed-in user's
+# avatar (Nav.js renders user.picture from the auth provider) is blocked by
+# img-src; sign-in is the unresolved P2 item.
 
-customHeaders:
+applications:
   - appRoot: frontend
-    pattern: '**/*'
-    headers:
-      - key: X-Content-Type-Options
-        value: nosniff
-      - key: X-Frame-Options
-        value: SAMEORIGIN
-      - key: Referrer-Policy
-        value: strict-origin-when-cross-origin
-      - key: Permissions-Policy
-        value: camera=(), microphone=(), geolocation=()
-      - key: Content-Security-Policy
-        value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.hianzy.com"
+    customHeaders:
+      - pattern: '**/*'
+        headers:
+          - key: X-Content-Type-Options
+            value: nosniff
+          - key: X-Frame-Options
+            value: SAMEORIGIN
+          - key: Referrer-Policy
+            value: strict-origin-when-cross-origin
+          - key: Permissions-Policy
+            value: camera=(), microphone=(), geolocation=()
+          - key: Content-Security-Policy
+            value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; media-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; worker-src 'self' blob:; connect-src 'self' https://api.hianzy.com"
+          # Strict-Transport-Security is deliberately not set here yet: Amplify
+          # serves HTTPS only, the API already sends HSTS for api.hianzy.com, and
+          # includeSubDomains on the apex would bind every hianzy.com subdomain.
+          # Owner decision: add `max-age=31536000` (without includeSubDomains)
+          # once the apex is live on Amplify and no plain-HTTP subdomain exists.
 
-  # Immutable cache for content-hashed assets (Vite emits [hash] in filenames)
-  - appRoot: frontend
-    pattern: 'assets/**'
-    headers:
-      - key: Cache-Control
-        value: public, max-age=31536000, immutable
+      # Immutable cache for content-hashed assets (Vite emits [hash] in filenames)
+      - pattern: 'assets/**'
+        headers:
+          - key: Cache-Control
+            value: public, max-age=31536000, immutable
 
-  # Revalidate HTML every request so fresh prerendered pages are served immediately
-  - appRoot: frontend
-    pattern: '**/*.html'
-    headers:
-      - key: Cache-Control
-        value: no-cache, no-store, must-revalidate
+      # The Experience Lab's own content-hashed bundle (ADR-001) gets the same
+      # immutable policy nginx.conf.template gives /lab/assets/.
+      - pattern: 'lab/assets/**'
+        headers:
+          - key: Cache-Control
+            value: public, max-age=31536000, immutable
+
+      # Revalidate HTML every request so fresh prerendered pages are served
+      # immediately. VERIFY AT SETUP: prerendered pages are requested at clean
+      # URLs (/work, not /work.html) — confirm on the deployed URL that this
+      # pattern applies to that response; if it does not, move the HTML
+      # Cache-Control into the '**/*' entry above and re-check that the asset
+      # entries still win.
+      - pattern: '**/*.html'
+        headers:
+          - key: Cache-Control
+            value: no-cache, no-store, must-revalidate

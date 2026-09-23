@@ -3,6 +3,8 @@
 Branch: `launch/step-1`  
 Scope: repo-side work only — no AWS resources created, no DNS touched, no deployment yet.
 
+Decision record: `docs/ADR-002-aws-production-architecture.md` (Proposed, 2026-09-23). Where this file and the ADR differ, the ADR is the intended state; this file is the working notes, aligned to it.
+
 ---
 
 ## B1 — Vercel-specific code classification
@@ -10,10 +12,10 @@ Scope: repo-side work only — no AWS resources created, no DNS touched, no depl
 | Item | Classification | Rationale |
 |---|---|---|
 | `vercel.json` | **VERCEL ONLY — RETIRE before AWS deploy** | Vercel Services routing config. Not read by Amplify or App Runner. Can be deleted once the team commits to AWS. Keep in the branch for now since Vercel is still the fallback. |
-| `IS_SERVERLESS = bool(os.environ.get("VERCEL"))` in `backend/server.py:52` | **KEEP — platform-independent** | On App Runner `VERCEL` is unset → `IS_SERVERLESS=False` → seeding + background workers run normally. This is correct and desired. No code change needed. |
+| `IS_SERVERLESS = bool(os.environ.get("VERCEL"))` in `backend/server.py:52` | **KEEP — platform-independent** | On App Runner `VERCEL` is unset → `IS_SERVERLESS=False` → seeding + background workers run normally. This is correct and desired; no change to the gate. **One related change is required:** `client_ip()` (`server.py:340-354`) trusts `x-forwarded-for` only when `IS_SERVERLESS` is true, and on App Runner the container's socket peer is App Runner's own request router, so every visitor would share one rate-limit bucket (the A3 bug from LAUNCH_STATE.md, back again). Before launch, trust the **rightmost** `x-forwarded-for` hop when an explicit env flag says the service is behind App Runner — see ADR-002, "Security notes". |
 | `REACT_APP_BACKEND_URL` (frontend build var) | **KEEP — set value changes per platform** | On Vercel: unset (same-origin). On AWS Amplify: `https://api.hianzy.com`. The Vite `envPrefix` already handles this var. No code change needed. |
 | `backend/Dockerfile` | **KEEP — already App Runner compatible** | Python 3.12-slim, non-root user, port 8000, `uvicorn server:app --host 0.0.0.0 --port 8000`. Satisfies App Runner requirements. |
-| `/api/health` endpoint | **KEEP — already suitable for App Runner health check** | Pings DB, returns `{"status":"ok","db":"connected"}` or 503. App Runner checks `/api/health` on port 8000. |
+| `/api/health` endpoint | **KEEP — already suitable for App Runner health check** | Pings DB, returns `{"status":"ok","db":"connected"}` (200) or raises 503 with body `{"detail":"Database unavailable"}`. App Runner checks `/api/health` on port 8000. |
 | `backend/.env.example` | **KEEP as local/Docker reference** | Created `backend/.env.aws.example` for production AWS values. |
 
 ---
@@ -25,7 +27,7 @@ File created: `amplify.yml` (repo root).
 Key points:
 - Uses Amplify's monorepo `applications` / `appRoot: frontend` format, because the app lives in `frontend/` rather than the repo root. Amplify then runs every command from inside `frontend/` and resolves artifact paths relative to it, so each path matches `vercel.json`'s frontend service 1:1.
 - Installs Node 22 via `nvm install 22` before `npm ci`.
-- `npm run build` triggers all npm lifecycle hooks automatically: `prebuild` (opacity/SEO/sitemap checks), `build` (Vite), `postbuild` (56 prerendered HTML pages via `prerender-metadata.cjs`).
+- `npm run build` triggers all npm lifecycle hooks automatically: `prebuild` (opacity/SEO/sitemap checks), `build` (Vite), `postbuild` (76 prerendered HTML pages plus `404.html` via `prerender-metadata.cjs`; the count follows the content — 13 static pages, 6 service categories, 16 disciplines, 6 Orbit routes, 5 case studies, 30 insights).
 - Copies `lab/` → `build/lab/` explicitly (Vercel handled this in its `buildCommand`).
 - `baseDirectory: build` — relative to `appRoot`, so Amplify serves `frontend/build/`.
 
@@ -34,8 +36,19 @@ Key points:
 **Amplify build environment variables (set in Amplify Console, not committed):**
 ```
 AMPLIFY_MONOREPO_APP_ROOT=frontend      # REQUIRED — must equal appRoot
-REACT_APP_BACKEND_URL=https://api.hianzy.com
+REACT_APP_BACKEND_URL=https://api.hianzy.com   # the App Runner service's public origin (see B4 and B14 for the order)
+SITE_URL=https://hianzy.com             # optional — already the default in both build scripts
+# LOCAL_API_URL must NOT be set: prerender-metadata.cjs prefers it over REACT_APP_BACKEND_URL
 ```
+
+> `REACT_APP_BACKEND_URL` is read twice: Vite bakes it into the bundle, and
+> `scripts/prerender-metadata.cjs` / `scripts/generate-sitemap.js` fetch
+> `/api/case-studies` and `/api/insights` from it at build time. The API must
+> therefore be deployed, public and healthy **before** the site is built, and the
+> build log must show `metadata: generated 76 public HTML pages` and must not show
+> `using the checked-in public content snapshot` — otherwise the build silently
+> prerendered from the checked-in snapshot (ADR-002, "Build-time content
+> dependency").
 
 > **`AMPLIFY_MONOREPO_APP_ROOT` is not optional.** AWS requires it to hold the
 > same value as `appRoot`. The Console sets it for you when you specify the app
@@ -48,9 +61,13 @@ REACT_APP_BACKEND_URL=https://api.hianzy.com
 `customHttp.yml` lives at the repo root, is read automatically, and overrides
 anything configured in the Console's Custom headers section.
 
-Because `amplify.yml` uses the monorepo `applications` format, each entry in
-`customHttp.yml` also carries an `appRoot: frontend` key matching the build
-spec. AWS documents that monorepo custom headers use a specific YAML format.
+Because `amplify.yml` uses the monorepo `applications` format, `customHttp.yml`
+uses the matching nesting — `applications:` → `appRoot: frontend` →
+`customHeaders:` — with the same `appRoot` as the build spec and as the
+`AMPLIFY_MONOREPO_APP_ROOT` variable. (An earlier revision put `appRoot` on
+each `customHeaders` entry, which is the CDK construct's property shape rather
+than the file format.) AWS documents that monorepo custom headers use a
+specific YAML format.
 
 > **Verify at setup:** download the canonical `customHttp.yml` from the Amplify
 > Console once during setup and confirm the committed file's shape matches. If
@@ -61,52 +78,62 @@ spec. AWS documents that monorepo custom headers use a specific YAML format.
 
 ## B3 — SPA + prerender routing on Amplify
 
-The site generates 56 prerendered `.html` files at build time (e.g. `build/work.html`, `build/network/strategy.html`). Amplify must serve these at their clean URLs (e.g. `/work` → `build/work.html`).
+The site generates 76 prerendered `.html` files at build time (e.g. `build/work.html`, `build/network/strategy.html`, `build/insights/<slug>.html`) plus `build/404.html`. Amplify must serve these at their clean URLs (e.g. `/work` → `build/work.html`) and fall back to the SPA shell only for a path that has no file — a database-only article published between builds, for example.
 
-> ### ⚠ HIGH RISK — a naive SPA catch-all will silently destroy the prerendering
+> ### ⚠ HIGH RISK — Amplify's documented SPA catch-all silently destroys the prerendering
 >
-> The usual Amplify SPA rule rewrites every extensionless path to
-> `/index.html` with a 200. AWS documents that **"redirects are applied from
-> the top of the list down"** and that a broad rule placed first shadows any
-> more specific rule after it.
->
-> So a blanket catch-all matches `/work` and serves the generic SPA shell
-> **instead of the prerendered `work.html`**. The page still looks correct to a
-> human — React hydrates and renders — but crawlers get the shell's generic
-> `<title>` and meta tags. All 56 prerendered pages would lose their SEO
-> metadata, with no error anywhere to signal it.
->
-> Ordering is therefore load-bearing: clean-URL → `.html` resolution must win
-> **before** any catch-all, and the catch-all must be genuinely last.
+> The usual Amplify SPA rule rewrites every extensionless path to `/index.html`
+> with a 200 — source
+> `</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp|avif)$)([^.]+$)/>`,
+> target `/index.html`, type `200`. It matches `/work` and serves the generic SPA
+> shell **instead of the prerendered `work.html`**. The page still looks correct
+> to a human — React hydrates and renders — but crawlers get the shell's generic
+> `<title>` and meta tags. All 76 prerendered pages would lose their SEO
+> metadata, with no error anywhere to signal it. **Do not add that rule.**
 
 **Owner Action — Amplify Console → App → Rewrites and redirects.**
 
-Order matters; the catch-all goes last:
+Exactly one rule (delete anything Amplify pre-populated):
 
 | # | Source | Target | Type | Purpose |
 |---|---|---|---|---|
-| 1 | *(clean-URL resolution — see below)* | `/<path>.html` | 200 | serve the prerendered page |
-| 2 | `</^[^.]+$|\.(?!(css\|gif\|ico\|jpg\|js\|png\|txt\|svg\|woff\|woff2\|ttf\|map\|json\|webp\|avif)$)([^.]+$)/>` | `/index.html` | 200 | SPA fallback for anything with no prerendered file |
+| 1 | `/<*>` | `/index.html` | `404-200` | Rewrite only when no real file exists — the prerendered pages, `/lab/`, `sitemap.xml`, `robots.txt` and hashed assets are served first; a genuinely unknown path gets the SPA shell |
 
-**Verify empirically at setup — do not assume.** Amplify may resolve `/work` to
-`work.html` natively, in which case rule 1 is unnecessary and only rule 2 is
-needed. That behavior decides whether rule 1 is required at all, so test it
-rather than guessing:
+Type `404-200` is what makes this safe: unlike a type `200` catch-all it is
+applied only after Amplify fails to find a file, so it cannot shadow anything
+that was built. A plain `404` → `/404.html` rule is deliberately *not* used:
+an insight or case study published only in the database between builds has no
+prerendered file yet and must still load as a 200 through the shell until the
+next build.
 
-1. Deploy to the temporary Amplify URL with only rule 2 configured.
+**Verify empirically at setup — this is a launch gate.** The rule above relies
+on Amplify answering the clean URL `/work` with the file `work.html` before the
+fallback runs. Test it rather than assuming it:
+
+1. Deploy to the temporary Amplify URL with only rule 1 configured.
 2. Request a prerendered deep link directly, e.g. `/work`, and **view source**
    (not DevTools' rendered DOM, which shows post-hydration output either way).
 3. The raw HTML must contain the page's own prerendered `<title>` —
    `Work | Proof, With Context | hiAnzy`. If it shows the generic shell title
-   instead, the catch-all is shadowing the prerendered file and rule 1 is
-   required ahead of it.
-4. Re-test at least one nested route (`/network/strategy`) and the Experience
-   Lab (`/lab/`).
+   instead, the fallback is answering before the file; the fix is not a regex
+   rule but moving the static tier to S3 + CloudFront with a CloudFront
+   Function that reproduces nginx's `try_files $uri $uri.html $uri/`
+   (ADR-002, Option B).
+4. Re-test a nested route (`/network/strategy`), a database-backed route
+   (`/insights/<slug>` taken from `build/route-metadata.json`), the Experience
+   Lab (`/lab/`), `/sitemap.xml` (must come back as XML, not HTML), and an
+   unknown path (must render the not-found page).
+5. Run `python scripts/check_raw_metadata.py --base https://<amplify-url>` —
+   the same check CI runs against `vite preview`, for every route in
+   `build/route-metadata.json`.
+6. Check `Cache-Control` on the `/work` response: `customHttp.yml`'s
+   `**/*.html` pattern is written for the file name, and the request is a clean
+   URL; if the header is missing, move the HTML cache rule into the `**/*` entry.
 
 This check is the difference between shipping working SEO and silently losing
 it on every page, so treat it as a launch gate, not a nice-to-have.
 
-**Note on `/lab/` subdirectory:** The `cp -r frontend/lab frontend/build/lab` in `amplify.yml` ensures the Experience Lab static bundle is in the artifact. Amplify serves it as a normal subdirectory.
+**Note on `/lab/` subdirectory:** The `cp -r lab build/lab` in `amplify.yml` ensures the Experience Lab static bundle is in the artifact. Amplify serves it as a normal subdirectory; `/lab/` must resolve to `build/lab/index.html`, which step 4 above checks.
 
 ---
 
@@ -117,7 +144,7 @@ it on every page, so treat it as a launch gate, not a nice-to-have.
 Current code: `const BASE = import.meta.env.REACT_APP_BACKEND_URL || ""` (in `frontend/src/lib/api.js`).
 
 - Vercel: `REACT_APP_BACKEND_URL` unset → `BASE=""` → all calls go to `/api/...` (same-origin via Vercel Services routing).
-- AWS Amplify + App Runner: set `REACT_APP_BACKEND_URL=https://api.hianzy.com` in the Amplify build environment → `BASE="https://api.hianzy.com"` → calls go to `https://api.hianzy.com/api/...`.
+- AWS Amplify + App Runner: set `REACT_APP_BACKEND_URL=https://api.hianzy.com` in the Amplify build environment → `BASE="https://api.hianzy.com"` → calls go to `https://api.hianzy.com/api/...`. The same variable feeds `scripts/prerender-metadata.cjs` and `scripts/generate-sitemap.js` at build time (B2), so the API must be live at that origin before the site builds.
 
 The `vite.config.mjs` already has `envPrefix: ['VITE_', 'REACT_APP_']` so the existing variable name is forwarded to the bundle. No migration to `VITE_API_BASE_URL` is needed.
 
@@ -132,13 +159,20 @@ The `vite.config.mjs` already has `envPrefix: ['VITE_', 'REACT_APP_']` so the ex
 - CMD: `uvicorn server:app --host 0.0.0.0 --port 8000` ✓
 - Health check wired to `/api/health` in Dockerfile ✓
 
-App Runner configuration (Owner Action — set in App Runner Console or `apprunner.yaml`):
+App Runner configuration (Owner Action — set in the App Runner Console; no `apprunner.yaml` is committed because the service deploys from an ECR image, not from source):
 ```
 Port: 8000
-Health check: /api/health
-Health check protocol: HTTP
-Environment variables: see backend/.env.aws.example
+Health check: HTTP /api/health — interval 10 s, timeout 5 s, unhealthy threshold 5, healthy threshold 1
+Instance: 1 vCPU / 2 GB; auto scaling min 1, max 1 at launch (per-process rate limiter, single notification worker)
+Outbound: VPC connector → NAT Gateway with an Elastic IP (the address on the Atlas allow-list, see B15)
+Environment variables: see backend/.env.aws.example (secrets referenced from Secrets Manager)
 ```
+
+> App Runner does not act on the image's `HEALTHCHECK` instruction; the health
+> check configured on the service is the one that matters. App Runner throttles
+> the CPU of an idle instance, so the 30 s notification retry loop only
+> progresses while requests are in flight — delivery state is durable in Mongo,
+> so nothing is lost, a retry just waits for the next visitor.
 
 ---
 
@@ -151,7 +185,7 @@ Environment variables: see backend/.env.aws.example
 | Base image is a standard Linux distribution | ✓ python:3.12-slim |
 | Listens on a single well-known port | ✓ 8000 |
 | Process runs as non-root | ✓ appuser (uid 10001) |
-| Entrypoint is a single long-running process | ✓ uvicorn (WSGI gateway, stays alive) |
+| Entrypoint is a single long-running process | ✓ uvicorn (ASGI server, stays alive) |
 | Health check endpoint exists | ✓ /api/health → 200 or 503 |
 | No build-time secrets | ✓ secrets are runtime env vars |
 
@@ -212,10 +246,10 @@ COOKIE_SAMESITE=none
 
 `GET /api/health` is already implemented and correct for App Runner:
 - Returns `{"status":"ok","db":"connected"}` → HTTP 200 when MongoDB is reachable.
-- Returns `{"status":"error","db":"unreachable"}` → HTTP 503 when MongoDB is down.
-- No auth required (public endpoint).
+- Raises `HTTPException(503, detail="Database unavailable")` → HTTP 503 with body `{"detail":"Database unavailable"}` when MongoDB is down (after the 5 s server-selection timeout).
+- No auth required (public endpoint). `GET /api/` answers without touching the database and is the liveness probe for uptime monitors.
 
-App Runner will mark the service unhealthy if health checks return 503 for the configured threshold — this is the desired behavior (don't serve traffic if DB is unreachable).
+App Runner will mark the service unhealthy if health checks fail for the configured threshold — with interval 10 s and unhealthy threshold 5 that is ≈ 50 s of database unavailability before an instance is replaced. This is the desired behavior (don't serve traffic if DB is unreachable), with one accepted cost: seeding is on the startup path, so a replacement started during a database outage fails to start and App Runner keeps retrying until Atlas returns (ADR-002, "Health and readiness").
 
 ---
 
@@ -223,13 +257,13 @@ App Runner will mark the service unhealthy if health checks return 503 for the c
 
 Seeding is already correct for App Runner. No change needed.
 
-`IS_SERVERLESS` is `False` on App Runner → `seed()` runs in the `lifespan` startup context → idempotent upserts on every container start.
+`IS_SERVERLESS` is `False` on App Runner → `seed()` runs in the `lifespan` startup context → idempotent upserts (113 documents across five collections at the time of writing) on every container start — every deployment and every instance replacement included.
 
-For explicit re-seeding (e.g. after adding new content to `seed_data.py`):
+For explicit re-seeding (e.g. after adding new content to `seed_data.py`) there is no App Runner "task" and `aws apprunner start-deployment` takes no command override — it only redeploys the service. Either redeploy (the new container seeds itself on start), or run
 ```bash
 python backend/manage.py seed
 ```
-This can be run as an App Runner task or a one-off `aws apprunner start-deployment` with an override command. Do NOT set up automatic seeding on every deploy as a CI step — the container's own startup handles it.
+from an operator machine whose address is on the Atlas allow-list, with `MONGO_URL` / `DB_NAME` pointed at the production database. Do NOT set up automatic seeding on every deploy as a CI step — the container's own startup handles it.
 
 ---
 
@@ -257,22 +291,25 @@ This can be run as an App Runner task or a one-off `aws apprunner start-deployme
 ### Frontend (Amplify Hosting)
 1. Amplify Console → Connect repository → GitHub → select `main` branch.
 2. Amplify detects `amplify.yml` at the repo root and uses it automatically.
-3. Set build environment variable: `REACT_APP_BACKEND_URL=https://api.hianzy.com`.
+3. Set build environment variables: `AMPLIFY_MONOREPO_APP_ROOT=frontend`, `REACT_APP_BACKEND_URL=https://api.hianzy.com` — the API must already be live at that origin (B14 order) — and, optionally, `SITE_URL=https://hianzy.com`. Never `LOCAL_API_URL`.
 4. Every push to `main` triggers an Amplify build and deploy.
 5. Custom domain: connect `hianzy.com` and `www.hianzy.com` in Amplify Console (see B14).
 
 ### Backend (App Runner)
-1. App Runner Console → Create service → Source: Container registry OR GitHub source.
-   - **Option A (recommended):** ECR — build Docker image in CI, push to ECR, App Runner pulls from ECR.
-   - **Option B:** App Runner GitHub source — App Runner builds and runs the Dockerfile directly from the `backend/` directory.
-2. Set all env vars from `backend/.env.aws.example` (secrets via Secrets Manager).
-3. Health check path: `/api/health`, port `8000`.
-4. Custom domain: `api.hianzy.com` (see B14).
+1. App Runner Console → Create service → Source: **Container registry (ECR)**.
+   - Build the image from `backend/Dockerfile` in CI (GitHub Actions with an OIDC role) or, for the first deploy, from a workstation; push it to ECR as `hianzy-api:<git-sha>` and `hianzy-api:prod`; App Runner deploys from `:prod` with automatic deployments.
+   - App Runner's "source code repository" option is **not** a Dockerfile deploy: it builds with a managed runtime from an `apprunner.yaml`, which would replace the CI-tested `python:3.12-slim` image with whatever Python the managed runtime offers. Not used.
+2. Set all env vars from `backend/.env.aws.example` (secrets referenced from Secrets Manager; the instance role needs `secretsmanager:GetSecretValue` on them).
+3. Health check: HTTP, path `/api/health`, port `8000` (thresholds in B5).
+4. Outbound traffic through the VPC connector + NAT Gateway (B15).
+5. Custom domain: `api.hianzy.com` (see B14).
 
 ### CI check (existing `.github/workflows/check.yml`)
-Existing GitHub Actions pipeline runs on push: pytest + frontend lint/test/build.  
-This pipeline continues to run as a gate before any merge to `main`.  
-No AWS-specific CI steps are needed for the source-based deploy flows above.
+Existing GitHub Actions pipeline runs on push: pytest + frontend lint/test/build.
+This pipeline continues to run as a gate before any merge to `main`.
+No AWS-specific CI steps are needed for the Amplify flow; the ECR image build for App Runner is a new, separate workflow (ADR-002, Owner actions).
+
+**Currently red:** `scripts/check_frontend_lock.py` fails against the stale `docs/frontend-source-lock.json` (LAUNCH_STATE.md, FINAL INDEPENDENT AUDIT, B-1/B-2). Until the lock is reviewed and regenerated — and generated files such as `frontend/public/sitemap.xml` and `frontend/scripts/content-snapshot.json` are excluded from it — CI is not a gate.
 
 ---
 
@@ -287,14 +324,15 @@ This section documents what the owner must configure after AWS resources exist.
 | `api.hianzy.com` | App Runner | App Runner Console → Custom domain → Add `api.hianzy.com` → validate via CNAME |
 
 **DNS records to add (at your registrar or Route 53):**
-- Amplify provides specific CNAME/ANAME records during the domain verification flow.
-- App Runner provides a CNAME target for `api.hianzy.com`.
-- Do not set these until Amplify and App Runner services are live and healthy.
+- App Runner provides a CNAME target plus certificate-validation CNAMEs for `api.hianzy.com`.
+- Amplify provides specific CNAME/ANAME records during the domain verification flow for `hianzy.com` and `www`.
 
-**Do NOT touch DNS until:**
-1. Amplify build succeeds and the Amplify-provided URL renders the site correctly.
-2. App Runner service is healthy (`/api/health` returns 200 from the App Runner URL).
-3. End-to-end smoke test passes against the temporary URLs.
+**Order (ADR-002) — the API record goes first, the visitor-facing records last:**
+1. App Runner service is healthy on its default `*.awsapprunner.com` URL (`/api/health` returns 200).
+2. Attach `api.hianzy.com` to App Runner. This record is not visitor-facing, so it can go before the smoke test; it lets the Amplify build bake the final API origin and lets `customHttp.yml`'s `connect-src` stay `https://api.hianzy.com` with no temporary origin.
+3. Amplify build succeeds and the Amplify-provided URL renders the site with real content (the B3 gate passes) while `CORS_ORIGINS` temporarily also lists the `*.amplifyapp.com` origin.
+4. End-to-end smoke test passes against the Amplify URL (contact form, subscribe confirmation, `/lab/`, `/sitemap.xml`).
+5. Only then attach `hianzy.com` and `www.hianzy.com` to Amplify, remove the temporary origin from `CORS_ORIGINS`, and disconnect Vercel so both platforms do not build the same pushes.
 
 ---
 
@@ -305,11 +343,11 @@ A production MongoDB Atlas cluster is required. The local Docker Mongo is for de
 **Steps (all Owner Actions):**
 1. Create a MongoDB Atlas account (or use the existing one).
 2. Create a new project: `hianzy-production`.
-3. Create a cluster (M10 minimum for production reliability; M0/M2 free tier for staging).
+3. Create a cluster in the same region as App Runner (M0 or Flex only for the smoke test; a dedicated tier such as M10 for production reliability — verify current Atlas pricing).
 4. Create a database user with read/write access to the `hianzy` database.
-5. Allow App Runner egress IP ranges in the Atlas network access list. (App Runner's egress IPs are announced at deploy time; use a VPC + NAT Gateway with static IPs for a stable allowlist, or allow the App Runner service's outbound IPs from the console.)
+5. Network access: App Runner's default public egress has **no static IP**, so an allow-list is impossible without VPC egress. ADR-002 routes the service through a VPC connector and a NAT Gateway with an Elastic IP; allow only that address. Do not allow `0.0.0.0/0`.
 6. Get the Atlas connection string: `mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/`
-7. Store it in AWS Secrets Manager as `hianzy/mongo-url`.
+7. Store it in AWS Secrets Manager as `hianzy/prod/MONGO_URL`.
 8. Reference the secret in the App Runner service definition.
 9. On first deploy, verify `/api/health` returns `{"status":"ok","db":"connected"}`.
 10. Atlas data — the first App Runner startup seeds the database automatically via `seed()` in the lifespan hook.
@@ -326,6 +364,7 @@ A production MongoDB Atlas cluster is required. The local Docker Mongo is for de
 | `customHttp.yml` | Created | B2 — Security headers for Amplify (replaces vercel.json headers, updates CSP connect-src) |
 | `backend/.env.aws.example` | Created | B7 — Production env variable reference for App Runner |
 | `AWS_PREP.md` | Created | B1–B15 documentation |
+| `docs/ADR-002-aws-production-architecture.md` | Created (later) | Decision record: options, decision, env contract, owner actions |
 
-**No code changes to `backend/server.py`, `frontend/` source, or any existing env files.**  
-The existing architecture is AWS-compatible without modification; only configuration values change.
+**No code changes to `backend/server.py`, `frontend/` source, or any existing env files in this phase.**
+The existing architecture is AWS-compatible with configuration-only changes, plus one small backend change now known to be required before launch — `client_ip()` behind App Runner (B1) — which is tracked in ADR-002 and deliberately not made here.
