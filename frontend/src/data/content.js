@@ -713,7 +713,11 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Collaborators & specialists",
     copy: "Specialist expertise shaped around the project.",
     seoDescription: "Independent specialists in the hiAnzy network — real capabilities and relationships, labelled honestly, not staff.",
-    route: "/network/collaborators",
+    // Absorbed into the Network hub (docs/IA_CONSOLIDATION_AUDIT.md), like
+    // the three rosters after it; legacyRoute is the retired standalone URL.
+    route: "/network#collaborators",
+    anchor: "collaborators",
+    legacyRoute: "/network/collaborators",
   },
   {
     num: "04",
@@ -722,7 +726,9 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Artists & creators",
     copy: "Sometimes the right message needs the right messenger.",
     seoDescription: "Artists and creators the network can bring in when a project needs a real voice, not just reach.",
-    route: "/network/artists-creators",
+    route: "/network#creators",
+    anchor: "creators",
+    legacyRoute: "/network/artists-creators",
   },
   {
     num: "05",
@@ -734,7 +740,9 @@ export const ORBIT_CATEGORIES = [
     // Not /network/venues — that slug is already the Events & Venue
     // Production discipline page (see disciplines.js). This is a roster of
     // partner venues, a different thing from that capability page.
-    route: "/network/venue-partners",
+    route: "/network#venues",
+    anchor: "venues",
+    legacyRoute: "/network/venue-partners",
   },
   {
     num: "06",
@@ -743,7 +751,9 @@ export const ORBIT_CATEGORIES = [
     descriptor: "Media, production & strategic partners",
     copy: "When the work needs to travel, scale or get specialised.",
     seoDescription: "Media, production and strategic partners the network can activate when a project needs to scale or travel.",
-    route: "/network/partners",
+    route: "/network#partners",
+    anchor: "partners",
+    legacyRoute: "/network/partners",
   },
 ];
 
